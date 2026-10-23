@@ -69,11 +69,11 @@ async function changePassword(req, env) {
   await env.CONTENT.put("auth", JSON.stringify({ user: auth.user, salt, hash: await pbkdf2(pass, salt), mustChange: false }));
   return json({ ok: true });
 }
-// Text may only carry <strong> and <span>; everything else is escaped. Links must be http(s).
+// Text may only carry <strong>, <span> and filter marks <mark data-f="p|d|pd">; everything else is escaped. Links must be http(s).
 function clean(v, key) {
   if (typeof v === "string") {
     if (key === "url") return /^https?:\/\/[^\s"'<>]+$/i.test(v) ? v : "#";
-    return v.replace(/<(?!\/?(strong|span)>)/gi, "&lt;").slice(0, 2000);
+    return v.replace(/<(?!\/?(strong|span|mark)>|mark data-f="(p|d|pd)">)/gi, "&lt;").slice(0, 2000);
   }
   if (Array.isArray(v)) return v.slice(0, 100).map(x => clean(x));
   if (v && typeof v === "object") { const o = {}; for (const k of Object.keys(v).slice(0, 50)) o[k] = clean(v[k], k); return o }

@@ -27,8 +27,8 @@ const NEW={
  "hero.stats":()=>({b:L("New","Nou"),s:L("label","etichetă")}),
  "services.items":()=>({icon:"star",title:L("New service","Serviciu nou"),text:L("Short description.","Descriere scurtă."),chips:[L("Tool","Instrument")]}),
  "services.items.*.chips":()=>L("Tool","Instrument"),
- "exp.jobs":()=>({when:L("2026 – present","2026 – prezent"),dur:L(""),role:L("Role","Rol"),co:L("Company","Companie"),place:L("City","Oraș"),f:"pd",items:[{f:"pd",t:L("What you did.","Ce ai făcut.")}]}),
- "exp.jobs.*.items":p=>({f:get(p.replace(/\.items$/,"")).f,t:L("What you did.","Ce ai făcut.")}),
+ "exp.jobs":()=>({when:L("2026 – present","2026 – prezent"),dur:L(""),role:L("Role","Rol"),co:L("Company","Companie"),place:L("City","Oraș"),items:[{t:L("What you did.","Ce ai făcut.")}]}),
+ "exp.jobs.*.items":()=>({t:L("What you did.","Ce ai făcut.")}),
  "exp.edu.items":()=>({b:L("School","Școală"),s:L("Field · years","Domeniu · ani")}),
  "exp.langs.items":()=>({b:L("Language","Limbă"),s:L("Level","Nivel")}),
  "exp.tools.chips":()=>L("Tool","Instrument"),
@@ -52,6 +52,7 @@ function clean(html){
     if(tag==="br")return "";
     if(tag==="strong"||tag==="b")return "<strong>"+walk(c)+"</strong>";
     if(tag==="span")return "<span>"+walk(c)+"</span>";
+    if(tag==="mark"){const f=c.getAttribute("data-f");return /^(p|d|pd)$/.test(f)?`<mark data-f="${f}">${walk(c)}</mark>`:walk(c)}
     return walk(c);
   }).join("");
   return walk(t.content).replace(/ /g," ").trim();
@@ -98,20 +99,21 @@ function renderServices(){return sec("services",()=>{const s=STATE.services;retu
 </div></section>`})}
 function renderExp(){return sec("experience",()=>{const x=STATE.exp,editingNow=ed();
   const jobs=x.jobs.map((j,i)=>{
-    const dimJob=!editingNow&&lens!=="all"&&!j.f.includes(lens);
+    const lensing=!editingNow&&lens!=="all";
+    const dimJob=lensing&&!j.items.some((it,k)=>hasMark(txt(`exp.jobs.${i}.items.${k}.t`),lens));
     return `<article class="card job has-x${dimJob?" dim":""}">${X(`exp.jobs.${i}`,true)}
       <div class="when">${E("span",`exp.jobs.${i}.when`)}<small>${E("span",`exp.jobs.${i}.dur`)}</small></div>
       <div class="job-body">${E("h3",`exp.jobs.${i}.role`)}
         <div class="co">${E("span",`exp.jobs.${i}.co`,"co-name")} <span>· ${E("span",`exp.jobs.${i}.place`)}</span></div>
-        <ul>${j.items.map((it,k)=>`<li class="${!editingNow&&lens!=="all"&&!it.f.includes(lens)?"dim":""}">${E("span",`exp.jobs.${i}.items.${k}.t`)}${X(`exp.jobs.${i}.items.${k}`)}</li>`).join("")}</ul>
-        ${editingNow?`<div class="ff"><label><input type="checkbox" data-ff="exp.jobs.${i}" value="p"${j.f.includes("p")?" checked":""}> ${u("photo")}</label><label><input type="checkbox" data-ff="exp.jobs.${i}" value="d"${j.f.includes("d")?" checked":""}> ${u("design")}</label>${ADD(`exp.jobs.${i}.items`)}</div>`:""}
+        <ul>${j.items.map((it,k)=>`<li>${lensing&&!dimJob?`<span>${lensify(txt(`exp.jobs.${i}.items.${k}.t`),lens)}</span>`:E("span",`exp.jobs.${i}.items.${k}.t`)}${X(`exp.jobs.${i}.items.${k}`)}</li>`).join("")}</ul>
+        ${editingNow?`<div class="ff">${ADD(`exp.jobs.${i}.items`)}</div>`:""}
       </div></article>`}).join("");
   const list=(key)=>`<ul>${x[key].items.map((it,i)=>`<li>${E("b",`exp.${key}.items.${i}.b`)}${E("span",`exp.${key}.items.${i}.s`)}${X(`exp.${key}.items.${i}`)}</li>`).join("")}</ul>${ADD(`exp.${key}.items`)}`;
   return `<section id="experience" style="background:var(--surface-2);border-block:1px solid var(--border)"><div class="wrap sec-wrap">${EDITBTN("experience")}
   <div class="sec-head"><div>${E("p","exp.eyebrow","eyebrow")}${E("h2","exp.title")}</div>${E("p","exp.intro")}</div>
   <div class="tabs" role="tablist" aria-label="Experience field">${["all","p","d"].map(k=>`<button class="tab" role="tab" data-lens="${k}" aria-selected="${lens===k}">${x.tabs[k][lang]}</button>`).join("")}</div>
   <p class="lens-note">${x.notes[lens][lang]}</p>
-  ${editingNow?`<div style="margin-bottom:14px">${ADD("exp.jobs")}</div>`:""}
+  ${editingNow?`<div class="hl-help"><span>${lang==="ro"?"Selectează cuvinte dintr-o realizare ca să le marchezi pentru un filtru:":"Select words in a bullet to mark them for a filter:"}</span><mark data-f="p">${x.tabs.p[lang]}</mark><mark data-f="d">${x.tabs.d[lang]}</mark><mark data-f="pd">${lang==="ro"?"Ambele":"Both"}</mark></div><div style="margin-bottom:14px">${ADD("exp.jobs")}</div>`:""}
   <div class="jobs"${editingNow?"":` data-lens="${lens}"`}>${jobs}</div>
   <div class="edu-grid">
     <div class="card">${E("h3","exp.edu.title")}${list("edu")}</div>
@@ -131,7 +133,7 @@ function renderContact(){return sec("contact",()=>{const c=STATE.contact,e=ed();
       <div class="rows">
         ${c.rows.map((r,i)=>`<div class="row">${E("span",`contact.rows.${i}.k`,"k")}${E("span",`contact.rows.${i}.v`,"v",r.copy?'data-copysrc="1"':"")}${r.copy&&!e?`<button class="copy" type="button" data-copy="contact.rows.${i}.v">${u("copy")}</button>`:""}${X(`contact.rows.${i}`)}</div>`).join("")}
         <div class="row"><span class="k">Social</span>${c.social.map((s,i)=>e?`<span style="display:grid;gap:2px">${E("span",`contact.social.${i}.label`)}<span class="url" data-url="contact.social.${i}.url" contenteditable="true" spellcheck="false">${escT(s.url)}</span></span>${X(`contact.social.${i}`)}`:`<a href="${escA(safeUrl(s.url))}" target="_blank" rel="noopener">${txt(`contact.social.${i}.label`)}</a>`).join("")}${ADD("contact.social")}</div>
-        <div class="row"><span class="k">CV</span><a href="/cv/${lang}.pdf" download="CV-Daniel-Lupu-${lang.toUpperCase()}.pdf">${lang==="ro"?"Descarcă CV (PDF)":"Download CV (PDF)"}</a>${e?["ro","en"].map(l=>`<label class="add" style="cursor:pointer">${lang==="ro"?"Înlocuiește CV":"Replace CV"} ${l.toUpperCase()}<input type="file" accept="application/pdf" data-cv="${l}" hidden></label>`).join(""):""}<span class="url" id="cv-status"></span></div>
+        <div class="row"><span class="k">CV</span><a href="/cv/${lang}.pdf" download="CV-Daniel-Lupu-${lang.toUpperCase()}.pdf">${lang==="ro"?"Descarcă CV (PDF)":"Download CV (PDF)"}</a>${e?`<span class="url">${lang==="ro"?"Se actualizează automat la salvare":"Updates automatically on save"}</span>`:""}</div>
         ${ADD("contact.rows")}
       </div>
     </div>
@@ -156,6 +158,52 @@ function setText(path,val){
   markDirty();
 }
 
+// filter highlights: <mark data-f="p|d|pd"> inside experience bullets
+const MARK_RE=/<mark data-f="(p|d|pd)">[\s\S]*?<\/mark>/g;
+const hasMark=(html,l)=>[...String(html).matchAll(MARK_RE)].some(x=>x[1].includes(l));
+function lensify(html,l){
+  return String(html).split(/(<mark data-f="(?:p|d|pd)">[\s\S]*?<\/mark>)/).map(seg=>{
+    if(!seg)return "";
+    const mk=seg.match(/^<mark data-f="(p|d|pd)">/);
+    if(mk&&mk[1].includes(l))return seg.replace("<mark ",'<mark class="on" ');
+    return `<span class="soft">${seg}</span>`;
+  }).join("");
+}
+// older content tagged whole bullets with f: turn those into marks once
+(function migrate(){
+  STATE.exp.jobs.forEach(j=>{j.items.forEach(it=>{
+    if(it.f&&!/<mark /.test(JSON.stringify(it.t)))for(const l of ["en","ro"])if(it.t[l])it.t[l]=`<mark data-f="${it.f}">${it.t[l]}</mark>`;
+    delete it.f});delete j.f});
+})();
+const pop=document.createElement("div");pop.className="hl-pop";pop.hidden=true;document.body.appendChild(pop);
+function hlTarget(){
+  const s=getSelection();if(!admin||!s.rangeCount||s.isCollapsed)return null;
+  const r=s.getRangeAt(0),host=n=>(n.nodeType===1?n:n.parentElement)?.closest('[contenteditable="true"][data-p^="exp.jobs."][data-p$=".t"]');
+  const el=host(r.startContainer);if(!el||el!==host(r.endContainer)||!r.toString().trim())return null;
+  return {el,r};
+}
+function showPop(){
+  const t=hlTarget();if(!t){pop.hidden=true;return}
+  const X=STATE.exp.tabs;
+  pop.innerHTML=`<button type="button" data-hl="p">${X.p[lang]}</button><button type="button" data-hl="d">${X.d[lang]}</button><button type="button" data-hl="pd">${lang==="ro"?"Ambele":"Both"}</button><button type="button" data-hl="">${lang==="ro"?"Fără marcaj":"No mark"}</button>`;
+  pop.hidden=false;
+  const rc=t.r.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;
+  let top=rc.top-h-8;if(top<80)top=rc.bottom+8;
+  pop.style.top=top+"px";pop.style.left=Math.max(8,Math.min(innerWidth-w-8,rc.left+rc.width/2-w/2))+"px";
+}
+const unwrap=mk=>{mk.replaceWith(...mk.childNodes)};
+pop.addEventListener("mousedown",e=>e.preventDefault());
+pop.addEventListener("click",e=>{
+  const b=e.target.closest("[data-hl]");const t=hlTarget();if(!b||!t)return;
+  const {el,r}=t,f=b.dataset.hl;
+  el.querySelectorAll("mark").forEach(mk=>{if(r.intersectsNode(mk))unwrap(mk)});
+  if(f){const frag=r.extractContents();frag.querySelectorAll("mark").forEach(unwrap);const mk=document.createElement("mark");mk.setAttribute("data-f",f);mk.appendChild(frag);r.insertNode(mk)}
+  el.normalize();getSelection().removeAllRanges();pop.hidden=true;
+  setText(el.dataset.p,clean(el.innerHTML));
+});
+let popT=0;document.addEventListener("selectionchange",()=>{clearTimeout(popT);popT=setTimeout(showPop,120)});
+addEventListener("scroll",()=>{if(!pop.hidden)showPop()},{passive:true});
+
 // events
 app.addEventListener("input",e=>{
   const el=e.target.closest("[data-p],[data-url]");if(!el)return;
@@ -164,21 +212,6 @@ app.addEventListener("input",e=>{
 });
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.isContentEditable){e.preventDefault();e.target.blur()}});
 app.addEventListener("paste",e=>{if(!e.target.closest('[contenteditable="true"]'))return;e.preventDefault();document.execCommand("insertText",false,(e.clipboardData||window.clipboardData).getData("text/plain").replace(/\s+/g," "))});
-app.addEventListener("change",async e=>{
-  const fi=e.target.closest("[data-cv]");
-  if(fi){const file=fi.files[0],st=document.getElementById("cv-status");if(!file)return;
-    if(file.size>5e6){st.textContent="Max 5 MB";return}
-    st.textContent=u("saving");
-    try{const r=await fetch("/api/cv?lang="+fi.dataset.cv,{method:"POST",headers:{"content-type":"application/pdf",authorization:"Bearer "+token},body:file});
-      if(r.status===401)return sessionOver();
-      st.textContent=r.ok?u("saved")+" ("+fi.dataset.cv.toUpperCase()+")":u("fail")}catch(_){st.textContent=u("fail")}
-    return}
-  const cb=e.target.closest("[data-ff]");if(!cb)return;
-  const job=get(cb.dataset.ff);let f=job.f.replace(cb.value,"");if(cb.checked)f+=cb.value;
-  job.f=[..."pd"].filter(c=>f.includes(c)).join("");
-  job.items.forEach(it=>{if(!it.f||it.f===""||!job.f.includes(it.f))it.f=job.f});
-  markDirty();
-});
 let clicks=[];
 app.addEventListener("click",e=>{
   const t=e.target;
@@ -266,10 +299,81 @@ async function save(b){
   const st=document.getElementById("status");
   b.disabled=true;st.textContent=u("saving");
   let r;try{r=await api("/api/save",STATE)}catch(_){st.textContent=u("fail");b.disabled=false;return}
-  if(r.ok){dirty=false;st.textContent=u("saved")}
+  if(r.ok){
+    dirty=false;st.textContent=lang==="ro"?"Se actualizează CV-ul…":"Updating CV…";
+    try{await rebuildCvs();st.textContent=u("saved")}
+    catch(err){if(err.code===401)return sessionOver();dirty=true;b.disabled=false;st.textContent=lang==="ro"?"Pagina e salvată, CV-ul nu. Apasă din nou Salvează.":"Page saved, CV not updated. Press Save again."}
+  }
   else if(r.status===401){sessionOver()}
   else if(r.status===403&&r.data.error==="must_change"){st.textContent="";b.disabled=false;openChangePassword()}
   else{st.textContent=u("fail");b.disabled=false}
+}
+
+// CV PDFs (RO + EN) are rebuilt in the admin's browser from STATE on every save, then uploaded, so the CV always matches the site.
+const PDFMAKE="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/";
+const CV_ACCENT="#8b2635",CV_INK="#1c1517",CV_MUTED="#6b5f62",CV_LINE="#e8e1df";
+const CV_L={
+ ro:{title:"Fotograf-Videograf · Graphic Designer · Content Creator",profile:"Profil",exp:"Experiență profesională",edu:"Educație",skills:"Instrumente",langs:"Limbi",contact:"Contact",services:"Competențe"},
+ en:{title:"Photographer-Videographer · Graphic Designer · Content Creator",profile:"Profile",exp:"Work experience",edu:"Education",skills:"Tools",langs:"Languages",contact:"Contact",services:"Core skills"}
+};
+let pdfLib=null;
+function loadScript(src){return new Promise((ok,bad)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>bad(new Error("load "+src));document.head.appendChild(s)})}
+async function pdfReady(){if(!pdfLib){await loadScript(PDFMAKE+"pdfmake.min.js");await loadScript(PDFMAKE+"vfs_fonts.js");pdfLib=window.pdfMake}return pdfLib}
+// "<strong>a</strong> b" -> [{text:"a",bold:true},{text:" b"}]
+function rich(v,lng){
+  const s=typeof v==="string"?v:(v&&(v[lng]??v.en))||"";
+  const t=document.createElement("template");t.innerHTML=s;
+  const out=[];const walk=(n,bold)=>n.childNodes.forEach(c=>{if(c.nodeType===3)out.push({text:c.textContent,bold});else if(c.nodeType===1)walk(c,bold||/^(STRONG|B)$/.test(c.tagName))});
+  walk(t.content,false);return out.length?out:[{text:""}];
+}
+const plain=(v,lng)=>rich(v,lng).map(r=>r.text).join("");
+async function cvPhoto(){
+  const img=new Image();img.src=IMG.hero;await img.decode();
+  const side=Math.min(img.naturalWidth,img.naturalHeight),c=document.createElement("canvas");c.width=c.height=200;
+  c.getContext("2d").drawImage(img,(img.naturalWidth-side)/2,img.naturalHeight*0.03,side,side,0,0,200,200);
+  return c.toDataURL("image/jpeg",0.85);
+}
+function cvDoc(lng,photo){
+  const S=STATE,x=S.exp,lab=CV_L[lng];
+  const head=(t,w=160)=>[{text:t.toUpperCase(),color:CV_ACCENT,bold:true,fontSize:8.5,characterSpacing:1,margin:[0,10,0,2]},{canvas:[{type:"line",x1:0,y1:0,x2:w,y2:0,lineWidth:0.6,lineColor:CV_LINE}],margin:[0,0,0,5]}];
+  const pair=(b,s)=>({stack:[{text:b,bold:true,fontSize:9},{text:s,color:"#3d3336"}],margin:[0,0,0,5]});
+  const left=[
+    ...head(lab.contact),
+    ...S.contact.rows.map(r=>pair(plain(r.k,lng),plain(r.v,lng))),
+    ...S.contact.social.map(s=>pair(plain(s.label,lng),s.url.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""))),
+    ...head(lab.services),...S.services.items.map(i=>pair(plain(i.title,lng),plain(i.text,lng))),
+    ...head(lab.skills),{text:x.tools.chips.map(c=>plain(c,lng)).join(", ")},
+    ...head(lab.langs),...x.langs.items.map(i=>pair(plain(i.b,lng),plain(i.s,lng))),
+    ...head(lab.edu),...x.edu.items.map(i=>pair(plain(i.b,lng),plain(i.s,lng)))
+  ];
+  const right=[
+    ...head(lab.profile,335),...S.about.paras.map(p=>({text:rich(p,lng),margin:[0,0,0,5]})),
+    ...head(lab.exp,335),
+    ...x.jobs.map(j=>({unbreakable:true,margin:[0,0,0,8],stack:[
+      {columns:[{text:plain(j.role,lng),bold:true,fontSize:10},{text:plain(j.when,lng),width:"auto",color:CV_MUTED,fontSize:8.5,margin:[8,1,0,0]}]},
+      {text:[plain(j.co,lng),plain(j.place,lng)].filter(Boolean).join(" · "),color:CV_ACCENT,bold:true,fontSize:9,margin:[0,1,0,2]},
+      {ul:j.items.map(i=>plain(i.t,lng)),markerColor:CV_MUTED}
+    ]}))
+  ];
+  return {
+    pageSize:"A4",pageMargins:[40,36,40,36],
+    info:{title:"CV "+S.brand,author:S.brand},
+    defaultStyle:{font:"Roboto",fontSize:9.2,lineHeight:1.22,color:CV_INK},
+    content:[
+      {columns:[{image:photo,width:58,height:58},{stack:[{text:S.brand,fontSize:22,bold:true},{text:lab.title,color:CV_ACCENT,bold:true,fontSize:10.5,margin:[0,2,0,0]}],margin:[14,8,0,0]}]},
+      {canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.6,lineColor:CV_ACCENT}],margin:[0,10,0,4]},
+      {columns:[{width:160,stack:left},{width:"*",stack:right}],columnGap:20}
+    ]
+  };
+}
+async function rebuildCvs(){
+  const pm=await pdfReady(),photo=await cvPhoto();
+  for(const lng of ["ro","en"]){
+    const blob=await new Promise(ok=>pm.createPdf(cvDoc(lng,photo)).getBlob(ok));
+    const r=await fetch("/api/cv?lang="+lng,{method:"POST",headers:{"content-type":"application/pdf",authorization:"Bearer "+token},body:blob});
+    if(r.status===401)throw Object.assign(new Error("unauthorized"),{code:401});
+    if(!r.ok)throw new Error("cv upload "+r.status);
+  }
 }
 
 function onScroll(){
