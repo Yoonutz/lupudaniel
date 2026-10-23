@@ -10,6 +10,6 @@ Portfolio site for Daniel Lupu, served by a Cloudflare Pages advanced-mode worke
 ## Rebuild
 
 ```
-python3 src/build_cv.py src/state.default.json src/cvphoto.jpg /tmp/cv   # then print /tmp/cv/cv-*.html to PDF
+(CV PDFs: generated in the browser by cvDoc() in src/main.js; src/cv-*.pdf are the fallback copies.)
 python3 src/build.py public
 ```

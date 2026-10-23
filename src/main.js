@@ -310,15 +310,27 @@ async function save(b){
 }
 
 // CV PDFs (RO + EN) are rebuilt in the admin's browser from STATE on every save, then uploaded, so the CV always matches the site.
+// Layout follows Daniel's original CV (eJobs style, Open Sans). Phone and salaries are left out on purpose.
 const PDFMAKE="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/";
-const CV_ACCENT="#8b2635",CV_INK="#1c1517",CV_MUTED="#6b5f62",CV_LINE="#e8e1df";
+const CV_INK="#1a1a1a",CV_MUTED="#6b6b6b",CV_LINK="#2f7de1",CV_RULE="#4d4d4d";
 const CV_L={
- ro:{title:"Fotograf-Videograf · Graphic Designer · Content Creator",profile:"Profil",exp:"Experiență profesională",edu:"Educație",skills:"Instrumente",langs:"Limbi",contact:"Contact",services:"Competențe"},
- en:{title:"Photographer-Videographer · Graphic Designer · Content Creator",profile:"Profile",exp:"Work experience",edu:"Education",skills:"Tools",langs:"Languages",contact:"Contact",services:"Core skills"}
+ ro:{contact:"Date contact",email:"Email",city:"Oraș",about:"Despre mine",exp:"Experiență profesională",edu:"Educație",skills:"Abilități",general:"Abilități generale",langs:"Limbi străine",cv:"CV",native:/^(română|romanian)$/i},
+ en:{contact:"Contact details",email:"Email",city:"City",about:"About me",exp:"Work experience",edu:"Education",skills:"Skills",general:"General skills",langs:"Foreign languages",cv:"CV",native:/^(română|romanian)$/i}
 };
 let pdfLib=null;
 function loadScript(src){return new Promise((ok,bad)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>bad(new Error("load "+src));document.head.appendChild(s)})}
-async function pdfReady(){if(!pdfLib){await loadScript(PDFMAKE+"pdfmake.min.js");await loadScript(PDFMAKE+"vfs_fonts.js");pdfLib=window.pdfMake}return pdfLib}
+async function pdfReady(){
+  if(!pdfLib){
+    await loadScript(PDFMAKE+"pdfmake.min.js");
+    const f=w=>location.origin+"/fonts/opensans-"+w+".ttf";
+    window.pdfMake.fonts={
+      OpenSans:{normal:f(400),bold:f(700),italics:f(400),bolditalics:f(700)},
+      OpenSansSemi:{normal:f(600),bold:f(700),italics:f(600),bolditalics:f(700)}
+    };
+    pdfLib=window.pdfMake;
+  }
+  return pdfLib;
+}
 // "<strong>a</strong> b" -> [{text:"a",bold:true},{text:" b"}]
 function rich(v,lng){
   const s=typeof v==="string"?v:(v&&(v[lng]??v.en))||"";
@@ -329,40 +341,59 @@ function rich(v,lng){
 const plain=(v,lng)=>rich(v,lng).map(r=>r.text).join("");
 async function cvPhoto(){
   const img=new Image();img.src=IMG.hero;await img.decode();
-  const side=Math.min(img.naturalWidth,img.naturalHeight),c=document.createElement("canvas");c.width=c.height=200;
-  c.getContext("2d").drawImage(img,(img.naturalWidth-side)/2,img.naturalHeight*0.03,side,side,0,0,200,200);
-  return c.toDataURL("image/jpeg",0.85);
+  const side=Math.min(img.naturalWidth,img.naturalHeight),c=document.createElement("canvas");c.width=c.height=240;
+  const g=c.getContext("2d");g.beginPath();g.arc(120,120,120,0,Math.PI*2);g.clip();
+  g.drawImage(img,(img.naturalWidth-side)/2,img.naturalHeight*0.03,side,side,0,0,240,240);
+  return c.toDataURL("image/png");
 }
 function cvDoc(lng,photo){
-  const S=STATE,x=S.exp,lab=CV_L[lng];
-  const head=(t,w=160)=>[{text:t.toUpperCase(),color:CV_ACCENT,bold:true,fontSize:8.5,characterSpacing:1,margin:[0,10,0,2]},{canvas:[{type:"line",x1:0,y1:0,x2:w,y2:0,lineWidth:0.6,lineColor:CV_LINE}],margin:[0,0,0,5]}];
-  const pair=(b,s)=>({stack:[{text:b,bold:true,fontSize:9},{text:s,color:"#3d3336"}],margin:[0,0,0,5]});
-  const left=[
-    ...head(lab.contact),
-    ...S.contact.rows.map(r=>pair(plain(r.k,lng),plain(r.v,lng))),
-    ...S.contact.social.map(s=>pair(plain(s.label,lng),s.url.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""))),
-    ...head(lab.services),...S.services.items.map(i=>pair(plain(i.title,lng),plain(i.text,lng))),
-    ...head(lab.skills),{text:x.tools.chips.map(c=>plain(c,lng)).join(", ")},
-    ...head(lab.langs),...x.langs.items.map(i=>pair(plain(i.b,lng),plain(i.s,lng))),
-    ...head(lab.edu),...x.edu.items.map(i=>pair(plain(i.b,lng),plain(i.s,lng)))
-  ];
-  const right=[
-    ...head(lab.profile,335),...S.about.paras.map(p=>({text:rich(p,lng),margin:[0,0,0,5]})),
-    ...head(lab.exp,335),
-    ...x.jobs.map(j=>({unbreakable:true,margin:[0,0,0,8],stack:[
-      {columns:[{text:plain(j.role,lng),bold:true,fontSize:10},{text:plain(j.when,lng),width:"auto",color:CV_MUTED,fontSize:8.5,margin:[8,1,0,0]}]},
-      {text:[plain(j.co,lng),plain(j.place,lng)].filter(Boolean).join(" · "),color:CV_ACCENT,bold:true,fontSize:9,margin:[0,1,0,2]},
-      {ul:j.items.map(i=>plain(i.t,lng)),markerColor:CV_MUTED}
-    ]}))
-  ];
+  const S=STATE,x=S.exp,lab=CV_L[lng],j0=x.jobs[0];
+  const name=lng==="ro"?S.brand.split(" ").reverse().join(" "):S.brand;
+  const headline=j0?[plain(j0.role,lng),plain(j0.co,lng)].filter(Boolean).join(" - "):"";
+  const row=k=>(S.contact.rows.find(r=>new RegExp(k,"i").test(plain(r.k,"en")))||{}).v;
+  const email=plain(row("mail")||"",lng),city=plain(row("based|city|loca")||"",lng);
+  const cityShort=city.split(",")[0];
+  const H=t=>[{text:t,font:"OpenSans",bold:true,fontSize:15,margin:[0,18,0,5]},{canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:0.6,lineColor:CV_RULE}],margin:[0,0,0,10]}];
+  const kv=(k,v,link)=>({text:[{text:k+": ",bold:true},link?{text:v,color:CV_LINK,link}:{text:v}],margin:[0,0,0,7]});
+  const twoCol=(left,right)=>({columns:[{width:115,stack:left},{width:"*",stack:right}],columnGap:14});
+  const jobs=x.jobs.map(j=>({unbreakable:true,margin:[0,0,0,12],stack:[twoCol(
+    [{text:plain(j.when,lng),bold:true,fontSize:9.5},{text:plain(j.dur,lng),color:CV_MUTED,fontSize:8.5,margin:[0,2,0,0]}],
+    [{text:[plain(j.role,lng),plain(j.co,lng)].filter(Boolean).join(" - "),bold:true,fontSize:10},
+     {text:plain(j.place,lng).replace(/ · /g," | "),color:CV_MUTED,fontSize:8.5,margin:[0,2,0,6]},
+     ...j.items.map(i=>({text:plain(i.t,lng),margin:[0,0,0,4]}))]
+  )]}));
+  const edu=x.edu.items.map(i=>{
+    const s=plain(i.s,lng),m=s.match(/^(.*?)\s*·\s*(\d{4}\s*[–-]\s*\d{4})\s*$/);
+    return {margin:[0,0,0,9],stack:[twoCol([{text:m?m[2].replace(/\s*[–-]\s*/," - "):"",bold:true,fontSize:9.5}],[{text:plain(i.b,lng),bold:true,fontSize:10},{text:m?m[1]:s,color:CV_MUTED,fontSize:8.5,margin:[0,2,0,0]}])]};
+  });
+  const langs=x.langs.items.filter(i=>!lab.native.test(plain(i.b,"en"))).map(i=>kv(plain(i.b,lng),plain(i.s,lng)));
   return {
-    pageSize:"A4",pageMargins:[40,36,40,36],
-    info:{title:"CV "+S.brand,author:S.brand},
-    defaultStyle:{font:"Roboto",fontSize:9.2,lineHeight:1.22,color:CV_INK},
+    pageSize:"A4",pageMargins:[40,40,40,50],
+    info:{title:lab.cv+" "+name,author:S.brand},
+    defaultStyle:{font:"OpenSans",fontSize:9.2,lineHeight:1.3,color:CV_INK},
+    footer:(cur,total)=>({margin:[40,14,40,0],stack:[
+      {canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:0.5,lineColor:"#bdbdbd"}]},
+      {text:`${lab.cv} ${name} ${cur}/${total}`,alignment:"right",fontSize:8,color:CV_MUTED,margin:[0,6,0,0]}]}),
     content:[
-      {columns:[{image:photo,width:58,height:58},{stack:[{text:S.brand,fontSize:22,bold:true},{text:lab.title,color:CV_ACCENT,bold:true,fontSize:10.5,margin:[0,2,0,0]}],margin:[14,8,0,0]}]},
-      {canvas:[{type:"line",x1:0,y1:0,x2:515,y2:0,lineWidth:1.6,lineColor:CV_ACCENT}],margin:[0,10,0,4]},
-      {columns:[{width:160,stack:left},{width:"*",stack:right}],columnGap:20}
+      {columns:[
+        {image:photo,width:86,height:86},
+        {stack:[{text:name,bold:true,fontSize:22,margin:[0,6,0,4]},{text:headline,bold:true,fontSize:10.5},{text:cityShort,fontSize:9,margin:[0,4,0,0]}],margin:[18,0,0,0]}
+      ],margin:[0,0,0,4]},
+      ...H(lab.contact),
+      email?kv(lab.email,email,"mailto:"+email):"",
+      city?kv(lab.city,cityShort):"",
+      ...S.contact.social.map(s=>kv(plain(s.label,lng),s.url.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""),s.url)),
+      ...H(lab.about),
+      ...S.about.paras.map(p=>({text:rich(p,lng).map(r=>({text:r.text})),alignment:"left",margin:[0,0,0,6]})),
+      ...H(lab.exp),
+      ...jobs,
+      ...H(lab.edu),
+      ...edu,
+      ...H(lab.skills),
+      {text:lab.general,bold:true,margin:[0,0,0,4]},
+      {text:x.tools.chips.map(c=>plain(c,lng)).join(", ")},
+      ...H(lab.langs),
+      ...langs
     ]
   };
 }

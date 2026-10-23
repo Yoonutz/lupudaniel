@@ -40,7 +40,7 @@ page = f'''<!doctype html><html lang="ro"><head><meta charset="utf-8">
 w = rd("worker-src.js")
 w = w.replace("__PAGE__", json.dumps(page), 1)
 w = w.replace("__STATE__", json.dumps(json.loads(rd("state.default.json")), ensure_ascii=False), 1)
-w = w.replace("__IMAGES__", json.dumps({"/img/hero.webp": ["image/webp", b64("hero.webp")], "/img/full.webp": ["image/webp", b64("full.webp")], "/og.jpg": ["image/jpeg", b64("og.jpg")]}), 1)
+w = w.replace("__IMAGES__", json.dumps({"/img/hero.webp": ["image/webp", b64("hero.webp")], "/img/full.webp": ["image/webp", b64("full.webp")], "/og.jpg": ["image/jpeg", b64("og.jpg")], **{f"/fonts/opensans-{w}.ttf": ["font/ttf", b64(f"fonts/opensans-{w}.ttf")] for w in (400, 600, 700)}}), 1)
 w = w.replace("__CVS__", json.dumps({"ro": b64("cv-ro.pdf"), "en": b64("cv-en.pdf")}), 1)
 out = sys.argv[1]
 os.makedirs(out, exist_ok=True)
