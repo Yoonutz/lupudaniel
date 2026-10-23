@@ -1,0 +1,962 @@
+{
+ "brand": "Daniel Lupu",
+ "nav": {
+  "services": {
+   "en": "Services",
+   "ro": "Servicii"
+  },
+  "experience": {
+   "en": "Experience",
+   "ro": "Experiență"
+  },
+  "about": {
+   "en": "About",
+   "ro": "Despre"
+  },
+  "contact": {
+   "en": "Contact",
+   "ro": "Contact"
+  }
+ },
+ "hero": {
+  "avail": {
+   "en": "Brașov, Romania · open to projects",
+   "ro": "Brașov, România · disponibil pentru proiecte"
+  },
+  "h1": {
+   "en": "Photography, video and design that <span>sells the story</span>.",
+   "ro": "Fotografie, video și design care <span>vând povestea</span>."
+  },
+  "lede": {
+   "en": "I'm Daniel, a photographer-videographer and graphic designer. I shoot products, people and events, design for screen and large-format print, and run the social channels and ads that put the work in front of the right audience.",
+   "ro": "Sunt Daniel, fotograf-videograf și designer grafic. Fotografiez produse, oameni și evenimente, fac design pentru online și pentru print de mari dimensiuni și gestionez canalele sociale și reclamele care duc munca în fața publicului potrivit."
+  },
+  "cta1": {
+   "en": "Start a project",
+   "ro": "Începe un proiect"
+  },
+  "cta2": {
+   "en": "See experience",
+   "ro": "Vezi experiența"
+  },
+  "stats": [
+   {
+    "b": {
+     "en": "12+ yrs",
+     "ro": "12+ ani"
+    },
+    "s": {
+     "en": "graphic design &amp; visual production",
+     "ro": "design grafic și producție vizuală"
+    }
+   },
+   {
+    "b": {
+     "en": "Since 2008",
+     "ro": "Din 2008"
+    },
+    "s": {
+     "en": "behind the camera",
+     "ro": "în spatele camerei"
+    }
+   },
+   {
+    "b": {
+     "en": "3 ad platforms",
+     "ro": "3 platforme ads"
+    },
+    "s": {
+     "en": "Meta · Google · TikTok",
+     "ro": "Meta · Google · TikTok"
+    }
+   }
+  ],
+  "cv": {
+   "en": "Download CV",
+   "ro": "Descarcă CV"
+  }
+ },
+ "services": {
+  "eyebrow": {
+   "en": "Services",
+   "ro": "Servicii"
+  },
+  "title": {
+   "en": "From the shoot to the shared post",
+   "ro": "De la ședința foto la postarea publicată"
+  },
+  "intro": {
+   "en": "One person for the full visual pipeline: capture, edit, design, print-ready files and paid promotion.",
+   "ro": "Un singur om pentru tot fluxul vizual: fotografiere, editare, design, fișiere gata de tipar și promovare plătită."
+  },
+  "items": [
+   {
+    "icon": "camera",
+    "title": {
+     "en": "Photo &amp; video",
+     "ro": "Foto &amp; video"
+    },
+    "text": {
+     "en": "Studio, product, lifestyle and event shoots, plus short-form video edited for Reels and TikTok.",
+     "ro": "Ședințe de studio, produs, lifestyle și evenimente, plus video scurt editat pentru Reels și TikTok."
+    },
+    "chips": [
+     {
+      "en": "Lightroom",
+      "ro": "Lightroom"
+     },
+     {
+      "en": "CapCut",
+      "ro": "CapCut"
+     },
+     {
+      "en": "Sony Vegas",
+      "ro": "Sony Vegas"
+     }
+    ]
+   },
+   {
+    "icon": "layout",
+    "title": {
+     "en": "Graphic design &amp; DTP",
+     "ro": "Design grafic &amp; DTP"
+    },
+    "text": {
+     "en": "Posters, banners, catalogues and flyers, delivered print-ready with bleed, CMYK and correct resolution.",
+     "ro": "Postere, bannere, cataloage și pliante, livrate gata de tipar, cu bleed, CMYK și rezoluție corectă."
+    },
+    "chips": [
+     {
+      "en": "Photoshop",
+      "ro": "Photoshop"
+     },
+     {
+      "en": "Illustrator",
+      "ro": "Illustrator"
+     },
+     {
+      "en": "InDesign",
+      "ro": "InDesign"
+     }
+    ]
+   },
+   {
+    "icon": "chart",
+    "title": {
+     "en": "Social media &amp; ads",
+     "ro": "Social media &amp; reclame"
+    },
+    "text": {
+     "en": "Channel management with on-brand visuals, and paid campaigns tracked on CTR, conversions and reach.",
+     "ro": "Administrare de canale cu vizualuri coerente cu brandul și campanii plătite urmărite pe CTR, conversii și vizibilitate."
+    },
+    "chips": [
+     {
+      "en": "Meta Ads",
+      "ro": "Meta Ads"
+     },
+     {
+      "en": "Google Ads",
+      "ro": "Google Ads"
+     },
+     {
+      "en": "TikTok Ads",
+      "ro": "TikTok Ads"
+     }
+    ]
+   },
+   {
+    "icon": "code",
+    "title": {
+     "en": "Web &amp; print production",
+     "ro": "Web &amp; producție print"
+    },
+    "text": {
+     "en": "WordPress pages and hands-on UV printing, backed by an engineering and IT background.",
+     "ro": "Pagini WordPress și imprimare UV, susținute de un fundal în inginerie și IT."
+    },
+    "chips": [
+     {
+      "en": "WordPress",
+      "ro": "WordPress"
+     },
+     {
+      "en": "HTML/PHP",
+      "ro": "HTML/PHP"
+     },
+     {
+      "en": "UV print",
+      "ro": "Imprimare UV"
+     }
+    ]
+   }
+  ]
+ },
+ "exp": {
+  "eyebrow": {
+   "en": "Experience",
+   "ro": "Experiență"
+  },
+  "title": {
+   "en": "Two crafts, one career",
+   "ro": "Două meserii, o singură carieră"
+  },
+  "intro": {
+   "en": "Pick a field to bring its work forward. The rest stays visible, just quieter.",
+   "ro": "Alege un domeniu ca să-i aduci lucrările în față. Restul rămâne vizibil, doar mai discret."
+  },
+  "tabs": {
+   "all": {
+    "en": "Full experience",
+    "ro": "Experiență completă"
+   },
+   "p": {
+    "en": "Photo, video &amp; content",
+    "ro": "Foto, video &amp; conținut"
+   },
+   "d": {
+    "en": "Graphic design &amp; print",
+    "ro": "Design grafic &amp; print"
+   }
+  },
+  "notes": {
+   "all": {
+    "en": "Every role, in order.",
+    "ro": "Toate rolurile, în ordine."
+   },
+   "p": {
+    "en": "Photography, video, social media and ads come forward.",
+    "ro": "Fotografia, video-ul, social media și reclamele trec în față."
+   },
+   "d": {
+    "en": "Design, DTP, print and web come forward.",
+    "ro": "Designul, DTP-ul, printul și web-ul trec în față."
+   }
+  },
+  "jobs": [
+   {
+    "when": {
+     "en": "Jun 2026 – present",
+     "ro": "Iun 2026 – prezent"
+    },
+    "dur": {
+     "en": "Current",
+     "ro": "Actual"
+    },
+    "role": {
+     "en": "Photographer-Videographer, Graphic Designer, Content Creator &amp; Social Media",
+     "ro": "Fotograf-Videograf, Graphic Designer, Content Creator &amp; Social Media"
+    },
+    "co": {
+     "en": "Phoenix Art",
+     "ro": "Phoenix Art"
+    },
+    "place": {
+     "en": "Brașov · real estate",
+     "ro": "Brașov · imobiliare"
+    },
+    "f": "pd",
+    "items": [
+     {
+      "f": "d",
+      "t": {
+       "en": "Designed digital and large-format print materials (outdoor banners, posters, catalogues) in Photoshop and Illustrator, prepared for print with bleed, CMYK and correct resolution.",
+       "ro": "Materiale grafice pentru online și tipar de mari dimensiuni (bannere outdoor, postere, afișe, cataloage) în Photoshop și Illustrator, pregătite corect pentru tipar (bleed, CMYK, rezoluție)."
+      }
+     },
+     {
+      "f": "p",
+      "t": {
+       "en": "Ran product and lifestyle photo and video shoots; edited short-form Reels and TikToks in CapCut to grow engagement.",
+       "ro": "Ședințe foto/video de produs și lifestyle; editare video scurt (Reels, TikToks) în CapCut pentru creșterea engagement-ului."
+      }
+     },
+     {
+      "f": "p",
+      "t": {
+       "en": "Managed Facebook, Instagram and TikTok with on-brand visuals and content concepts tailored to each platform.",
+       "ro": "Gestionarea canalelor Facebook, Instagram și TikTok, cu vizualuri coerente cu brandul și concepte adaptate fiecărei platforme."
+      }
+     },
+     {
+      "f": "p",
+      "t": {
+       "en": "Set up, optimised and monitored paid campaigns on Meta Ads, Google Ads and TikTok Ads.",
+       "ro": "Configurarea, optimizarea și monitorizarea campaniilor plătite pe Meta Ads, Google Ads și TikTok Ads."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Jun 2019 – Mar 2026",
+     "ro": "Iun 2019 – Mar 2026"
+    },
+    "dur": {
+     "en": "6 yrs 10 mos",
+     "ro": "6 ani 10 luni"
+    },
+    "role": {
+     "en": "Graphic Designer",
+     "ro": "Graphic Designer"
+    },
+    "co": {
+     "en": "DCI Romania",
+     "ro": "DCI Romania"
+    },
+    "place": {
+     "en": "Brașov · media",
+     "ro": "Brașov · media"
+    },
+    "f": "d",
+    "items": [
+     {
+      "f": "d",
+      "t": {
+       "en": "Edited, cut out and prepared digital files for online content.",
+       "ro": "Editare, decupare și pregătire fișiere digitale pentru conținut online."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Created graphic elements for a wide range of projects.",
+       "ro": "Elemente grafice pentru diverse proiecte."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Handled several projects at once on strict deadlines, using Adobe Creative Suite.",
+       "ro": "Mai multe proiecte simultan, cu termene stricte, în Adobe Creative Suite."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Mar 2017 – May 2019",
+     "ro": "Mar 2017 – Mai 2019"
+    },
+    "dur": {
+     "en": "2 yrs 3 mos",
+     "ro": "2 ani 3 luni"
+    },
+    "role": {
+     "en": "UV Print Operator, Graphic Designer &amp; DTP",
+     "ro": "Operator imprimare UV, Graphic Designer &amp; DTP"
+    },
+    "co": {
+     "en": "Sepmobile SRL",
+     "ro": "Sepmobile SRL"
+    },
+    "place": {
+     "en": "Brașov",
+     "ro": "Brașov"
+    },
+    "f": "pd",
+    "items": [
+     {
+      "f": "d",
+      "t": {
+       "en": "Printed graphic designs on the company's products, such as phone cases.",
+       "ro": "Printarea modelelor grafice pe produsele companiei, precum huse de telefon."
+      }
+     },
+     {
+      "f": "p",
+      "t": {
+       "en": "Shot and edited product photography for the company portfolio.",
+       "ro": "Fotografii de produs realizate și editate pentru portofoliul firmei."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Designed a product presentation catalogue.",
+       "ro": "Catalog de prezentare a produselor."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Maintained the UV printer for reliable production.",
+       "ro": "Mentenanța imprimantei UV."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "May 2015 – Feb 2017",
+     "ro": "Mai 2015 – Feb 2017"
+    },
+    "dur": {
+     "en": "1 yr 10 mos",
+     "ro": "1 an 10 luni"
+    },
+    "role": {
+     "en": "Photographer &amp; Editor",
+     "ro": "Fotograf &amp; Editor"
+    },
+    "co": {
+     "en": "FotoGruia",
+     "ro": "FotoGruia"
+    },
+    "place": {
+     "en": "Brașov",
+     "ro": "Brașov"
+    },
+    "f": "p",
+    "items": [
+     {
+      "f": "p",
+      "t": {
+       "en": "Studio and event photography.",
+       "ro": "Fotografie de studio și de eveniment."
+      }
+     },
+     {
+      "f": "p",
+      "t": {
+       "en": "Photo and video editing in Adobe Photoshop.",
+       "ro": "Prelucrare foto și video în Adobe Photoshop."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Photo printing and custom digital albums.",
+       "ro": "Printare fotografii și albume digitale personalizate."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Aug 2014 – Apr 2015",
+     "ro": "Aug 2014 – Apr 2015"
+    },
+    "dur": {
+     "en": "9 mos",
+     "ro": "9 luni"
+    },
+    "role": {
+     "en": "Photo Lab Operator",
+     "ro": "Operator calculator laborator foto"
+    },
+    "co": {
+     "en": "Super Foto Express",
+     "ro": "Super Foto Express"
+    },
+    "place": {
+     "en": "Brașov",
+     "ro": "Brașov"
+    },
+    "f": "pd",
+    "items": [
+     {
+      "f": "p",
+      "t": {
+       "en": "Photo printing, retouching and digital album production.",
+       "ro": "Printare și prelucrare foto, albume digitale."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Designed flyers and invitations in Photoshop and CorelDRAW.",
+       "ro": "Pliante și invitații în Photoshop și CorelDRAW."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Mar 2013 – Mar 2014",
+     "ro": "Mar 2013 – Mar 2014"
+    },
+    "dur": {
+     "en": "1 yr 1 mo",
+     "ro": "1 an 1 lună"
+    },
+    "role": {
+     "en": "Network Administrator",
+     "ro": "Administrator de rețea"
+    },
+    "co": {
+     "en": "Urban Invest SRL",
+     "ro": "Urban Invest SRL"
+    },
+    "place": {
+     "en": "Brașov · IT",
+     "ro": "Brașov · IT"
+    },
+    "f": "d",
+    "items": [
+     {
+      "f": "",
+      "t": {
+       "en": "Administered the company's computers and network.",
+       "ro": "Administrarea calculatoarelor și a rețelei firmei."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Created graphics for company projects.",
+       "ro": "Grafică pentru proiectele firmei."
+      }
+     },
+     {
+      "f": "p",
+      "t": {
+       "en": "Maintained and promoted the company website and Facebook page.",
+       "ro": "Administrarea și promovarea site-ului și a paginii de Facebook."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Apr 2011 – Feb 2012",
+     "ro": "Apr 2011 – Feb 2012"
+    },
+    "dur": {
+     "en": "11 mos",
+     "ro": "11 luni"
+    },
+    "role": {
+     "en": "Photographer / Print Shop Technician",
+     "ro": "Fotograf / Tehnician print shop"
+    },
+    "co": {
+     "en": "Carnival Cruise Lines",
+     "ro": "Carnival Cruise Lines"
+    },
+    "place": {
+     "en": "International",
+     "ro": "Străinătate"
+    },
+    "f": "pd",
+    "items": [
+     {
+      "f": "p",
+      "t": {
+       "en": "Outdoor, studio and indoor photography.",
+       "ro": "Fotografie outdoor, de studio și indoor."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Ran printing and duplication equipment; high-volume print runs for several departments.",
+       "ro": "Tehnician echipamente de printare și duplicare; printuri în cantități mari pentru diverse departamente."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Canvas and poster prints; design in Photoshop and InDesign.",
+       "ro": "Printuri pe canvas și postere; design în Photoshop și InDesign."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Oct 2008 – Oct 2010",
+     "ro": "Oct 2008 – Oct 2010"
+    },
+    "dur": {
+     "en": "2 yrs 1 mo",
+     "ro": "2 ani 1 lună"
+    },
+    "role": {
+     "en": "Photo-Video Equipment Technician",
+     "ro": "Tehnician echipamente foto-video"
+    },
+    "co": {
+     "en": "Foto Gruia SRL",
+     "ro": "Foto Gruia SRL"
+    },
+    "place": {
+     "en": "Brașov",
+     "ro": "Brașov"
+    },
+    "f": "p",
+    "items": [
+     {
+      "f": "p",
+      "t": {
+       "en": "Studio, outdoor and event photography; photo and video editing; film developing.",
+       "ro": "Fotografie de studio, outdoor și de eveniment; prelucrare foto-video; developare fotografii."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Feb 2008 – Oct 2008",
+     "ro": "Feb 2008 – Oct 2008"
+    },
+    "dur": {
+     "en": "9 mos",
+     "ro": "9 luni"
+    },
+    "role": {
+     "en": "IT Systems &amp; Network Technician",
+     "ro": "Tehnician sisteme de calcul și rețele"
+    },
+    "co": {
+     "en": "Marub Industry SA",
+     "ro": "Marub Industry SA"
+    },
+    "place": {
+     "en": "Brașov · IT",
+     "ro": "Brașov · IT"
+    },
+    "f": "",
+    "items": [
+     {
+      "f": "",
+      "t": {
+       "en": "Maintained the internal network and computers; software installs and troubleshooting.",
+       "ro": "Întreținerea rețelei interne și a calculatoarelor; instalări software și depanare."
+      }
+     }
+    ]
+   },
+   {
+    "when": {
+     "en": "Feb 2005 – Feb 2006",
+     "ro": "Feb 2005 – Feb 2006"
+    },
+    "dur": {
+     "en": "1 yr 1 mo",
+     "ro": "1 an 1 lună"
+    },
+    "role": {
+     "en": "Web Designer Trainee",
+     "ro": "Web Designer stagiar"
+    },
+    "co": {
+     "en": "MHM Group",
+     "ro": "MHM Group"
+    },
+    "place": {
+     "en": "Brașov · tourism",
+     "ro": "Brașov · turism"
+    },
+    "f": "d",
+    "items": [
+     {
+      "f": "d",
+      "t": {
+       "en": "Built and maintained websites for tourism companies (HTML, PHP, Photoshop).",
+       "ro": "Realizarea și întreținerea site-urilor pentru firme de turism (HTML, PHP, Photoshop)."
+      }
+     },
+     {
+      "f": "d",
+      "t": {
+       "en": "Produced promotional CDs for tourism companies in Brașov and abroad.",
+       "ro": "CD-uri promoționale pentru firme de turism din Brașov și din străinătate."
+      }
+     }
+    ]
+   }
+  ],
+  "edu": {
+   "title": {
+    "en": "Education",
+    "ro": "Educație"
+   },
+   "items": [
+    {
+     "b": {
+      "en": "Transilvania University of Brașov",
+      "ro": "Universitatea Transilvania din Brașov"
+     },
+     "s": {
+      "en": "Electrical Engineering &amp; Computer Science · 2010–2011",
+      "ro": "Inginerie electrică și știința calculatoarelor · 2010–2011"
+     }
+    },
+    {
+     "b": {
+      "en": "School of Arts and Crafts, Brașov",
+      "ro": "Școala de Arte și Meserii, Brașov"
+     },
+     "s": {
+      "en": "Tourism Technician · 2004–2007",
+      "ro": "Tehnician în turism · 2004–2007"
+     }
+    },
+    {
+     "b": {
+      "en": "Emil Racoviță National College, Brașov",
+      "ro": "Colegiul Național de Științe ale Naturii Emil Racoviță, Brașov"
+     },
+     "s": {
+      "en": "Biology &amp; Chemistry · 1999–2002",
+      "ro": "Biologie &amp; chimie · 1999–2002"
+     }
+    }
+   ]
+  },
+  "tools": {
+   "title": {
+    "en": "Tools",
+    "ro": "Instrumente"
+   },
+   "chips": [
+    {
+     "en": "Photoshop (advanced)",
+     "ro": "Photoshop (avansat)"
+    },
+    {
+     "en": "Lightroom",
+     "ro": "Lightroom"
+    },
+    {
+     "en": "Illustrator",
+     "ro": "Illustrator"
+    },
+    {
+     "en": "InDesign",
+     "ro": "InDesign"
+    },
+    {
+     "en": "CapCut",
+     "ro": "CapCut"
+    },
+    {
+     "en": "Sony Vegas",
+     "ro": "Sony Vegas"
+    },
+    {
+     "en": "CorelDRAW",
+     "ro": "CorelDRAW"
+    },
+    {
+     "en": "Meta Ads",
+     "ro": "Meta Ads"
+    },
+    {
+     "en": "Google Ads Editor",
+     "ro": "Google Ads Editor"
+    },
+    {
+     "en": "Google Merchant Center",
+     "ro": "Google Merchant Center"
+    },
+    {
+     "en": "TikTok Ads",
+     "ro": "TikTok Ads"
+    },
+    {
+     "en": "WordPress",
+     "ro": "WordPress"
+    },
+    {
+     "en": "Microsoft Office",
+     "ro": "Microsoft Office"
+    }
+   ]
+  },
+  "langs": {
+   "title": {
+    "en": "Languages",
+    "ro": "Limbi"
+   },
+   "items": [
+    {
+     "b": {
+      "en": "Romanian",
+      "ro": "Română"
+     },
+     "s": {
+      "en": "Native",
+      "ro": "Nativ"
+     }
+    },
+    {
+     "b": {
+      "en": "English",
+      "ro": "Engleză"
+     },
+     "s": {
+      "en": "Advanced",
+      "ro": "Avansat"
+     }
+    },
+    {
+     "b": {
+      "en": "French",
+      "ro": "Franceză"
+     },
+     "s": {
+      "en": "Beginner",
+      "ro": "Începător"
+     }
+    }
+   ]
+  }
+ },
+ "about": {
+  "eyebrow": {
+   "en": "About",
+   "ro": "Despre"
+  },
+  "title": {
+   "en": "A technical eye for visual work",
+   "ro": "Un ochi tehnic pentru munca vizuală"
+  },
+  "paras": [
+   {
+    "en": "I started in <strong>web design and IT</strong>, then moved behind the camera and never really left. Years in photo labs, studios and print shops taught me how an image travels from <strong>shutter to screen to paper</strong>.",
+    "ro": "Am început în <strong>web design și IT</strong>, apoi am trecut în spatele camerei și n-am mai plecat. Anii petrecuți în laboratoare foto, studiouri și tipografii m-au învățat cum ajunge o imagine <strong>de la declanșator pe ecran și pe hârtie</strong>."
+   },
+   {
+    "en": "Today I bring that whole chain to one client at a time: <strong>shoot it, design it, print it, promote it</strong>. My engineering studies help me pick up new software and equipment fast.",
+    "ro": "Astăzi ofer tot acest lanț fiecărui client: <strong>fotografiez, creez designul, tipăresc, promovez</strong>. Studiile de inginerie mă ajută să învăț rapid softuri și echipamente noi."
+   }
+  ],
+  "timeline": [
+   {
+    "y": {
+     "en": "2005",
+     "ro": "2005"
+    },
+    "t": {
+     "en": "First paid work: <strong>websites and promo CDs</strong> for tourism companies in Brașov.",
+     "ro": "Primele proiecte plătite: <strong>site-uri și CD-uri promoționale</strong> pentru firme de turism din Brașov."
+    }
+   },
+   {
+    "y": {
+     "en": "2008",
+     "ro": "2008"
+    },
+    "t": {
+     "en": "Joined a photo studio as <strong>photo-video technician</strong>: studio, outdoor and event shoots, film developing.",
+     "ro": "Intru într-un studio foto ca <strong>tehnician foto-video</strong>: studio, exterior, evenimente, developare."
+    }
+   },
+   {
+    "y": {
+     "en": "2011",
+     "ro": "2011"
+    },
+    "t": {
+     "en": "<strong>Photographer at sea</strong> with Carnival Cruise Lines: studio portraits, outdoor shoots and high-volume printing.",
+     "ro": "<strong>Fotograf pe mare</strong> la Carnival Cruise Lines: portrete în studio, fotografie de exterior și tipar în volume mari."
+    }
+   },
+   {
+    "y": {
+     "en": "2015",
+     "ro": "2015"
+    },
+    "t": {
+     "en": "Back in Brașov as <strong>photographer and editor</strong>: events, studio work and custom digital albums.",
+     "ro": "Înapoi în Brașov ca <strong>fotograf și editor</strong>: evenimente, studio și albume digitale personalizate."
+    }
+   },
+   {
+    "y": {
+     "en": "2017",
+     "ro": "2017"
+    },
+    "t": {
+     "en": "Moved into <strong>print production</strong>: UV printing, product photography and a product catalogue.",
+     "ro": "Trec în <strong>producția de print</strong>: imprimare UV, fotografie de produs și un catalog de produse."
+    }
+   },
+   {
+    "y": {
+     "en": "2019",
+     "ro": "2019"
+    },
+    "t": {
+     "en": "<strong>Graphic designer at DCI Romania</strong> for almost seven years of digital content.",
+     "ro": "<strong>Graphic designer la DCI Romania</strong>, aproape șapte ani de conținut digital."
+    }
+   },
+   {
+    "y": {
+     "en": "2026",
+     "ro": "2026"
+    },
+    "t": {
+     "en": "At Phoenix Art, running the <strong>full visual pipeline</strong>: shoots, design, social media and paid ads.",
+     "ro": "La Phoenix Art, gestionez <strong>tot fluxul vizual</strong>: ședințe foto-video, design, social media și reclame plătite."
+    }
+   }
+  ]
+ },
+ "contact": {
+  "eyebrow": {
+   "en": "Contact",
+   "ro": "Contact"
+  },
+  "title": {
+   "en": "Have a shoot, a campaign or a print job?",
+   "ro": "Ai o ședință foto, o campanie sau un proiect de tipar?"
+  },
+  "text": {
+   "en": "Tell me what you need, where and when.",
+   "ro": "Spune-mi de ce ai nevoie, unde și când."
+  },
+  "rows": [
+   {
+    "k": {
+     "en": "Email",
+     "ro": "Email"
+    },
+    "v": {
+     "en": "lupudaniel.foto@gmail.com",
+     "ro": "lupudaniel.foto@gmail.com"
+    },
+    "copy": true
+   },
+   {
+    "k": {
+     "en": "Based in",
+     "ro": "Locație"
+    },
+    "v": {
+     "en": "Brașov, Romania",
+     "ro": "Brașov, România"
+    }
+   }
+  ],
+  "social": [
+   {
+    "label": {
+     "en": "LinkedIn",
+     "ro": "LinkedIn"
+    },
+    "url": "https://www.linkedin.com/in/lupudanielfotobrasov/"
+   },
+   {
+    "label": {
+     "en": "Instagram",
+     "ro": "Instagram"
+    },
+    "url": "https://www.instagram.com/dancapitandeplai.ro/"
+   }
+  ]
+ },
+ "footer": {
+  "left": {
+   "en": "© 2026 Daniel Lupu · Photographer-videographer &amp; graphic designer",
+   "ro": "© 2026 Daniel Lupu · Fotograf-videograf &amp; designer grafic"
+  },
+  "right": {
+   "en": "Brașov, Romania",
+   "ro": "Brașov, România"
+  }
+ }
+}
