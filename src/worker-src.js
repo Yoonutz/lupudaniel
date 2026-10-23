@@ -112,8 +112,9 @@ export default {
       }
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
       if (IMAGES[p]) {
-        const bin = Uint8Array.from(atob(IMAGES[p]), c => c.charCodeAt(0));
-        return new Response(bin, { headers: { "content-type": "image/webp", "cache-control": "public, max-age=31536000, immutable", ...SEC_HEADERS } });
+        const [type, data] = IMAGES[p];
+        const bin = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+        return new Response(bin, { headers: { "content-type": type, "cache-control": p === "/og.jpg" ? "public, max-age=86400" : "public, max-age=31536000, immutable", ...SEC_HEADERS } });
       }
       const cv = p.match(/^\/cv\/(ro|en)\.pdf$/);
       if (cv) {

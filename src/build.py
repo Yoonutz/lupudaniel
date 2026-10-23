@@ -13,9 +13,22 @@ page = f'''<!doctype html><html lang="ro"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Daniel Lupu · Fotograf-videograf &amp; designer grafic</title>
 <meta name="description" content="Daniel Lupu, fotograf-videograf și designer grafic în Brașov: foto și video, design și DTP, social media și reclame. Photographer-videographer and graphic designer in Brașov, Romania.">
+<link rel="canonical" href="https://lupudaniel.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lupudaniel.pages.dev/">
+<meta property="og:site_name" content="Daniel Lupu">
+<meta property="og:locale" content="ro_RO"><meta property="og:locale:alternate" content="en_US">
 <meta property="og:title" content="Daniel Lupu · Fotograf-videograf &amp; designer grafic">
-<meta property="og:description" content="Foto, video, design și print în Brașov.">
-<meta property="og:image" content="/img/full.webp">
+<meta property="og:description" content="Foto și video, design grafic și DTP, social media și reclame în Brașov. Photographer-videographer and graphic designer in Brașov, Romania.">
+<meta property="og:image" content="https://lupudaniel.pages.dev/og.jpg">
+<meta property="og:image:secure_url" content="https://lupudaniel.pages.dev/og.jpg">
+<meta property="og:image:type" content="image/jpeg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Daniel Lupu, fotograf-videograf și designer grafic, Brașov">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Daniel Lupu · Fotograf-videograf &amp; designer grafic">
+<meta name="twitter:description" content="Foto și video, design grafic și DTP, social media și reclame în Brașov.">
+<meta name="twitter:image" content="https://lupudaniel.pages.dev/og.jpg">
+<meta name="theme-color" content="#8b2635">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
 <style>{RESET}{rd("style.css")}</style></head><body>
@@ -27,7 +40,7 @@ page = f'''<!doctype html><html lang="ro"><head><meta charset="utf-8">
 w = rd("worker-src.js")
 w = w.replace("__PAGE__", json.dumps(page), 1)
 w = w.replace("__STATE__", json.dumps(json.loads(rd("state.default.json")), ensure_ascii=False), 1)
-w = w.replace("__IMAGES__", json.dumps({"/img/hero.webp": b64("hero.webp"), "/img/full.webp": b64("full.webp")}), 1)
+w = w.replace("__IMAGES__", json.dumps({"/img/hero.webp": ["image/webp", b64("hero.webp")], "/img/full.webp": ["image/webp", b64("full.webp")], "/og.jpg": ["image/jpeg", b64("og.jpg")]}), 1)
 w = w.replace("__CVS__", json.dumps({"ro": b64("cv-ro.pdf"), "en": b64("cv-en.pdf")}), 1)
 out = sys.argv[1]
 os.makedirs(out, exist_ok=True)
