@@ -23,6 +23,7 @@ seed = {
     "hero": {
         "desktop": [A + n for n in C.HERO_SLIDES],
         "mobile": [A + f"hero-m-{i}.jpg" for i in range(1, 13)],
+        "interval": 5,
         "lines": {l: [{"title": t, "sub": s} for t, s in C.HERO_LINES[l]] for l in ("ro", "en")},
     },
     "home": both(C.HOME),

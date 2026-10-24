@@ -112,6 +112,7 @@ export function cleanContent(c, base) {
   const out = { ...base };
   if (c.hero) out.hero = {
     desktop: imgList(c.hero.desktop, 40), mobile: imgList(c.hero.mobile, 40),
+    interval: Math.min(20, Math.max(5, Math.round(+c.hero.interval) || 5)),
     lines: { ro: list(c.hero.lines && c.hero.lines.ro, 10).map(l => ({ title: str(l.title, 140), sub: str(l.sub, 140) })),
              en: list(c.hero.lines && c.hero.lines.en, 10).map(l => ({ title: str(l.title, 140), sub: str(l.sub, 140) })) },
   };

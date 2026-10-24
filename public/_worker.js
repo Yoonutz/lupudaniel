@@ -114,10 +114,11 @@ p { margin: 0 0 1em; }
 
 /* Hero slider */
 .hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; color: #fff; overflow: hidden; background: var(--dark); }
-.hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease-in-out; }
-.hero-slide.is-active { opacity: 1; z-index: 1; }
-.hero-slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); transition: transform 3s ease-out; }
-.hero-slide.is-active img { transform: scale(1); }
+.hero-slide { position: absolute; inset: 0; opacity: 0; z-index: 0; }
+.hero-slide.is-active { opacity: 1; z-index: 2; transition: opacity var(--hero-fade, 1500ms) ease-in-out; }
+.hero-slide.is-prev { opacity: 1; z-index: 1; }
+.hero-slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); }
+.hero-slide.is-active img, .hero-slide.is-prev img { transform: scale(1); transition: transform var(--hero-zoom, 6500ms) cubic-bezier(.25,.1,.25,1); }
 .hero-slide::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.25) 45%, rgba(0,0,0,.55) 100%); }
 .hero-caption { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; text-align: center; padding: 0 var(--gutter); }
 .hero-caption h1, .hero-caption h2 { font-size: clamp(32px, 5.4vw, 68px); font-weight: 600; margin: 0 0 .35em; text-shadow: 0 2px 24px rgba(0,0,0,.25); }
@@ -535,7 +536,7 @@ function home(c, lang) {
   const mobile = c.hero.mobile.length ? c.hero.mobile : desktop;
   const lines = c.hero.lines[lang] && c.hero.lines[lang].length ? c.hero.lines[lang] : [{ title: SITE.name, sub: SITE.tagline[lang] }];
   const first = lines[0];
-  const heroData = JSON.stringify({ desktop, mobile, lines }).replace(/</g, "\\u003c");
+  const heroData = JSON.stringify({ desktop, mobile, lines, interval: c.hero.interval || 5 }).replace(/</g, "\\u003c");
   const nav = NAV[lang].reduce((o, [k, l]) => (o[k] = l, o), {});
   const tiles = c.tiles.map((tl) => `<a class="tile reveal" href="${r(lang, tl.key)}">${img(small(tl.img), "", { w: 900, h: 1100 })}<div><span class="tile-label">${e(nav[tl.key])}</span><span class="tile-sub">${e(t(c.tile_sub, lang)[tl.key])}</span></div></a>`).join("");
   const services = c.services[lang].map((s) => `<div class="service"><h3>${e(s.title)}</h3><p>${e(s.text)}</p></div>`).join("");
@@ -828,6 +829,7 @@ var seed_default = {
       "/assets/img/hero-m-11.jpg",
       "/assets/img/hero-m-12.jpg"
     ],
+    interval: 5,
     lines: {
       ro: [
         {
@@ -1576,6 +1578,7 @@ function cleanContent(c, base) {
   if (c.hero) out.hero = {
     desktop: imgList(c.hero.desktop, 40),
     mobile: imgList(c.hero.mobile, 40),
+    interval: Math.min(20, Math.max(5, Math.round(+c.hero.interval) || 5)),
     lines: {
       ro: list(c.hero.lines && c.hero.lines.ro, 10).map((l) => ({ title: str(l.title, 140), sub: str(l.sub, 140) })),
       en: list(c.hero.lines && c.hero.lines.en, 10).map((l) => ({ title: str(l.title, 140), sub: str(l.sub, 140) }))

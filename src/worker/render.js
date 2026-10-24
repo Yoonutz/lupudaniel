@@ -182,7 +182,7 @@ export function home(c, lang) {
   const lines = c.hero.lines[lang] && c.hero.lines[lang].length ? c.hero.lines[lang] : [{ title: SITE.name, sub: SITE.tagline[lang] }];
   // First slide is real markup (fast first paint, picks the right set via <picture>); main.js builds the rest
   const first = lines[0];
-  const heroData = JSON.stringify({ desktop, mobile, lines }).replace(/</g, "\\u003c");
+  const heroData = JSON.stringify({ desktop, mobile, lines, interval: c.hero.interval || 5 }).replace(/</g, "\\u003c");
   const nav = NAV[lang].reduce((o, [k, l]) => (o[k] = l, o), {});
   const tiles = c.tiles.map(tl => `<a class="tile reveal" href="${r(lang, tl.key)}">${img(small(tl.img), "", { w: 900, h: 1100 })}` +
     `<div><span class="tile-label">${e(nav[tl.key])}</span><span class="tile-sub">${e(t(c.tile_sub, lang)[tl.key])}</span></div></a>`).join("");

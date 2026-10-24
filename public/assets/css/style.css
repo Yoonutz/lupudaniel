@@ -113,10 +113,11 @@ p { margin: 0 0 1em; }
 
 /* Hero slider */
 .hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; color: #fff; overflow: hidden; background: var(--dark); }
-.hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease-in-out; }
-.hero-slide.is-active { opacity: 1; z-index: 1; }
-.hero-slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); transition: transform 3s ease-out; }
-.hero-slide.is-active img { transform: scale(1); }
+.hero-slide { position: absolute; inset: 0; opacity: 0; z-index: 0; }
+.hero-slide.is-active { opacity: 1; z-index: 2; transition: opacity var(--hero-fade, 1500ms) ease-in-out; }
+.hero-slide.is-prev { opacity: 1; z-index: 1; }
+.hero-slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); }
+.hero-slide.is-active img, .hero-slide.is-prev img { transform: scale(1); transition: transform var(--hero-zoom, 6500ms) cubic-bezier(.25,.1,.25,1); }
 .hero-slide::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.25) 45%, rgba(0,0,0,.55) 100%); }
 .hero-caption { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; text-align: center; padding: 0 var(--gutter); }
 .hero-caption h1, .hero-caption h2 { font-size: clamp(32px, 5.4vw, 68px); font-weight: 600; margin: 0 0 .35em; text-shadow: 0 2px 24px rgba(0,0,0,.25); }

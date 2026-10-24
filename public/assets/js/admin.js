@@ -176,7 +176,16 @@
       });
     }
     renderLines();
+    var secs = [5, 6, 7, 8, 10, 12, 15, 20];
+    var cur = c.hero.interval || 5;
+    if (secs.indexOf(cur) < 0) secs.push(cur), secs.sort(function (a, b) { return a - b; });
+    var speedSel = h('select', { onchange: function () { c.hero.interval = +speedSel.value; markDirty(); } },
+      secs.map(function (s) { return h('option', { value: s, selected: s === cur ? 'selected' : null, text: s + ' secunde' }); }));
     return [
+      h('div', { class: 'panel' },
+        h('div', { class: 'panel-head' }, h('h2', { text: 'Cât stă fiecare poză' })),
+        h('p', { class: 'hint', text: 'Trecerea lină dintre poze se potrivește singură cu timpul ales.' }),
+        speedSel),
       h('div', { class: 'panel' },
         h('div', { class: 'panel-head' }, h('h2', { text: 'Hero desktop (' + c.hero.desktop.length + ')' })),
         h('p', { class: 'hint', text: 'Poze orizontale (landscape). Apar pe laptop și calculator. Recomandat 20–30.' }),
