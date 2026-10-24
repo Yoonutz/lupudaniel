@@ -48,34 +48,62 @@
     });
   }
 
-  // Hero slider (20-30 shots): counter + arrows, autoplay
-  var slides = document.querySelectorAll('.hero-slide');
-  var counter = document.querySelector('.hero-count');
-  if (slides.length > 1) {
-    var current = 0, timer;
+  // Hero slider: separate photo sets for landscape screens (desktop) and portrait screens (phones).
+  // The first slide is in the HTML; the rest are built here from #hero-data.
+  var hero = document.querySelector('[data-hero]');
+  var dataEl = document.getElementById('hero-data');
+  if (hero && dataEl) {
+    var data = JSON.parse(dataEl.textContent);
+    var counter = hero.querySelector('.hero-count');
+    var portraitMq = window.matchMedia('(orientation: portrait)');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var slides = [], current = 0, timer;
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var esc = function (s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
     var load = function (i) {
-      var im = slides[i].querySelector('img[data-src]');
+      var im = slides[i] && slides[i].querySelector('img[data-src]');
       if (im) { im.src = im.dataset.src; im.removeAttribute('data-src'); }
     };
+    var build = function () {
+      var set = portraitMq.matches && data.mobile.length ? data.mobile : data.desktop;
+      hero.querySelectorAll('.hero-slide').forEach(function (s) { s.remove(); });
+      slides = set.map(function (src, i) {
+        var line = data.lines[i % data.lines.length];
+        var tag = i === 0 ? 'h1' : 'h2';
+        var el = document.createElement('div');
+        el.className = 'hero-slide' + (i === 0 ? ' is-active' : '');
+        el.setAttribute('aria-hidden', i === 0 ? 'false' : 'true');
+        el.innerHTML = '<img ' + (i === 0 ? 'src' : 'data-src') + '="' + esc(src) + '" alt="" decoding="async"' +
+          (i === 0 ? '' : ' src="data:image/gif;base64,R0lGODlhAQABAAAAACw="') + '>' +
+          '<div class="hero-caption"><' + tag + '>' + esc(line.title) + '</' + tag + '><p>' + esc(line.sub) + '</p></div>';
+        hero.insertBefore(el, dataEl);
+        return el;
+      });
+      current = 0;
+      if (counter) counter.textContent = '01 / ' + pad(slides.length);
+      load(1);
+    };
     var show = function (i) {
-      var nextI = (i + slides.length) % slides.length;
-      load(nextI);
+      if (slides.length < 2) return;
+      var n = (i + slides.length) % slides.length;
+      load(n);
       slides[current].classList.remove('is-active');
       slides[current].setAttribute('aria-hidden', 'true');
-      current = nextI;
+      current = n;
       slides[current].classList.add('is-active');
       slides[current].setAttribute('aria-hidden', 'false');
       if (counter) counter.textContent = pad(current + 1) + ' / ' + pad(slides.length);
       load((current + 1) % slides.length);
     };
-    var start = function () { if (!reduce) timer = setInterval(function () { show(current + 1); }, 5000); };
-    var restart = function () { clearInterval(timer); start(); };
-    var prev = document.querySelector('.hero-prev'), next = document.querySelector('.hero-next');
-    prev && prev.addEventListener('click', function () { show(current - 1); restart(); });
-    next && next.addEventListener('click', function () { show(current + 1); restart(); });
-    window.addEventListener('load', function () { load(1); start(); });
+    var start = function () { clearInterval(timer); if (!reduce) timer = setInterval(function () { show(current + 1); }, 5000); };
+    var prev = hero.querySelector('.hero-prev'), next = hero.querySelector('.hero-next');
+    prev && prev.addEventListener('click', function () { show(current - 1); start(); });
+    next && next.addEventListener('click', function () { show(current + 1); start(); });
+    build();
+    start();
+    // Rotating the phone or resizing the window swaps to the other set
+    var onFlip = function () { build(); start(); };
+    portraitMq.addEventListener ? portraitMq.addEventListener('change', onFlip) : portraitMq.addListener(onFlip);
   }
 
   // Reveal on scroll

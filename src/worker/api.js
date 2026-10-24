@@ -1,0 +1,270 @@
+// REST API for the admin panel: email login links, content, media.
+// Bindings: CONTENT (KV), MAILER (service binding to the mail worker, optional),
+// vars: ADMIN_EMAILS (comma separated), MAIL_FROM.
+import SEED from "./seed.json";
+
+const SESSION_TTL = 24 * 3600; // Dan logs in once a day
+const LINK_TTL = 15 * 60;
+const MAX_IMAGE = 8 * 1024 * 1024;
+
+const enc = new TextEncoder();
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+const randomToken = () => hex(crypto.getRandomValues(new Uint8Array(32)));
+const sha256 = async s => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
+
+export const json = (data, status = 200, headers = {}) =>
+  new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
+
+const adminEmails = env => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com").toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
+
+// ---------- content ----------
+
+export async function getContent(env) {
+  const saved = await env.CONTENT.get("site", "json");
+  return saved ? { ...SEED, ...saved } : SEED;
+}
+
+// ---------- sessions ----------
+
+function cookie(req, name) {
+  const m = (req.headers.get("cookie") || "").match(new RegExp("(?:^|;\\s*)" + name + "=([^;]+)"));
+  return m ? m[1] : null;
+}
+
+export async function session(req, env) {
+  const sid = cookie(req, "sid");
+  if (!sid || !/^[0-9a-f]{64}$/.test(sid)) return null;
+  return env.CONTENT.get("sess:" + await sha256(sid), "json");
+}
+
+async function rateLimit(env, key, max, ttl) {
+  const n = parseInt(await env.CONTENT.get("rl:" + key) || "0", 10);
+  if (n >= max) return false;
+  await env.CONTENT.put("rl:" + key, String(n + 1), { expirationTtl: ttl });
+  return true;
+}
+
+async function readJson(req, max) {
+  const text = await req.text();
+  if (text.length > max) throw new Error("too_large");
+  return JSON.parse(text);
+}
+
+function loginEmail(link, to, from) {
+  const html = `<!doctype html><html><body style="font-family:Arial,sans-serif;background:#f6f4f0;padding:32px">
+<div style="max-width:480px;margin:auto;background:#fff;padding:32px;border-radius:4px">
+<h2 style="margin:0 0 16px;font-weight:600">Dan Căpitan de Plai · Admin</h2>
+<p>Apasă butonul ca să intri în panoul de administrare. Linkul expiră în 15 minute.</p>
+<p style="margin:28px 0"><a href="${link}" style="background:#161616;color:#fff;padding:14px 24px;text-decoration:none;border-radius:2px;display:inline-block">Intră în admin</a></p>
+<p style="color:#888;font-size:13px">Dacă nu ai cerut acest email, îl poți ignora.<br>Tap the button to log in. The link expires in 15 minutes.</p>
+</div></body></html>`;
+  const boundary = "b" + randomToken().slice(0, 16);
+  const date = new Date().toUTCString();
+  return [
+    `From: Dan Căpitan de Plai <${from}>`, `To: <${to}>`, "Subject: =?UTF-8?B?" + btoa(String.fromCharCode(...enc.encode("Link de autentificare · Admin"))) + "?=",
+    `Date: ${date}`, `Message-ID: <${randomToken().slice(0, 24)}@${from.split("@")[1]}>`, "MIME-Version: 1.0",
+    `Content-Type: multipart/alternative; boundary="${boundary}"`, "",
+    `--${boundary}`, "Content-Type: text/plain; charset=UTF-8", "",
+    `Intră în admin (expiră în 15 minute): ${link}`, "",
+    `--${boundary}`, "Content-Type: text/html; charset=UTF-8", "", html, "",
+    `--${boundary}--`, "",
+  ].join("\r\n");
+}
+
+async function requestLink(req, env, origin) {
+  let body; try { body = await readJson(req, 1000) } catch { return json({ error: "bad_request" }, 400) }
+  const email = String(body.email || "").trim().toLowerCase();
+  const ip = req.headers.get("cf-connecting-ip") || "unknown";
+  if (!await rateLimit(env, "ip:" + ip, 10, 3600)) return json({ error: "rate_limited" }, 429);
+  // Same answer whether or not the address is allowed, so nobody can probe for it
+  if (!adminEmails(env).includes(email)) return json({ ok: true });
+  if (!await rateLimit(env, "mail:" + email, 5, 3600)) return json({ error: "rate_limited" }, 429);
+  const token = randomToken();
+  await env.CONTENT.put("login:" + await sha256(token), email, { expirationTtl: LINK_TTL });
+  const link = `${origin}/admin/?login=${token}`;
+  if (!env.MAILER) {
+    // Mock login until Dan's domain can send email: the link is shown on screen,
+    // but only to someone who opened the admin with the private preview key
+    if (env.MOCK_LOGIN_KEY && body.preview && body.preview === env.MOCK_LOGIN_KEY) return json({ ok: true, mockToken: token });
+    return json({ error: "mail_unavailable" }, 503);
+  }
+  const from = env.MAIL_FROM || "login@dancapitandeplai.ro";
+  const res = await env.MAILER.fetch("https://mailer/send", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ from, to: email, raw: loginEmail(link, email, from) }),
+  });
+  if (!res.ok) return json({ error: "mail_failed" }, 502);
+  return json({ ok: true });
+}
+
+// The link opens the admin page, which POSTs the token here (mail scanners that
+// pre-open links can't burn it, since they only do GET)
+async function verifyLink(req, env) {
+  let body; try { body = await readJson(req, 1000) } catch { return json({ error: "bad_request" }, 400) }
+  const token = String(body.token || "");
+  if (!/^[0-9a-f]{64}$/.test(token)) return json({ error: "bad_token" }, 400);
+  const key = "login:" + await sha256(token);
+  const email = await env.CONTENT.get(key);
+  if (!email) return json({ error: "expired" }, 401);
+  await env.CONTENT.delete(key);
+  const sid = randomToken();
+  await env.CONTENT.put("sess:" + await sha256(sid), JSON.stringify({ email, at: Date.now() }), { expirationTtl: SESSION_TTL });
+  return json({ ok: true, email }, 200, {
+    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`,
+  });
+}
+
+async function logout(req, env) {
+  const sid = cookie(req, "sid");
+  if (sid && /^[0-9a-f]{64}$/.test(sid)) await env.CONTENT.delete("sess:" + await sha256(sid));
+  return json({ ok: true }, 200, { "set-cookie": "sid=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
+}
+
+// ---------- content validation ----------
+
+const IMG_RE = /^\/(media\/[0-9a-f]{24}\.jpg|assets\/img\/[\w.-]+)$/;
+const str = (v, max = 4000) => String(v ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").slice(0, max);
+const bi = (v, max) => ({ ro: str(v && v.ro, max), en: str(v && v.en, max) });
+const biList = (v, max, n) => ({ ro: list(v && v.ro, n).map(x => str(x, max)), en: list(v && v.en, n).map(x => str(x, max)) });
+const list = (v, n = 200) => (Array.isArray(v) ? v.slice(0, n) : []);
+const imgRef = v => (IMG_RE.test(String(v || "")) ? String(v) : "");
+const imgList = (v, n = 200) => list(v, n).map(imgRef).filter(Boolean);
+const url = v => (/^https?:\/\/[^\s"'<>]+$/i.test(String(v || "")) ? String(v).slice(0, 500) : "");
+
+export function slugify(s) {
+  return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70) || "pagina";
+}
+function uniqueSlugs(items) {
+  const seen = new Set();
+  for (const it of items) {
+    let base = slugify(it.slug || it.title.ro || it.title.en), s = base, n = 2;
+    while (seen.has(s)) s = `${base}-${n++}`;
+    seen.add(s); it.slug = s;
+  }
+  return items;
+}
+
+export function cleanContent(c, base) {
+  const out = { ...base };
+  if (c.hero) out.hero = {
+    desktop: imgList(c.hero.desktop, 40), mobile: imgList(c.hero.mobile, 40),
+    lines: { ro: list(c.hero.lines && c.hero.lines.ro, 10).map(l => ({ title: str(l.title, 140), sub: str(l.sub, 140) })),
+             en: list(c.hero.lines && c.hero.lines.en, 10).map(l => ({ title: str(l.title, 140), sub: str(l.sub, 140) })) },
+  };
+  const cats = Object.keys(base.categories.ro);
+  if (c.events) out.events = uniqueSlugs(list(c.events, 200).map(ev => ({
+    id: str(ev.id, 40) || randomToken().slice(0, 12), slug: str(ev.slug, 80),
+    cat: cats.includes(ev.cat) ? ev.cat : cats[0], venue: str(ev.venue, 120),
+    cover: imgRef(ev.cover), photos: imgList(ev.photos, 300),
+    title: bi(ev.title, 140), date: bi(ev.date, 60), intro: bi(ev.intro, 600),
+  })));
+  if (c.posts) out.posts = uniqueSlugs(list(c.posts, 300).map(p => ({
+    id: str(p.id, 40) || randomToken().slice(0, 12), slug: str(p.slug, 80), cover: imgRef(p.cover),
+    date: /^\d{4}-\d{2}-\d{2}$/.test(p.date) ? p.date : new Date().toISOString().slice(0, 10),
+    title: bi(p.title, 160), excerpt: bi(p.excerpt, 400), body: biList(p.body, 4000, 60),
+  })));
+  if (c.faq) out.faq = list(c.faq, 100).map(f => ({ q: bi(f.q, 300), a: bi(f.a, 2000) }));
+  if (c.contact) out.contact = {
+    phone: str(c.contact.phone, 40), email: str(c.contact.email, 120),
+    facebook: url(c.contact.facebook), messenger: url(c.contact.messenger), instagram: url(c.contact.instagram),
+    instagram_handle: str(c.contact.instagram_handle, 60),
+    area: bi(c.contact.area, 200), intro: bi(c.contact.intro, 400), notes: biList(c.contact.notes, 400, 12),
+  };
+  return out;
+}
+
+// Images referenced anywhere in the content
+function usedImages(c) {
+  const s = JSON.stringify(c);
+  return new Set((s.match(/\/media\/[0-9a-f]{24}\.jpg/g) || []).map(x => x.slice(7, 31)));
+}
+
+async function saveContent(req, env) {
+  let body; try { body = await readJson(req, 2_000_000) } catch { return json({ error: "bad_request" }, 400) }
+  const current = await getContent(env);
+  const next = cleanContent(body, current);
+  await env.CONTENT.put("site", JSON.stringify(next));
+  // Drop uploaded images nothing points to any more
+  const keep = usedImages(next);
+  const listed = await env.CONTENT.list({ prefix: "img:" });
+  await Promise.all(listed.keys.filter(k => !keep.has(k.name.slice(4, 28))).map(k => env.CONTENT.delete(k.name)));
+  return json({ ok: true, content: next });
+}
+
+// ---------- media ----------
+
+function isImage(buf) {
+  const b = new Uint8Array(buf.slice(0, 12));
+  const jpg = b[0] === 0xff && b[1] === 0xd8;
+  const png = b[0] === 0x89 && b[1] === 0x50;
+  const webp = String.fromCharCode(...b.slice(8, 12)) === "WEBP";
+  return jpg ? "image/jpeg" : png ? "image/png" : webp ? "image/webp" : null;
+}
+
+async function storeImage(env, id, variant, buf, meta = {}) {
+  const type = isImage(buf);
+  if (!type || buf.byteLength > MAX_IMAGE) return false;
+  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, ...meta } });
+  return true;
+}
+
+// Body = image bytes. ?id=<id>&v=s uploads the small variant for an existing id.
+async function uploadMedia(req, env, params) {
+  const buf = await req.arrayBuffer();
+  const v = params.get("v") === "s" ? "-s" : "";
+  let id = params.get("id");
+  if (v) { if (!/^[0-9a-f]{24}$/.test(id || "")) return json({ error: "bad_id" }, 400) } else id = randomToken().slice(0, 24);
+  const w = parseInt(params.get("w") || "0", 10), h = parseInt(params.get("h") || "0", 10);
+  if (!await storeImage(env, id, v, buf, { w, h })) return json({ error: "bad_image" }, 400);
+  return json({ ok: true, id, url: `/media/${id}.jpg` });
+}
+
+// Server-side import from a public image URL (used to seed from Instagram)
+async function importMedia(req, env) {
+  let body; try { body = await readJson(req, 4000) } catch { return json({ error: "bad_request" }, 400) }
+  const src = url(body.url);
+  if (!src) return json({ error: "bad_url" }, 400);
+  const res = await fetch(src, { headers: { "user-agent": "Mozilla/5.0" } });
+  if (!res.ok) return json({ error: "fetch_failed", status: res.status }, 502);
+  const buf = await res.arrayBuffer();
+  const id = randomToken().slice(0, 24);
+  if (!await storeImage(env, id, "", buf)) return json({ error: "bad_image" }, 400);
+  return json({ ok: true, id, url: `/media/${id}.jpg` });
+}
+
+export async function serveMedia(env, path, ctx, req) {
+  const m = path.match(/^\/media\/([0-9a-f]{24})(-s)?\.jpg$/);
+  if (!m) return null;
+  const cache = caches.default;
+  const hit = await cache.match(req);
+  if (hit) return hit;
+  let { value, metadata } = await env.CONTENT.getWithMetadata(`img:${m[1]}${m[2] || ""}`, "arrayBuffer");
+  if (!value && m[2]) ({ value, metadata } = await env.CONTENT.getWithMetadata(`img:${m[1]}`, "arrayBuffer"));
+  if (!value) return new Response("Not found", { status: 404 });
+  const res = new Response(value, { headers: { "content-type": (metadata && metadata.type) || "image/jpeg", "cache-control": "public, max-age=31536000, immutable" } });
+  ctx.waitUntil(cache.put(req, res.clone()));
+  return res;
+}
+
+// ---------- router ----------
+
+export async function handleApi(req, env, url) {
+  const p = url.pathname, m = req.method;
+  if (m === "POST" && p === "/api/auth/request") return requestLink(req, env, url.origin);
+  if (m === "POST" && p === "/api/auth/verify") return verifyLink(req, env);
+  if (m === "POST" && p === "/api/auth/logout") return logout(req, env);
+  if (m === "GET" && p === "/api/content/public") return json(await getContent(env));
+
+  const s = await session(req, env);
+  if (!s) return json({ error: "unauthorized" }, 401);
+  // Mutations need a custom header, which cross-site forms can't send
+  if (m !== "GET" && req.headers.get("x-admin") !== "1") return json({ error: "forbidden" }, 403);
+
+  if (m === "GET" && p === "/api/auth/me") return json({ email: s.email });
+  if (m === "GET" && p === "/api/content") return json(await getContent(env));
+  if (m === "PUT" && p === "/api/content") return saveContent(req, env);
+  if (m === "POST" && p === "/api/media") return uploadMedia(req, env, url.searchParams);
+  if (m === "POST" && p === "/api/media/import") return importMedia(req, env);
+  return json({ error: "not_found" }, 404);
+}

@@ -1,0 +1,12 @@
+{
+  "name": "dancapitandeplai",
+  "private": true,
+  "scripts": {
+    "build": "python3 src/make_seed.py && esbuild src/worker/index.js --bundle --format=esm --target=es2022 --outfile=public/_worker.js --legal-comments=none",
+    "dev": "wrangler pages dev public --kv CONTENT --binding MOCK_LOGIN_KEY=dev --port 8788"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "wrangler": "3.99.0"
+  }
+}
