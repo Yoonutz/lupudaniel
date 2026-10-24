@@ -1,6 +1,6 @@
 # lupudaniel.pages.dev
 
-Portfolio site for Daniel Lupu, served by a Cloudflare Pages advanced-mode worker (`public/_worker.js`).
+Resume site for Daniel Lupu (Pages project `lupudaniel`, root directory `resume/` on `main`), served by a Cloudflare Pages advanced-mode worker (`public/_worker.js`).
 
 - Content lives in Cloudflare KV (`CONTENT` binding, key `state`). `src/state.default.json` is only the starting content.
 - Admin: click the hero photo 5 times, sign in. First sign-in forces a password change (stored hashed in KV, key `auth`).
@@ -11,5 +11,5 @@ Portfolio site for Daniel Lupu, served by a Cloudflare Pages advanced-mode worke
 
 ```
 (CV PDFs: generated in the browser by cvDoc() in src/main.js; src/cv-*.pdf are the fallback copies.)
-python3 src/build.py public
+cd resume && python3 src/build.py public
 ```

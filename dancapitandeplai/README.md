@@ -1,7 +1,7 @@
 # dancapitandeplai.ro
 
 Photography portfolio for Dan Căpitan de Plai (Daniel Lupu), wedding photographer in Brașov.
-Romanian at `/`, English at `/en/`. Hosted on Cloudflare Pages (project `dancapitandeplai`, this branch).
+Romanian at `/`, English at `/en/`. Hosted on Cloudflare Pages (project `dancapitandeplai`, root directory `dancapitandeplai/` on `main`).
 
 ## How it works
 
@@ -21,6 +21,7 @@ Romanian at `/`, English at `/en/`. Hosted on Cloudflare Pages (project `dancapi
 ## Develop
 
 ```
+cd dancapitandeplai
 npm install
 npm run build   # seed.json + bundle public/_worker.js (commit the result; Pages has no build step)
 npx wrangler pages dev public --kv CONTENT --binding MOCK_LOGIN_KEY=devkey --port 8788
