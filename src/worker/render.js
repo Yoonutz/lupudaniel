@@ -279,7 +279,7 @@ export function portfolio(c, lang) {
   const used = Object.keys(cats).filter(k => c.events.some(ev => ev.cat === k));
   const filters = `<button data-filter="all" aria-pressed="true">${e(ui.all)}</button>` +
     used.map(k => `<button data-filter="${e(k)}" aria-pressed="false">${e(cats[k])}</button>`).join("");
-  const cards = c.events.map((ev, n) => `<a class="event-card reveal" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">` +
+  const cards = c.events.map((ev, n) => `<a class="event-card${n < 4 ? "" : " reveal"}" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">` +
     `${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0, above: n < 4 })}` +
     `<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} · ${e(t(ev.date, lang))}</span>` +
     `<h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
