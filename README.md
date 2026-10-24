@@ -1,15 +1,26 @@
-# lupudaniel.pages.dev
+# lupudaniel
 
-Portfolio site for Daniel Lupu, served by a Cloudflare Pages advanced-mode worker (`public/_worker.js`).
+Two separate websites for Daniel Lupu live in this repo, each in its own folder.
+Nothing is shared between them: each folder has its own code, build, content and Cloudflare Pages project.
 
-- Content lives in Cloudflare KV (`CONTENT` binding, key `state`). `src/state.default.json` is only the starting content.
-- Admin: click the hero photo 5 times, sign in. First sign-in forces a password change (stored hashed in KV, key `auth`).
-- CV PDFs: `/cv/ro.pdf`, `/cv/en.pdf`. Defaults are built in; the admin can replace them (stored in KV `cv:ro` / `cv:en`).
-- Secrets (Pages project settings): `INIT_USER`, `INIT_PASS_SHA256`, `SESSION_SECRET`.
+| Folder | Site | Cloudflare Pages project |
+| --- | --- | --- |
+| [`resume/`](resume/) | Daniel's resume / CV site | `lupudaniel` → https://lupudaniel.pages.dev |
+| [`dancapitandeplai/`](dancapitandeplai/) | Dan Căpitan de Plai photography portfolio + admin | `dancapitandeplai` → https://dancapitandeplai.pages.dev |
 
-## Rebuild
+## How deploys work
 
-```
-(CV PDFs: generated in the browser by cvDoc() in src/main.js; src/cv-*.pdf are the fallback copies.)
-python3 src/build.py public
-```
+Both Pages projects build from the `main` branch with no build command. Each one is set to its own folder:
+
+- `lupudaniel`: root directory `resume`, output directory `public`, build watch path `resume/*`
+- `dancapitandeplai`: root directory `dancapitandeplai`, output directory `public`, build watch path `dancapitandeplai/*`
+
+So a change inside one folder only redeploys that site. Each site is a Pages advanced-mode worker
+(`<folder>/public/_worker.js`) with its own KV namespace; secrets live in each project's settings.
+
+See each folder's README for how that site works and how to rebuild it.
+
+## Repo-wide files
+
+- `SECURITY.md`: how to report a security problem.
+- `.github/`: Dependabot and the syntax-check workflow, which checks both folders.

@@ -1,0 +1,701 @@
+{
+ "hero": {
+  "desktop": [
+   "/assets/img/hero-1.jpg",
+   "/assets/img/hero-2.jpg",
+   "/assets/img/hero-3.jpg",
+   "/assets/img/hero-4.jpg",
+   "/assets/img/hero-5.jpg",
+   "/assets/img/hero-6.jpg",
+   "/assets/img/hero-7.jpg",
+   "/assets/img/hero-8.jpg",
+   "/assets/img/hero-9.jpg",
+   "/assets/img/hero-10.jpg",
+   "/assets/img/hero-11.jpg",
+   "/assets/img/hero-12.jpg",
+   "/assets/img/hero-13.jpg",
+   "/assets/img/hero-14.jpg",
+   "/assets/img/hero-15.jpg",
+   "/assets/img/hero-16.jpg",
+   "/assets/img/hero-17.jpg",
+   "/assets/img/hero-18.jpg",
+   "/assets/img/hero-19.jpg",
+   "/assets/img/hero-20.jpg",
+   "/assets/img/hero-21.jpg",
+   "/assets/img/hero-22.jpg",
+   "/assets/img/hero-23.jpg",
+   "/assets/img/hero-24.jpg"
+  ],
+  "mobile": [
+   "/assets/img/hero-m-1.jpg",
+   "/assets/img/hero-m-2.jpg",
+   "/assets/img/hero-m-3.jpg",
+   "/assets/img/hero-m-4.jpg",
+   "/assets/img/hero-m-5.jpg",
+   "/assets/img/hero-m-6.jpg",
+   "/assets/img/hero-m-7.jpg",
+   "/assets/img/hero-m-8.jpg",
+   "/assets/img/hero-m-9.jpg",
+   "/assets/img/hero-m-10.jpg",
+   "/assets/img/hero-m-11.jpg",
+   "/assets/img/hero-m-12.jpg"
+  ],
+  "interval": 5,
+  "lines": {
+   "ro": [
+    {
+     "title": "Momente reale, nu poze regizate",
+     "sub": "Fotografie documentară de nuntă · Brașov"
+    },
+    {
+     "title": "Fotografia nu e o listă de bifat",
+     "sub": "Las momentele să se întâmple"
+    },
+    {
+     "title": "Să simțiți ziua din nou peste ani",
+     "sub": "Nunți · Botezuri · Familie"
+    }
+   ],
+   "en": [
+    {
+     "title": "Real moments, not staged photos",
+     "sub": "Documentary wedding photography · Brașov"
+    },
+    {
+     "title": "Photography isn't a checklist",
+     "sub": "I let the moments unfold"
+    },
+    {
+     "title": "Feel the day again, years later",
+     "sub": "Weddings · Christenings · Family"
+    }
+   ]
+  }
+ },
+ "home": {
+  "ro": {
+   "title": "Dan Căpitan de Plai · Fotograf de nuntă în Brașov",
+   "desc": "Fotografie documentară de nuntă, botez și familie în Brașov și oriunde vreți voi. Momente reale, lumină naturală, fără poze regizate.",
+   "intro_eyebrow": "Fotografie documentară",
+   "intro_title": "Lasă obiectivul meu să vă spună povestea",
+   "intro_p": [
+    "Fotografiez nunți, botezuri și familii așa cum sunt ele: cu emoție, cu râsete și cu momentele mici pe care nimeni nu le regizează. Lumina naturală și oamenii adevărați fac toată treaba, eu doar sunt acolo la momentul potrivit.",
+    "De la ceremonii desculț prin iarbă până la nunți elegante în oraș, intervin cât mai puțin și vă las să vă bucurați de zi. Dacă sunteți timizi în fața aparatului, e perfect: nu trebuie să pozați."
+   ],
+   "tiles_eyebrow": "Descoperă",
+   "tiles_title": "Unde vrei să mergi?",
+   "quote": "Fotografia nu e o listă de bifat. Vreau ca peste ani să deschideți albumul și să simțiți ziua din nou.",
+   "quote_by": "Dan Căpitan de Plai",
+   "services_eyebrow": "Ce fotografiez",
+   "services_title": "Pentru fiecare moment important",
+   "profile_eyebrow": "Capturez magia vieții",
+   "profile_title": "Salut, sunt Dan",
+   "profile_p": [
+    "Sunt fotograf în Brașov și de aproape 8 ani fotografiez nunți, botezuri și familii. Lucrez discret, cu lumină naturală, și caut momentele sincere dintre oameni.",
+    "Merg oriunde mă cheamă povestea voastră: Conacul Albert, Naturalia Inn, Centrul Vechi sau o pajiște fără nume."
+   ],
+   "testimonials_title": "Ce spun cuplurile",
+   "cta_title": "Hai să vă păstrăm amintirile",
+   "cta_p": "Spuneți-mi data și locul, iar eu vă răspund cu o ofertă pe măsura voastră.",
+   "ig_title": "Pe Instagram"
+  },
+  "en": {
+   "title": "Dan Căpitan de Plai · Wedding photographer in Brașov",
+   "desc": "Documentary wedding, christening and family photography in Brașov and wherever you want. Real moments, natural light, no staged poses.",
+   "intro_eyebrow": "Documentary photography",
+   "intro_title": "Let my lens tell your story",
+   "intro_p": [
+    "I photograph weddings, christenings and families as they really are: the emotion, the laughter and the small moments nobody stages. Natural light and real people do the work, I just make sure I'm there at the right moment.",
+    "From barefoot ceremonies in the grass to elegant city weddings, I step in as little as possible and let you enjoy the day. Shy in front of a camera? Perfect, you don't need to pose."
+   ],
+   "tiles_eyebrow": "Explore",
+   "tiles_title": "Where to next?",
+   "quote": "Photography isn't a checklist. I want you to open the album years from now and feel the day all over again.",
+   "quote_by": "Dan Căpitan de Plai",
+   "services_eyebrow": "What I photograph",
+   "services_title": "For every moment that matters",
+   "profile_eyebrow": "Capturing life's magic",
+   "profile_title": "Hi, I'm Dan",
+   "profile_p": [
+    "I'm a photographer based in Brașov and I've been photographing weddings, christenings and families for almost 8 years. I work quietly, with natural light, looking for honest moments between people.",
+    "I go wherever your story takes me: Conacul Albert, Naturalia Inn, the Old Town or a nameless meadow."
+   ],
+   "testimonials_title": "What couples say",
+   "cta_title": "Let's keep your memories",
+   "cta_p": "Tell me your date and place, and I'll come back with a quote that fits you.",
+   "ig_title": "On Instagram"
+  }
+ },
+ "tiles": [
+  {
+   "key": "home",
+   "img": "/assets/img/nav-1.jpg"
+  },
+  {
+   "key": "portfolio",
+   "img": "/assets/img/nav-2.jpg"
+  },
+  {
+   "key": "blog",
+   "img": "/assets/img/nav-3.jpg"
+  },
+  {
+   "key": "faq",
+   "img": "/assets/img/nav-4.jpg"
+  },
+  {
+   "key": "contact",
+   "img": "/assets/img/nav-5.jpg"
+  }
+ ],
+ "tile_sub": {
+  "ro": {
+   "home": "Începe de aici",
+   "portfolio": "Fiecare eveniment, povestea lui",
+   "blog": "Sfaturi și povești",
+   "faq": "Prețuri, deplasare, livrare",
+   "contact": "Hai să vorbim"
+  },
+  "en": {
+   "home": "Start here",
+   "portfolio": "Every event, its own story",
+   "blog": "Tips and stories",
+   "faq": "Pricing, travel, delivery",
+   "contact": "Let's talk"
+  }
+ },
+ "services": {
+  "ro": [
+   {
+    "title": "Nunți",
+    "text": "Toată ziua, de la pregătiri până la petrecere, spusă ca o poveste."
+   },
+   {
+    "title": "Cununie civilă",
+    "text": "Momentul oficial, simplu și emoționant."
+   },
+   {
+    "title": "Botezuri",
+    "text": "Familia, nașii și cel mic, fără agitație."
+   },
+   {
+    "title": "Familie",
+    "text": "Ședințe relaxate, acasă sau în natură."
+   },
+   {
+    "title": "After-wedding & Trash The Dress",
+    "text": "O zi doar pentru voi doi, în locuri frumoase."
+   },
+   {
+    "title": "Nou-născuți",
+    "text": "Primele zile, cu blândețe și răbdare."
+   }
+  ],
+  "en": [
+   {
+    "title": "Weddings",
+    "text": "The whole day, from getting ready to the party, told as a story."
+   },
+   {
+    "title": "Civil ceremonies",
+    "text": "The official moment, simple and moving."
+   },
+   {
+    "title": "Christenings",
+    "text": "Family, godparents and the little one, without the fuss."
+   },
+   {
+    "title": "Family",
+    "text": "Relaxed sessions at home or outdoors."
+   },
+   {
+    "title": "After-wedding & Trash The Dress",
+    "text": "A day just for the two of you, somewhere beautiful."
+   },
+   {
+    "title": "Newborns",
+    "text": "The first days, gently and patiently."
+   }
+  ]
+ },
+ "stats": {
+  "ro": [
+   {
+    "num": "~8",
+    "label": "ani de fotografie"
+   },
+   {
+    "num": "6",
+    "label": "premii de portofoliu"
+   },
+   {
+    "num": "100%",
+    "label": "lumină naturală"
+   },
+   {
+    "num": "∞",
+    "label": "deplasări oriunde"
+   }
+  ],
+  "en": [
+   {
+    "num": "~8",
+    "label": "years behind the camera"
+   },
+   {
+    "num": "6",
+    "label": "portfolio awards"
+   },
+   {
+    "num": "100%",
+    "label": "natural light"
+   },
+   {
+    "num": "∞",
+    "label": "happy to travel"
+   }
+  ]
+ },
+ "testimonials": {
+  "ro": [
+   {
+    "img": "/assets/img/client-1.jpg",
+    "quote": "Dan a prins momente pe care nici nu știam că s-au întâmplat. Am uitat complet că e acolo, și asta se vede în poze.",
+    "who": "Exemplu · Andreea & Mihai"
+   },
+   {
+    "img": "/assets/img/client-2.jpg",
+    "quote": "Super răbdător și relaxat, chiar și cu noi, care suntem cei mai timizi oameni din lume. Pozele sunt superbe.",
+    "who": "Exemplu · Ioana & Radu"
+   }
+  ],
+  "en": [
+   {
+    "img": "/assets/img/client-1.jpg",
+    "quote": "Dan caught moments we didn't even know happened. We completely forgot he was there, and it shows in the photos.",
+    "who": "Sample · Andreea & Mihai"
+   },
+   {
+    "img": "/assets/img/client-2.jpg",
+    "quote": "So patient and relaxed, even with us, the shyest people alive. The photos are gorgeous.",
+    "who": "Sample · Ioana & Radu"
+   }
+  ]
+ },
+ "portrait": "/assets/img/portrait.jpg",
+ "profile": "/assets/img/profile.jpg",
+ "cta_img": "/assets/img/banner-1.jpg",
+ "instagram_imgs": [
+  "/assets/img/ig-1.jpg",
+  "/assets/img/ig-2.jpg",
+  "/assets/img/ig-3.jpg",
+  "/assets/img/ig-4.jpg",
+  "/assets/img/ig-5.jpg",
+  "/assets/img/ig-6.jpg"
+ ],
+ "categories": {
+  "ro": {
+   "nunta": "Nunți",
+   "cununie": "Cununie civilă",
+   "botez": "Botezuri",
+   "familie": "Familie",
+   "after": "After-wedding"
+  },
+  "en": {
+   "nunta": "Weddings",
+   "cununie": "Civil ceremonies",
+   "botez": "Christenings",
+   "familie": "Family",
+   "after": "After-wedding"
+  }
+ },
+ "events": [
+  {
+   "id": "nunta-conacul-albert",
+   "slug": "nunta-conacul-albert",
+   "cat": "nunta",
+   "venue": "Conacul Albert",
+   "cover": "/assets/img/p-01.jpg",
+   "photos": [
+    "/assets/img/p-01.jpg",
+    "/assets/img/p-02.jpg",
+    "/assets/img/p-03.jpg",
+    "/assets/img/p-04.jpg",
+    "/assets/img/p-05.jpg",
+    "/assets/img/p-06.jpg",
+    "/assets/img/p-07.jpg",
+    "/assets/img/p-08.jpg",
+    "/assets/img/p-09.jpg",
+    "/assets/img/p-10.jpg"
+   ],
+   "title": {
+    "ro": "Nuntă la Conacul Albert",
+    "en": "Wedding at Conacul Albert"
+   },
+   "date": {
+    "ro": "Septembrie 2026",
+    "en": "September 2026"
+   },
+   "intro": {
+    "ro": "O zi caldă de toamnă, o curte plină de prieteni și multe lacrimi de bucurie.",
+    "en": "A warm autumn day, a courtyard full of friends and plenty of happy tears."
+   }
+  },
+  {
+   "id": "nunta-naturalia-inn",
+   "slug": "nunta-naturalia-inn",
+   "cat": "nunta",
+   "venue": "Naturalia Inn",
+   "cover": "/assets/img/p-05.jpg",
+   "photos": [
+    "/assets/img/p-05.jpg",
+    "/assets/img/p-06.jpg",
+    "/assets/img/p-07.jpg",
+    "/assets/img/p-08.jpg",
+    "/assets/img/p-09.jpg",
+    "/assets/img/p-10.jpg",
+    "/assets/img/p-11.jpg",
+    "/assets/img/p-12.jpg"
+   ],
+   "title": {
+    "ro": "Nuntă la Naturalia Inn",
+    "en": "Wedding at Naturalia Inn"
+   },
+   "date": {
+    "ro": "August 2026",
+    "en": "August 2026"
+   },
+   "intro": {
+    "ro": "Ceremonie în aer liber, desculți prin iarbă, cu munții în spate.",
+    "en": "An outdoor ceremony, barefoot in the grass, with the mountains behind."
+   }
+  },
+  {
+   "id": "cununie-centrul-vechi-brasov",
+   "slug": "cununie-centrul-vechi-brasov",
+   "cat": "cununie",
+   "venue": "Centrul Vechi, Brașov",
+   "cover": "/assets/img/p-03.jpg",
+   "photos": [
+    "/assets/img/p-03.jpg",
+    "/assets/img/p-04.jpg",
+    "/assets/img/p-05.jpg",
+    "/assets/img/p-06.jpg",
+    "/assets/img/p-07.jpg",
+    "/assets/img/p-08.jpg",
+    "/assets/img/p-09.jpg"
+   ],
+   "title": {
+    "ro": "Cununie civilă în Centrul Vechi",
+    "en": "Civil ceremony in Brașov Old Town"
+   },
+   "date": {
+    "ro": "Iulie 2026",
+    "en": "July 2026"
+   },
+   "intro": {
+    "ro": "Plimbare pe străduțele vechi ale Brașovului, după cel mai important „Da”.",
+    "en": "A walk through Brașov's old streets after the most important \"I do\"."
+   }
+  },
+  {
+   "id": "botez-restaurant-adaggio",
+   "slug": "botez-restaurant-adaggio",
+   "cat": "botez",
+   "venue": "Restaurant Adaggio",
+   "cover": "/assets/img/p-08.jpg",
+   "photos": [
+    "/assets/img/p-07.jpg",
+    "/assets/img/p-08.jpg",
+    "/assets/img/p-09.jpg",
+    "/assets/img/p-10.jpg",
+    "/assets/img/p-11.jpg",
+    "/assets/img/p-12.jpg",
+    "/assets/img/p-01.jpg",
+    "/assets/img/p-02.jpg"
+   ],
+   "title": {
+    "ro": "Botez la Restaurant Adaggio",
+    "en": "Christening at Restaurant Adaggio"
+   },
+   "date": {
+    "ro": "Iunie 2026",
+    "en": "June 2026"
+   },
+   "intro": {
+    "ro": "Nașii emoționați, bunicii mândri și un mic protagonist foarte curios.",
+    "en": "Emotional godparents, proud grandparents and a very curious little star."
+   }
+  },
+  {
+   "id": "familie-in-natura",
+   "slug": "familie-in-natura",
+   "cat": "familie",
+   "venue": "Poiana Brașov",
+   "cover": "/assets/img/p-10.jpg",
+   "photos": [
+    "/assets/img/p-09.jpg",
+    "/assets/img/p-10.jpg",
+    "/assets/img/p-11.jpg",
+    "/assets/img/p-12.jpg",
+    "/assets/img/p-02.jpg",
+    "/assets/img/p-03.jpg",
+    "/assets/img/p-04.jpg",
+    "/assets/img/p-05.jpg"
+   ],
+   "title": {
+    "ro": "Ședință de familie în natură",
+    "en": "Family session outdoors"
+   },
+   "date": {
+    "ro": "Mai 2026",
+    "en": "May 2026"
+   },
+   "intro": {
+    "ro": "O după-amiază fără grabă, cu jocuri, îmbrățișări și lumină caldă.",
+    "en": "An unhurried afternoon of games, hugs and warm light."
+   }
+  },
+  {
+   "id": "trash-the-dress",
+   "slug": "trash-the-dress",
+   "cat": "after",
+   "venue": "Munții Bucegi",
+   "cover": "/assets/img/p-06.jpg",
+   "photos": [
+    "/assets/img/p-04.jpg",
+    "/assets/img/p-05.jpg",
+    "/assets/img/p-06.jpg",
+    "/assets/img/p-07.jpg",
+    "/assets/img/p-08.jpg",
+    "/assets/img/p-09.jpg",
+    "/assets/img/p-10.jpg",
+    "/assets/img/p-11.jpg"
+   ],
+   "title": {
+    "ro": "Trash The Dress în munți",
+    "en": "Trash The Dress in the mountains"
+   },
+   "date": {
+    "ro": "Octombrie 2026",
+    "en": "October 2026"
+   },
+   "intro": {
+    "ro": "Rochia de mireasă, un râu de munte și doi oameni care nu le pasă de noroi.",
+    "en": "A wedding dress, a mountain river and two people who don't mind the mud."
+   }
+  }
+ ],
+ "posts": [
+  {
+   "id": "ce-inseamna-fotografie-documentara-de-nunta",
+   "slug": "ce-inseamna-fotografie-documentara-de-nunta",
+   "cover": "/assets/img/blog-1.jpg",
+   "date": "2026-10-20",
+   "title": {
+    "ro": "Ce înseamnă fotografie documentară de nuntă",
+    "en": "What documentary wedding photography means"
+   },
+   "excerpt": {
+    "ro": "Fără poze regizate, fără liste de bifat. Doar ziua voastră, așa cum a fost.",
+    "en": "No staged poses, no checklists. Just your day, the way it really was."
+   },
+   "body": {
+    "ro": [
+     "Fotografia documentară de nuntă înseamnă să surprind ziua așa cum se întâmplă, nu cum ar trebui să arate. Nu vă cer să repetați intrarea și nu vă aranjez în poziții nefirești.",
+     "Stau aproape, dar discret. Urmăresc privirile, gesturile mici, râsul neașteptat al bunicii. Momentele astea nu pot fi regizate, și tocmai ele contează peste ani.",
+     "Asta nu înseamnă că nu facem deloc portrete. Facem, dar relaxat, în lumină frumoasă, fără să pierdeți jumătate de zi."
+    ],
+    "en": [
+     "Documentary wedding photography means capturing the day as it happens, not as it should look. I won't ask you to redo your entrance or put you in awkward poses.",
+     "I stay close but quiet. I watch for glances, small gestures, grandma's unexpected laugh. Those moments can't be staged, and they're exactly what matters years later.",
+     "That doesn't mean no portraits at all. We do them, but relaxed, in good light, without losing half your day."
+    ]
+   }
+  },
+  {
+   "id": "cum-alegi-fotograful-de-nunta",
+   "slug": "cum-alegi-fotograful-de-nunta",
+   "cover": "/assets/img/blog-2.jpg",
+   "date": "2026-10-10",
+   "title": {
+    "ro": "Cum alegi fotograful de nuntă: 5 întrebări utile",
+    "en": "Choosing your wedding photographer: 5 useful questions"
+   },
+   "excerpt": {
+    "ro": "Ce să întrebi înainte să semnezi, ca să nu ai surprize după nuntă.",
+    "en": "What to ask before you sign, so there are no surprises after the wedding."
+   },
+   "body": {
+    "ro": [
+     "1. Vă place stilul lui? Uitați-vă la nunți întregi, nu doar la cele mai bune 10 poze.",
+     "2. Cum lucrează în ziua nunții? Regizează mult sau vă lasă să trăiți momentul?",
+     "3. Ce include oferta? Album, al doilea fotograf, deplasare: întrebați clar ce e inclus și ce se plătește separat.",
+     "4. Când primiți fotografiile și în ce format?",
+     "5. Vă simțiți bine în preajma lui? Va fi lângă voi toată ziua, așa că asta contează enorm."
+    ],
+    "en": [
+     "1. Do you love their style? Look at full weddings, not just the best 10 shots.",
+     "2. How do they work on the day? Lots of posing, or do they let you live the moment?",
+     "3. What does the quote include? Album, second shooter, travel: ask clearly what's included and what's extra.",
+     "4. When do you get the photos, and in what format?",
+     "5. Do you feel comfortable around them? They'll be next to you all day, so this matters a lot."
+    ]
+   }
+  }
+ ],
+ "faq": [
+  {
+   "q": {
+    "ro": "Cât costă fotografia de nuntă?",
+    "en": "How much does wedding photography cost?"
+   },
+   "a": {
+    "ro": "Nu am pachete fixe. O nuntă completă pornește în jur de 1.000 EUR, iar oferta finală depinde de durată, locație și ce vă doriți. Scrieți-mi data și locul și vă trimit o ofertă personalizată.",
+    "en": "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote."
+   }
+  },
+  {
+   "q": {
+    "ro": "Ce nu e inclus în preț?",
+    "en": "What isn't included?"
+   },
+   "a": {
+    "ro": "Albumul tipărit, ședințele suplimentare (after-wedding, Trash The Dress) și al doilea fotograf se adaugă separat.",
+    "en": "Printed albums, extra sessions (after-wedding, Trash The Dress) and a second photographer are added separately."
+   }
+  },
+  {
+   "q": {
+    "ro": "Vă deplasați și în afara Brașovului?",
+    "en": "Do you travel outside Brașov?"
+   },
+   "a": {
+    "ro": "Da, merg oriunde vreți voi. Pentru evenimentele din afara Brașovului se adaugă transportul și cazarea.",
+    "en": "Yes, I'll go wherever you want. For events outside Brașov, travel and accommodation are added."
+   }
+  },
+  {
+   "q": {
+    "ro": "Suntem timizi în fața aparatului. E o problemă?",
+    "en": "We're shy in front of the camera. Is that a problem?"
+   },
+   "a": {
+    "ro": "Deloc. Stilul meu e documentar: nu trebuie să pozați. Majoritatea cuplurilor uită de mine după primele minute.",
+    "en": "Not at all. My style is documentary: you don't need to pose. Most couples forget I'm there after the first few minutes."
+   }
+  },
+  {
+   "q": {
+    "ro": "Când primim fotografiile?",
+    "en": "When do we get the photos?"
+   },
+   "a": {
+    "ro": "(De confirmat cu Dan) Termenul de livrare și numărul aproximativ de fotografii.",
+    "en": "(To confirm with Dan) Delivery time and approximate number of photos."
+   }
+  },
+  {
+   "q": {
+    "ro": "Cum rezervăm data?",
+    "en": "How do we book a date?"
+   },
+   "a": {
+    "ro": "Scrieți-mi pe WhatsApp sau pe email cu data și locul. Stabilim o discuție, apoi confirmăm data.",
+    "en": "Message me on WhatsApp or email with your date and place. We'll have a quick chat, then confirm the date."
+   }
+  }
+ ],
+ "pages": {
+  "ro": {
+   "portfolio": [
+    "Portofoliu",
+    "Fiecare eveniment are povestea lui. Alege unul și intră în ziua respectivă."
+   ],
+   "blog": [
+    "Blog",
+    "Sfaturi pentru miri, povești din spatele aparatului și idei pentru ședințe foto."
+   ],
+   "faq": [
+    "Întrebări frecvente",
+    "Răspunsuri scurte la ce mă întreabă cel mai des cuplurile."
+   ],
+   "contact": [
+    "Contact",
+    "Spune-mi data, locul și câteva cuvinte despre voi. Răspund de obicei în aceeași zi."
+   ],
+   "contact_side_title": "Bine de știut",
+   "contact_side": [
+    "Oferta e personalizată, fără pachete fixe (în jur de 1.000 EUR pentru o nuntă).",
+    "Deplasez oriunde; în afara Brașovului se adaugă transport și cazare.",
+    "Album, ședințe extra și al doilea fotograf se adaugă separat."
+   ],
+   "wa_label": "WhatsApp (preferat)",
+   "phone_label": "Telefon",
+   "email_label": "Email",
+   "fb_label": "Facebook / Messenger",
+   "ig_label": "Instagram",
+   "area_label": "Zonă",
+   "area": "Brașov și oriunde vreți voi"
+  },
+  "en": {
+   "portfolio": [
+    "Portfolio",
+    "Every event has its own story. Pick one and step into that day."
+   ],
+   "blog": [
+    "Blog",
+    "Tips for couples, stories from behind the camera and photo session ideas."
+   ],
+   "faq": [
+    "Frequently asked questions",
+    "Short answers to what couples ask me most."
+   ],
+   "contact": [
+    "Contact",
+    "Tell me your date, place and a few words about you. I usually reply the same day."
+   ],
+   "contact_side_title": "Good to know",
+   "contact_side": [
+    "Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).",
+    "Happy to travel; outside Brașov, travel and accommodation are added.",
+    "Albums, extra sessions and a second photographer are extra."
+   ],
+   "wa_label": "WhatsApp (preferred)",
+   "phone_label": "Phone",
+   "email_label": "Email",
+   "fb_label": "Facebook / Messenger",
+   "ig_label": "Instagram",
+   "area_label": "Area",
+   "area": "Brașov and wherever you want"
+  }
+ },
+ "contact": {
+  "phone": "+40 743 199 121",
+  "email": "lupudaniel.foto@gmail.com",
+  "facebook": "https://www.facebook.com/Lupu.D.Foto/",
+  "messenger": "https://m.me/Lupu.D.Foto",
+  "instagram": "https://www.instagram.com/dancapitandeplai.ro/",
+  "instagram_handle": "@dancapitandeplai.ro",
+  "area": {
+   "ro": "Brașov și oriunde vreți voi",
+   "en": "Brașov and wherever you want"
+  },
+  "notes": {
+   "ro": [
+    "Oferta e personalizată, fără pachete fixe (în jur de 1.000 EUR pentru o nuntă).",
+    "Deplasez oriunde; în afara Brașovului se adaugă transport și cazare.",
+    "Album, ședințe extra și al doilea fotograf se adaugă separat."
+   ],
+   "en": [
+    "Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).",
+    "Happy to travel; outside Brașov, travel and accommodation are added.",
+    "Albums, extra sessions and a second photographer are extra."
+   ]
+  },
+  "intro": {
+   "ro": "Spune-mi data, locul și câteva cuvinte despre voi. Răspund de obicei în aceeași zi.",
+   "en": "Tell me your date, place and a few words about you. I usually reply the same day."
+  }
+ }
+}
