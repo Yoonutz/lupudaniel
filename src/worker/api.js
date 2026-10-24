@@ -1,10 +1,8 @@
-// REST API for the admin panel: email login links, content, media.
-// Bindings: CONTENT (KV), MAILER (service binding to the mail worker, optional),
-// vars: ADMIN_EMAILS (comma separated), MAIL_FROM.
+// REST API for the admin panel: one-click login, content, media.
+// Bindings: CONTENT (KV); vars: ADMIN_EMAILS (comma separated).
 import SEED from "./seed.json";
 
 const SESSION_TTL = 24 * 3600; // Dan logs in once a day
-const LINK_TTL = 15 * 60;
 const MAX_IMAGE = 8 * 1024 * 1024;
 
 const enc = new TextEncoder();
@@ -37,76 +35,16 @@ export async function session(req, env) {
   return env.CONTENT.get("sess:" + await sha256(sid), "json");
 }
 
-async function rateLimit(env, key, max, ttl) {
-  const n = parseInt(await env.CONTENT.get("rl:" + key) || "0", 10);
-  if (n >= max) return false;
-  await env.CONTENT.put("rl:" + key, String(n + 1), { expirationTtl: ttl });
-  return true;
-}
-
 async function readJson(req, max) {
   const text = await req.text();
   if (text.length > max) throw new Error("too_large");
   return JSON.parse(text);
 }
 
-function loginEmail(link, to, from) {
-  const html = `<!doctype html><html><body style="font-family:Arial,sans-serif;background:#f6f4f0;padding:32px">
-<div style="max-width:480px;margin:auto;background:#fff;padding:32px;border-radius:4px">
-<h2 style="margin:0 0 16px;font-weight:600">Dan Căpitan de Plai · Admin</h2>
-<p>Apasă butonul ca să intri în panoul de administrare. Linkul expiră în 15 minute.</p>
-<p style="margin:28px 0"><a href="${link}" style="background:#161616;color:#fff;padding:14px 24px;text-decoration:none;border-radius:2px;display:inline-block">Intră în admin</a></p>
-<p style="color:#888;font-size:13px">Dacă nu ai cerut acest email, îl poți ignora.<br>Tap the button to log in. The link expires in 15 minutes.</p>
-</div></body></html>`;
-  const boundary = "b" + randomToken().slice(0, 16);
-  const date = new Date().toUTCString();
-  return [
-    `From: Dan Căpitan de Plai <${from}>`, `To: <${to}>`, "Subject: =?UTF-8?B?" + btoa(String.fromCharCode(...enc.encode("Link de autentificare · Admin"))) + "?=",
-    `Date: ${date}`, `Message-ID: <${randomToken().slice(0, 24)}@${from.split("@")[1]}>`, "MIME-Version: 1.0",
-    `Content-Type: multipart/alternative; boundary="${boundary}"`, "",
-    `--${boundary}`, "Content-Type: text/plain; charset=UTF-8", "",
-    `Intră în admin (expiră în 15 minute): ${link}`, "",
-    `--${boundary}`, "Content-Type: text/html; charset=UTF-8", "", html, "",
-    `--${boundary}--`, "",
-  ].join("\r\n");
-}
-
-async function requestLink(req, env, origin) {
-  let body; try { body = await readJson(req, 1000) } catch { return json({ error: "bad_request" }, 400) }
-  const email = String(body.email || "").trim().toLowerCase();
-  const ip = req.headers.get("cf-connecting-ip") || "unknown";
-  if (!await rateLimit(env, "ip:" + ip, 10, 3600)) return json({ error: "rate_limited" }, 429);
-  // Same answer whether or not the address is allowed, so nobody can probe for it
-  if (!adminEmails(env).includes(email)) return json({ ok: true });
-  if (!await rateLimit(env, "mail:" + email, 5, 3600)) return json({ error: "rate_limited" }, 429);
-  const token = randomToken();
-  await env.CONTENT.put("login:" + await sha256(token), email, { expirationTtl: LINK_TTL });
-  const link = `${origin}/admin/?login=${token}`;
-  if (!env.MAILER) {
-    // Mock login until Dan's domain can send email: the link is shown on screen,
-    // but only to someone who opened the admin with the private preview key
-    if (env.MOCK_LOGIN_KEY && body.preview && body.preview === env.MOCK_LOGIN_KEY) return json({ ok: true, mockToken: token });
-    return json({ error: "mail_unavailable" }, 503);
-  }
-  const from = env.MAIL_FROM || "login@dancapitandeplai.ro";
-  const res = await env.MAILER.fetch("https://mailer/send", {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ from, to: email, raw: loginEmail(link, email, from) }),
-  });
-  if (!res.ok) return json({ error: "mail_failed" }, 502);
-  return json({ ok: true });
-}
-
-// The link opens the admin page, which POSTs the token here (mail scanners that
-// pre-open links can't burn it, since they only do GET)
-async function verifyLink(req, env) {
-  let body; try { body = await readJson(req, 1000) } catch { return json({ error: "bad_request" }, 400) }
-  const token = String(body.token || "");
-  if (!/^[0-9a-f]{64}$/.test(token)) return json({ error: "bad_token" }, 400);
-  const key = "login:" + await sha256(token);
-  const email = await env.CONTENT.get(key);
-  if (!email) return json({ error: "expired" }, 401);
-  await env.CONTENT.delete(key);
+// One-click login while the site is being built: no email, no password.
+// Swap for a real login (email link or password) before launch.
+async function quickLogin(req, env) {
+  const email = adminEmails(env)[0];
   const sid = randomToken();
   await env.CONTENT.put("sess:" + await sha256(sid), JSON.stringify({ email, at: Date.now() }), { expirationTtl: SESSION_TTL });
   return json({ ok: true, email }, 200, {
@@ -251,8 +189,7 @@ export async function serveMedia(env, path, ctx, req) {
 
 export async function handleApi(req, env, url) {
   const p = url.pathname, m = req.method;
-  if (m === "POST" && p === "/api/auth/request") return requestLink(req, env, url.origin);
-  if (m === "POST" && p === "/api/auth/verify") return verifyLink(req, env);
+  if (m === "POST" && p === "/api/auth/login") return quickLogin(req, env);
   if (m === "POST" && p === "/api/auth/logout") return logout(req, env);
   if (m === "GET" && p === "/api/content/public") return json(await getContent(env));
 

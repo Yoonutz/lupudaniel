@@ -1149,7 +1149,6 @@ var seed_default = {
 
 // src/worker/api.js
 var SESSION_TTL = 24 * 3600;
-var LINK_TTL = 15 * 60;
 var MAX_IMAGE = 8 * 1024 * 1024;
 var enc = new TextEncoder();
 var hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -1170,91 +1169,13 @@ async function session(req, env) {
   if (!sid || !/^[0-9a-f]{64}$/.test(sid)) return null;
   return env.CONTENT.get("sess:" + await sha256(sid), "json");
 }
-async function rateLimit(env, key, max, ttl) {
-  const n = parseInt(await env.CONTENT.get("rl:" + key) || "0", 10);
-  if (n >= max) return false;
-  await env.CONTENT.put("rl:" + key, String(n + 1), { expirationTtl: ttl });
-  return true;
-}
 async function readJson(req, max) {
   const text = await req.text();
   if (text.length > max) throw new Error("too_large");
   return JSON.parse(text);
 }
-function loginEmail(link, to, from) {
-  const html2 = `<!doctype html><html><body style="font-family:Arial,sans-serif;background:#f6f4f0;padding:32px">
-<div style="max-width:480px;margin:auto;background:#fff;padding:32px;border-radius:4px">
-<h2 style="margin:0 0 16px;font-weight:600">Dan C\u0103pitan de Plai \xB7 Admin</h2>
-<p>Apas\u0103 butonul ca s\u0103 intri \xEEn panoul de administrare. Linkul expir\u0103 \xEEn 15 minute.</p>
-<p style="margin:28px 0"><a href="${link}" style="background:#161616;color:#fff;padding:14px 24px;text-decoration:none;border-radius:2px;display:inline-block">Intr\u0103 \xEEn admin</a></p>
-<p style="color:#888;font-size:13px">Dac\u0103 nu ai cerut acest email, \xEEl po\u021Bi ignora.<br>Tap the button to log in. The link expires in 15 minutes.</p>
-</div></body></html>`;
-  const boundary = "b" + randomToken().slice(0, 16);
-  const date = (/* @__PURE__ */ new Date()).toUTCString();
-  return [
-    `From: Dan C\u0103pitan de Plai <${from}>`,
-    `To: <${to}>`,
-    "Subject: =?UTF-8?B?" + btoa(String.fromCharCode(...enc.encode("Link de autentificare \xB7 Admin"))) + "?=",
-    `Date: ${date}`,
-    `Message-ID: <${randomToken().slice(0, 24)}@${from.split("@")[1]}>`,
-    "MIME-Version: 1.0",
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
-    "",
-    `--${boundary}`,
-    "Content-Type: text/plain; charset=UTF-8",
-    "",
-    `Intr\u0103 \xEEn admin (expir\u0103 \xEEn 15 minute): ${link}`,
-    "",
-    `--${boundary}`,
-    "Content-Type: text/html; charset=UTF-8",
-    "",
-    html2,
-    "",
-    `--${boundary}--`,
-    ""
-  ].join("\r\n");
-}
-async function requestLink(req, env, origin) {
-  let body;
-  try {
-    body = await readJson(req, 1e3);
-  } catch {
-    return json({ error: "bad_request" }, 400);
-  }
-  const email = String(body.email || "").trim().toLowerCase();
-  const ip = req.headers.get("cf-connecting-ip") || "unknown";
-  if (!await rateLimit(env, "ip:" + ip, 10, 3600)) return json({ error: "rate_limited" }, 429);
-  if (!adminEmails(env).includes(email)) return json({ ok: true });
-  if (!await rateLimit(env, "mail:" + email, 5, 3600)) return json({ error: "rate_limited" }, 429);
-  const token = randomToken();
-  await env.CONTENT.put("login:" + await sha256(token), email, { expirationTtl: LINK_TTL });
-  const link = `${origin}/admin/?login=${token}`;
-  if (!env.MAILER) {
-    if (env.MOCK_LOGIN_KEY && body.preview && body.preview === env.MOCK_LOGIN_KEY) return json({ ok: true, mockToken: token });
-    return json({ error: "mail_unavailable" }, 503);
-  }
-  const from = env.MAIL_FROM || "login@dancapitandeplai.ro";
-  const res = await env.MAILER.fetch("https://mailer/send", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ from, to: email, raw: loginEmail(link, email, from) })
-  });
-  if (!res.ok) return json({ error: "mail_failed" }, 502);
-  return json({ ok: true });
-}
-async function verifyLink(req, env) {
-  let body;
-  try {
-    body = await readJson(req, 1e3);
-  } catch {
-    return json({ error: "bad_request" }, 400);
-  }
-  const token = String(body.token || "");
-  if (!/^[0-9a-f]{64}$/.test(token)) return json({ error: "bad_token" }, 400);
-  const key = "login:" + await sha256(token);
-  const email = await env.CONTENT.get(key);
-  if (!email) return json({ error: "expired" }, 401);
-  await env.CONTENT.delete(key);
+async function quickLogin(req, env) {
+  const email = adminEmails(env)[0];
   const sid = randomToken();
   await env.CONTENT.put("sess:" + await sha256(sid), JSON.stringify({ email, at: Date.now() }), { expirationTtl: SESSION_TTL });
   return json({ ok: true, email }, 200, {
@@ -1406,8 +1327,7 @@ async function serveMedia(env, path, ctx, req) {
 }
 async function handleApi(req, env, url2) {
   const p = url2.pathname, m = req.method;
-  if (m === "POST" && p === "/api/auth/request") return requestLink(req, env, url2.origin);
-  if (m === "POST" && p === "/api/auth/verify") return verifyLink(req, env);
+  if (m === "POST" && p === "/api/auth/login") return quickLogin(req, env);
   if (m === "POST" && p === "/api/auth/logout") return logout(req, env);
   if (m === "GET" && p === "/api/content/public") return json(await getContent(env));
   const s = await session(req, env);

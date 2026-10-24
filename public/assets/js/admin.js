@@ -1,10 +1,6 @@
 // Admin panel for Dan's site. Talks to the REST API under /api.
 (function () {
   var app = document.getElementById('app');
-  var params = new URLSearchParams(location.search);
-  var PREVIEW = params.get('preview') || sessionStorage.getItem('preview') || '';
-  if (params.get('preview')) sessionStorage.setItem('preview', PREVIEW);
-  var ADMIN_EMAIL = 'lupudaniel.foto@gmail.com';
 
   var S = { content: null, email: '', tab: 'hero', edit: null, dirty: false, saving: false };
 
@@ -348,35 +344,18 @@
 
   // ---------- login ----------
   function showLogin(msg) {
-    var mock = !!PREVIEW;
-    var email = h('input', { type: 'email', placeholder: 'adresa ta de email', autocomplete: 'email' });
-    email.value = ADMIN_EMAIL;
-    var info = h('p', { text: msg || (mock ? 'Mod de test: un singur click și ești înăuntru.' : 'Îți trimitem un link pe email. Apeși pe el și ești înăuntru, fără parolă.') });
-    var btn = h('button', { class: 'btn btn-primary btn-block' }, mock ? 'Login' : 'Trimite linkul');
+    var info = h('p', { text: msg || 'Apasă butonul și ești înăuntru.' });
+    var btn = h('button', { class: 'btn btn-primary btn-block' }, 'Login');
     btn.addEventListener('click', function () {
       btn.disabled = true;
-      api('POST', '/api/auth/request', { email: email.value.trim(), preview: PREVIEW }).then(function (d) {
-        if (d.mockToken) return verify(d.mockToken);
-        info.textContent = 'Gata! Verifică emailul și apasă pe link (expiră în 15 minute).';
-      }).catch(function (e) {
+      api('POST', '/api/auth/login', {}).then(start).catch(function (e) {
         btn.disabled = false;
-        info.textContent = e.message === 'rate_limited' ? 'Prea multe încercări. Mai încearcă peste o oră.' :
-          e.message === 'mail_unavailable' ? 'Trimiterea pe email nu e încă activă (așteptăm domeniul).' : 'Ceva n-a mers: ' + e.message;
+        info.textContent = 'Ceva n-a mers: ' + e.message;
       });
     });
     app.innerHTML = '';
     add(app, h('div', { class: 'login' }, h('div', { class: 'login-card' },
-      mock ? h('span', { class: 'mock-badge', text: 'Previzualizare' }) : null,
-      h('h1', { text: 'Admin' }),
-      info,
-      mock ? null : email,
-      btn)));
-  }
-
-  function verify(token) {
-    return api('POST', '/api/auth/verify', { token: token }).then(start).catch(function () {
-      showLogin('Linkul a expirat sau a fost deja folosit. Cere unul nou.');
-    });
+      h('h1', { text: 'Admin' }), info, btn)));
   }
 
   function start() {
@@ -386,7 +365,5 @@
     });
   }
 
-  var loginToken = params.get('login');
-  if (loginToken) verify(loginToken);
-  else start().catch(function () { showLogin(); });
+  start().catch(function () { showLogin(); });
 })();

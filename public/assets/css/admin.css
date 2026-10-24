@@ -19,8 +19,6 @@ h1, h2, h3 { font-family: var(--head); font-weight: 600; margin: 0 0 .5em; }
 .login-card { width: 100%; max-width: 400px; background: var(--paper); padding: 36px 28px; border-radius: 6px; box-shadow: 0 10px 40px rgba(0,0,0,.08); text-align: center; }
 .login-card h1 { font-size: 20px; letter-spacing: .08em; text-transform: uppercase; }
 .login-card p { color: var(--soft); }
-.login-card input { width: 100%; padding: 14px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); margin: 12px 0; }
-.mock-badge { display: inline-block; background: var(--accent-bg); color: var(--accent); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; margin-bottom: 16px; }
 
 /* Buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 18px; border-radius: 4px; border: 1px solid var(--line); background: var(--paper); cursor: pointer; font-weight: 500; text-decoration: none; min-height: 44px; }
