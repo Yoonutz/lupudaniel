@@ -23,4 +23,6 @@ See each folder's README for how that site works and how to rebuild it.
 ## Repo-wide files
 
 - `SECURITY.md`: how to report a security problem.
-- `.github/`: Dependabot and the syntax-check workflow, which checks both folders.
+- `.github/`: the syntax-check workflow, which checks both folders.
+
+Only the `main` branch is kept: work on a short-lived branch, merge it with a PR, then delete the branch.
