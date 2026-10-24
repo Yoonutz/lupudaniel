@@ -159,6 +159,7 @@ ${body}
 </footer>
 <a class="wa-float" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp">${ICON.wa}</a>
 <script src="/assets/js/main.js?v=${ASSET_V}" defer></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'></script>
 </body>
 </html>`;
 }
