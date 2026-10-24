@@ -6,7 +6,7 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "6";
+const ASSET_V = "7";
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
 import CSS from "../../public/assets/css/style.css";
 
