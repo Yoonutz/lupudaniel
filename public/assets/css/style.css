@@ -100,7 +100,7 @@ p { margin: 0 0 1em; }
 .hero-controls button:hover { border-color: #fff; background: rgba(255,255,255,.1); }
 .hero-controls svg { width: 20px; height: 20px; }
 .hero-count { font: 500 12px/1 var(--head); letter-spacing: .25em; min-width: 72px; text-align: center; }
-.hero-scroll { position: absolute; z-index: 3; right: var(--gutter); bottom: 32px; font: 500 11px/1 var(--head); letter-spacing: .3em; text-transform: uppercase; text-decoration: none; writing-mode: vertical-rl; opacity: .8; }
+.hero-scroll { position: absolute; z-index: 3; left: var(--gutter); bottom: 32px; font: 500 11px/1 var(--head); letter-spacing: .3em; text-transform: uppercase; text-decoration: none; writing-mode: vertical-rl; opacity: .8; }
 
 /* Sections */
 .section { padding: clamp(72px, 10vw, 140px) 0; }
@@ -146,10 +146,12 @@ p { margin: 0 0 1em; }
 @media (max-width: 700px) { .stats { grid-template-columns: 1fr 1fr; } }
 
 /* Services list */
-.services { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-top: 48px; }
+.services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-top: 48px; }
 .service { background: var(--paper); padding: 32px 28px; }
 .service h3 { font-size: 18px; margin-bottom: 8px; }
 .service p { font-size: 15px; color: var(--ink-soft); margin: 0; }
+@media (max-width: 900px) { .services { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .services { grid-template-columns: 1fr; } }
 
 /* Testimonials */
 .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(24px, 4vw, 56px); margin-top: 56px; }
