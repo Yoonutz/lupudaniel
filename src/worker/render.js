@@ -6,7 +6,7 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "4";
+const ASSET_V = "5";
 
 export const ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
@@ -69,8 +69,11 @@ const small = src => (src && src.startsWith("/media/") ? src.replace(/\.jpg$/, "
 const safeUrl = u => (/^https?:\/\/[^\s"'<>]+$/i.test(u || "") ? u : "#");
 const waLink = (c, lang) => `https://wa.me/${String(c.contact.phone || "").replace(/\D/g, "")}?text=${encodeURIComponent(UI[lang].wa_msg)}`;
 
-function img(src, alt, { w, h, eager, cls } = {}) {
+// Uploaded photos exist in two sizes (900px "-s" and up to 2400px), so a full-size
+// src gets a srcset and the browser picks; callers pass small(src) to force the 900px one.
+function img(src, alt, { w, h, eager, cls, sizes } = {}) {
   const a = [`src="${e(src)}"`, `alt="${e(alt)}"`, 'decoding="async"', eager ? 'fetchpriority="high"' : 'loading="lazy"'];
+  if (/^\/media\/[0-9a-f]{24}\.jpg$/.test(src)) a.push(`srcset="${e(small(src))} 900w, ${e(src)} 2400w"`, `sizes="${sizes || "100vw"}"`);
   if (w && h) a.push(`width="${w}"`, `height="${h}"`);
   if (cls) a.push(`class="${cls}"`);
   return `<img ${a.join(" ")}>`;
@@ -189,7 +192,7 @@ export function home(c, lang) {
   const body = `
 <section class="hero" aria-label="${e(SITE.name)}" data-hero>
   <div class="hero-slide is-active" aria-hidden="false">
-    <picture><source media="(orientation: portrait)" srcset="${e(mobile[0])}"><img src="${e(desktop[0])}" alt="" fetchpriority="high" decoding="async"></picture>
+    <picture><source media="(orientation: portrait)" srcset="${e(small(mobile[0]))}"><img src="${e(desktop[0])}" srcset="${e(small(desktop[0]))} 900w, ${e(desktop[0])} 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></picture>
     <div class="hero-caption"><h1>${e(first.title)}</h1><p>${e(first.sub)}</p></div>
   </div>
   <script type="application/json" id="hero-data">${heroData}</script>
@@ -205,7 +208,7 @@ export function home(c, lang) {
       ${(h.intro_p || []).map(p => `<p>${e(p)}</p>`).join("")}
       <p class="signature">Dan</p>
     </div>
-    <div class="split-media reveal">${img(c.portrait, SITE.name, { w: 900, h: 1200 })}</div>
+    <div class="split-media reveal">${img(c.portrait, SITE.name, { w: 900, h: 1200, sizes: "(min-width: 900px) 45vw, 100vw" })}</div>
   </div>
 </section>
 
@@ -238,7 +241,7 @@ export function home(c, lang) {
       ${(h.profile_p || []).map(p => `<p>${e(p)}</p>`).join("")}
       <a class="btn" href="${r(lang, "portfolio")}">${e(ui.view_work)} ${ICON.arrow}</a>
     </div>
-    <div class="split-media split-media--square reveal">${img(c.profile, "Daniel Lupu", { w: 900, h: 900 })}</div>
+    <div class="split-media split-media--square reveal">${img(c.profile, "Daniel Lupu", { w: 900, h: 900, sizes: "(min-width: 900px) 40vw, 100vw" })}</div>
   </div>
 </section>
 
@@ -338,7 +341,7 @@ export function post(c, lang, i) {
     <h1 class="h-xl">${e(t(p.title, lang))}</h1>
     <p class="lead">${e(t(p.excerpt, lang))}</p>
   </div></section>
-  ${p.cover ? `<div class="wrap narrow">${img(p.cover, t(p.title, lang), { w: 1600, h: 1000 })}</div>` : ""}
+  ${p.cover ? `<div class="wrap narrow">${img(p.cover, t(p.title, lang), { w: 1600, h: 1000, sizes: "(min-width: 900px) 800px, 100vw" })}</div>` : ""}
   <section class="section"><div class="wrap narrow prose">${paras}
     <p style="margin-top:48px"><a class="btn" href="${r(lang, "blog")}">← ${e(ui.back_blog)}</a></p>
   </div></section>
@@ -382,7 +385,7 @@ export function contact(c, lang) {
     </ul>
   </div>
   <div>
-    <div class="split-media split-media--square" style="margin-bottom:32px">${img(c.profile, "Daniel Lupu", { w: 900, h: 900 })}</div>
+    <div class="split-media split-media--square" style="margin-bottom:32px">${img(c.profile, "Daniel Lupu", { w: 900, h: 900, sizes: "(min-width: 900px) 40vw, 100vw" })}</div>
     <div class="note"><h2 class="h-lg" style="font-size:20px">${e(P.contact_side_title)}</h2><ul>${side}</ul></div>
   </div>
 </div></section>`;

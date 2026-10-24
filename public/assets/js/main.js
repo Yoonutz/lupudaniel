@@ -68,10 +68,16 @@
     var esc = function (s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
     var load = function (i) {
       var im = slides[i] && slides[i].querySelector('img[data-src]');
-      if (im) { im.src = im.dataset.src; im.removeAttribute('data-src'); }
+      if (im) {
+        if (im.dataset.srcset) { im.srcset = im.dataset.srcset; im.removeAttribute('data-srcset'); }
+        im.src = im.dataset.src; im.removeAttribute('data-src');
+      }
     };
     var build = function () {
-      var set = portraitMq.matches && data.mobile.length ? data.mobile : data.desktop;
+      var portrait = portraitMq.matches && data.mobile.length;
+      var set = portrait ? data.mobile : data.desktop;
+      // Phones get the 900px variant; wide screens pick between 900px and full via srcset
+      var sm = function (u) { return /^\/media\//.test(u) ? u.replace(/\.jpg$/, '-s.jpg') : u; };
       hero.querySelectorAll('.hero-slide').forEach(function (s) { s.remove(); });
       slides = set.map(function (src, i) {
         var line = data.lines[i % data.lines.length];
@@ -79,7 +85,9 @@
         var el = document.createElement('div');
         el.className = 'hero-slide' + (i === 0 ? ' is-active' : '');
         el.setAttribute('aria-hidden', i === 0 ? 'false' : 'true');
-        el.innerHTML = '<img ' + (i === 0 ? 'src' : 'data-src') + '="' + esc(src) + '" alt="" decoding="async"' +
+        var ss = portrait ? '' : ' ' + (i === 0 ? 'srcset' : 'data-srcset') + '="' + esc(sm(src)) + ' 900w, ' + esc(src) + ' 2400w" sizes="100vw"';
+        var real = portrait ? sm(src) : src;
+        el.innerHTML = '<img ' + (i === 0 ? 'src' : 'data-src') + '="' + esc(real) + '" alt="" decoding="async"' + ss +
           (i === 0 ? '' : ' src="data:image/gif;base64,R0lGODlhAQABAAAAACw="') + '>' +
           '<div class="hero-caption"><' + tag + '>' + esc(line.title) + '</' + tag + '><p>' + esc(line.sub) + '</p></div>';
         hero.insertBefore(el, dataEl);
