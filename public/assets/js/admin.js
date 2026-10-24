@@ -385,14 +385,19 @@
   }
 
   // ---------- login ----------
+  // The private admin link is /admin/#key=...; the key is remembered on this device.
+  var hashKey = (location.hash.match(/[#&]key=([^&]+)/) || [])[1];
+  if (hashKey) { try { localStorage.setItem('adminKey', decodeURIComponent(hashKey)); } catch (e) {} }
+  function adminKey() { try { return localStorage.getItem('adminKey') || ''; } catch (e) { return ''; } }
+
   function showLogin(msg) {
-    var info = h('p', { text: msg || 'Apasă butonul și ești înăuntru.' });
+    var info = h('p', { text: msg || (adminKey() ? 'Apasă butonul și ești înăuntru.' : 'Deschide linkul tău privat de admin ca să intri.') });
     var btn = h('button', { class: 'btn btn-primary btn-block' }, 'Login');
     btn.addEventListener('click', function () {
       btn.disabled = true;
-      api('POST', '/api/auth/login', {}).then(start).catch(function (e) {
+      api('POST', '/api/auth/login', { key: adminKey() }).then(start).catch(function (e) {
         btn.disabled = false;
-        info.textContent = 'Ceva n-a mers: ' + e.message;
+        info.textContent = e.status === 403 ? 'Linkul de admin nu e valid. Folosește linkul privat primit.' : 'Ceva n-a mers: ' + e.message;
       });
     });
     app.innerHTML = '';
