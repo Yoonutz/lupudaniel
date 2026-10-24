@@ -90,7 +90,7 @@ function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage
   const canonical = SITE.url + alt[lang];
   const alternates = ["ro", "en"].map(l => `<link rel="alternate" hreflang="${l}" href="${SITE.url}${alt[l]}">`).join("") +
     `<link rel="alternate" hreflang="x-default" href="${SITE.url}${alt.ro}">`;
-  const og = ogImage ? (ogImage.startsWith("http") ? ogImage : SITE.url + ogImage) : SITE.url + "/assets/img/hero-1.jpg";
+  const og = ogImage ? (ogImage.startsWith("http") ? ogImage : SITE.url + ogImage) : SITE.url + ((c.hero && c.hero.desktop[0]) || "/assets/img/hero-1.jpg");
   const schemaTag = schema ? `<script type="application/ld+json">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script>` : "";
   const wa = waLink(c, lang);
   return `<!doctype html>
@@ -161,7 +161,7 @@ ${body}
 function businessSchema(c, lang) {
   return {
     "@context": "https://schema.org", "@type": "ProfessionalService", name: SITE.name,
-    description: t(c.home, lang).desc, url: SITE.url + r(lang, "home"), image: SITE.url + "/assets/img/hero-1.jpg",
+    description: t(c.home, lang).desc, url: SITE.url + r(lang, "home"), image: SITE.url + ((c.hero && c.hero.desktop[0]) || "/assets/img/hero-1.jpg"),
     telephone: c.contact.phone, email: c.contact.email, priceRange: "€€", areaServed: "Romania",
     address: { "@type": "PostalAddress", addressLocality: "Brașov", addressCountry: "RO" },
     sameAs: [c.contact.facebook, c.contact.instagram].filter(Boolean), founder: { "@type": "Person", name: "Daniel Lupu" },
