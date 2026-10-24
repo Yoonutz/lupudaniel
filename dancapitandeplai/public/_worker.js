@@ -1526,9 +1526,12 @@ function cookie(req, name) {
   return m ? m[1] : null;
 }
 async function hmac(env, msg) {
-  const key = await crypto.subtle.importKey("raw", enc.encode(String(env.SESSION_SECRET || env.MOCK_LOGIN_KEY || "dev-secret")), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const secret = env.SESSION_SECRET || env.MOCK_LOGIN_KEY || env.ADMIN_KEY;
+  if (!secret) throw new Error("no_session_secret");
+  const key = await crypto.subtle.importKey("raw", enc.encode(String(secret)), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   return hex(await crypto.subtle.sign("HMAC", key, enc.encode(msg)));
 }
+var sha256 = async (s) => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
 async function session(req, env) {
   const sid = cookie(req, "sid");
   const m = sid && sid.match(/^(\d{1,16})\.([0-9a-f]{64})$/);
@@ -1542,6 +1545,9 @@ async function readJson(req, max) {
   return JSON.parse(text);
 }
 async function quickLogin(req, env) {
+  const body = await readJson(req, 1e3).catch(() => ({}));
+  const given = String(body.key || ""), want = String(env.ADMIN_KEY || "");
+  if (!want || await sha256(given) !== await sha256(want)) return json({ error: "bad_key" }, 403);
   const email = adminEmails(env)[0];
   const exp = String(Date.now() + SESSION_TTL * 1e3);
   const sid = exp + "." + await hmac(env, exp);
