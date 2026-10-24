@@ -111,8 +111,12 @@
       var set = portrait ? data.mobile : data.desktop;
       // Phones get the 900px variant; wide screens pick between 900px and full via srcset
       var sm = function (u) { return /^\/media\//.test(u) ? u.replace(/\.jpg$/, '-s.jpg') : u; };
-      hero.querySelectorAll('.hero-slide').forEach(function (s) { s.remove(); });
+      // First build keeps the server-rendered first slide (same photo via <picture>), so its
+      // <h1> and photo are not repainted: recreating them made the LCP late (PageSpeed)
+      var keep = gen === 1 ? hero.querySelector('.hero-slide') : null;
+      hero.querySelectorAll('.hero-slide').forEach(function (s) { if (s !== keep) s.remove(); });
       slides = set.map(function (src, i) {
+        if (i === 0 && keep) return keep;
         var line = data.lines[i % data.lines.length];
         var tag = i === 0 ? 'h1' : 'h2';
         var el = document.createElement('div');

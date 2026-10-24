@@ -345,7 +345,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "8";
+var ASSET_V = "9";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
