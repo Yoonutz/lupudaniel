@@ -193,6 +193,39 @@
     ];
   }
 
+  // One photo slot: click to replace
+  function singleImage(label, hint, obj, key, shape) {
+    return h('div', { class: 'single' },
+      h('div', { class: 'thumbs ' + (shape || '') },
+        h('div', { class: 'thumb' },
+          h('img', { src: small(obj[key] || ''), alt: '', loading: 'lazy' }),
+          h('div', { class: 'tools' },
+            h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { obj[key] = res[0].url; }); } }, 'Schimbă')))),
+      h('strong', { text: label }),
+      hint ? h('small', { text: hint }) : null);
+  }
+
+  function pageTab() {
+    var c = S.content;
+    var tileNames = { home: 'Acasă', portfolio: 'Portofoliu', blog: 'Blog', faq: 'Întrebări', contact: 'Contact' };
+    return [
+      h('div', { class: 'panel' },
+        h('div', { class: 'panel-head' }, h('h2', { text: 'Butoanele cu poze' })),
+        h('p', { class: 'hint', text: 'Cele 5 butoane de sub hero.' }),
+        h('div', { class: 'singles' }, c.tiles.map(function (t) { return singleImage(tileNames[t.key] || t.key, '', t, 'img', 'portrait'); }))),
+      h('div', { class: 'panel' },
+        h('div', { class: 'panel-head' }, h('h2', { text: 'Poze din pagină' })),
+        h('div', { class: 'singles' },
+          singleImage('Despre (lângă text)', 'verticală', c, 'portrait', 'portrait'),
+          singleImage('Poza ta', 'pătrată, apare și la Contact', c, 'profile', 'square'),
+          singleImage('Banner jos', 'orizontală', c, 'cta_img'))),
+      h('div', { class: 'panel' },
+        h('div', { class: 'panel-head' }, h('h2', { text: 'Bandă Instagram (' + c.instagram_imgs.length + ')' })),
+        h('p', { class: 'hint', text: 'Pozele mici de jos, cu link spre Instagram. Ideal 6.' }),
+        imageGrid(c.instagram_imgs, { shape: 'square' })),
+    ];
+  }
+
   function eventsTab() {
     var c = S.content, cats = c.categories.ro;
     if (S.edit != null && c.events[S.edit]) {
@@ -308,7 +341,7 @@
     ];
   }
 
-  var TABS = [['hero', 'Hero'], ['events', 'Portofoliu'], ['blog', 'Blog'], ['faq', 'Întrebări'], ['contact', 'Contact']];
+  var TABS = [['hero', 'Hero'], ['page', 'Pagina'], ['events', 'Portofoliu'], ['blog', 'Blog'], ['faq', 'Întrebări'], ['contact', 'Contact']];
   var statusEl, saveBtn;
   function updateStatus() {
     if (!statusEl) return;
@@ -321,7 +354,7 @@
     var y = window.scrollY;
     statusEl = h('span', { class: 'status' });
     saveBtn = h('button', { class: 'btn btn-primary', onclick: save }, 'Salvează');
-    var body = { hero: heroTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab }[S.tab]();
+    var body = { hero: heroTab, page: pageTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab }[S.tab]();
     app.innerHTML = '';
     add(app, [
       h('header', { class: 'topbar' },

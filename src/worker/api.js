@@ -102,6 +102,13 @@ export function cleanContent(c, base) {
     date: /^\d{4}-\d{2}-\d{2}$/.test(p.date) ? p.date : new Date().toISOString().slice(0, 10),
     title: bi(p.title, 160), excerpt: bi(p.excerpt, 400), body: biList(p.body, 4000, 60),
   })));
+  // Single photos on the home page: section tiles, about, profile, banner, Instagram strip
+  if (c.tiles) out.tiles = list(base.tiles, 10).map(t => {
+    const m = list(c.tiles, 10).find(x => x && x.key === t.key);
+    return { ...t, img: (m && imgRef(m.img)) || t.img };
+  });
+  for (const k of ["portrait", "profile", "cta_img"]) if (k in c) out[k] = imgRef(c[k]) || base[k];
+  if (c.instagram_imgs) out.instagram_imgs = imgList(c.instagram_imgs, 12);
   if (c.faq) out.faq = list(c.faq, 100).map(f => ({ q: bi(f.q, 300), a: bi(f.a, 2000) }));
   if (c.contact) out.contact = {
     phone: str(c.contact.phone, 40), email: str(c.contact.email, 120),

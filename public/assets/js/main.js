@@ -57,7 +57,13 @@
     var counter = hero.querySelector('.hero-count');
     var portraitMq = window.matchMedia('(orientation: portrait)');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var slides = [], current = 0, timer;
+    var slides = [], current = 0, upNext = 1, timer;
+    // Auto-play jumps to a random other photo; it is picked one step ahead so it can preload
+    var pickNext = function () {
+      if (slides.length < 2) return 0;
+      var n; do { n = Math.floor(Math.random() * slides.length) } while (n === current);
+      return n;
+    };
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
     var esc = function (s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
     var load = function (i) {
@@ -81,6 +87,8 @@
       });
       current = 0;
       if (counter) counter.textContent = '01 / ' + pad(slides.length);
+      upNext = pickNext();
+      load(upNext);
       load(1);
     };
     var show = function (i) {
@@ -93,9 +101,11 @@
       slides[current].classList.add('is-active');
       slides[current].setAttribute('aria-hidden', 'false');
       if (counter) counter.textContent = pad(current + 1) + ' / ' + pad(slides.length);
+      upNext = pickNext();
+      load(upNext);
       load((current + 1) % slides.length);
     };
-    var start = function () { clearInterval(timer); if (!reduce) timer = setInterval(function () { show(current + 1); }, 5000); };
+    var start = function () { clearInterval(timer); if (!reduce) timer = setInterval(function () { show(upNext); }, 2000); };
     var prev = hero.querySelector('.hero-prev'), next = hero.querySelector('.hero-next');
     prev && prev.addEventListener('click', function () { show(current - 1); start(); });
     next && next.addEventListener('click', function () { show(current + 1); start(); });

@@ -4,7 +4,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "3";
+var ASSET_V = "4";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
@@ -1239,6 +1239,12 @@ function cleanContent(c, base) {
     excerpt: bi(p.excerpt, 400),
     body: biList(p.body, 4e3, 60)
   })));
+  if (c.tiles) out.tiles = list(base.tiles, 10).map((t2) => {
+    const m = list(c.tiles, 10).find((x) => x && x.key === t2.key);
+    return { ...t2, img: m && imgRef(m.img) || t2.img };
+  });
+  for (const k of ["portrait", "profile", "cta_img"]) if (k in c) out[k] = imgRef(c[k]) || base[k];
+  if (c.instagram_imgs) out.instagram_imgs = imgList(c.instagram_imgs, 12);
   if (c.faq) out.faq = list(c.faq, 100).map((f) => ({ q: bi(f.q, 300), a: bi(f.a, 2e3) }));
   if (c.contact) out.contact = {
     phone: str(c.contact.phone, 40),
