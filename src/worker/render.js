@@ -73,8 +73,9 @@ const waLink = (c, lang) => `https://wa.me/${String(c.contact.phone || "").repla
 
 // Uploaded photos exist in two sizes (900px "-s" and up to 2400px), so a full-size
 // src gets a srcset and the browser picks; callers pass small(src) to force the 900px one.
-function img(src, alt, { w, h, eager, cls, sizes } = {}) {
-  const a = [`src="${e(src)}"`, `alt="${e(alt)}"`, 'decoding="async"', eager ? 'fetchpriority="high"' : 'loading="lazy"'];
+// eager: LCP candidate (high priority); above: in the first screen, so not lazy-loaded
+function img(src, alt, { w, h, eager, above, cls, sizes } = {}) {
+  const a = [`src="${e(src)}"`, `alt="${e(alt)}"`, 'decoding="async"', eager ? 'fetchpriority="high"' : above ? "" : 'loading="lazy"'].filter(Boolean);
   if (/^\/media\/[0-9a-f]{24}\.jpg$/.test(src)) a.push(`srcset="${e(small(src))} 900w, ${e(src)} 2400w"`, `sizes="${sizes || "100vw"}"`);
   if (w && h) a.push(`width="${w}"`, `height="${h}"`);
   if (cls) a.push(`class="${cls}"`);
@@ -131,7 +132,7 @@ ${schemaTag}
     <nav class="nav" id="nav" aria-label="Main">
       <ul>${navItems}</ul>
       <button class="theme-toggle" type="button" aria-label="${e(ui.theme)}" title="${e(ui.theme)}">${ICON.moon}${ICON.sun}</button>
-      <a class="lang" href="${alt[OTHER[lang]]}" hreflang="${OTHER[lang]}" aria-label="${e(ui.switch_label)}">${ui.switch}</a>
+      <a class="lang" href="${alt[OTHER[lang]]}" hreflang="${OTHER[lang]}" aria-label="${ui.switch} · ${e(ui.switch_label)}">${ui.switch}</a>
       <a class="btn" href="${wa}" target="_blank" rel="noopener">${e(ui.book)}</a>
     </nav>
   </div>
@@ -278,8 +279,8 @@ export function portfolio(c, lang) {
   const used = Object.keys(cats).filter(k => c.events.some(ev => ev.cat === k));
   const filters = `<button data-filter="all" aria-pressed="true">${e(ui.all)}</button>` +
     used.map(k => `<button data-filter="${e(k)}" aria-pressed="false">${e(cats[k])}</button>`).join("");
-  const cards = c.events.map(ev => `<a class="event-card reveal" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">` +
-    `${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang))}` +
+  const cards = c.events.map((ev, n) => `<a class="event-card reveal" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">` +
+    `${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0, above: n < 4 })}` +
     `<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} · ${e(t(ev.date, lang))}</span>` +
     `<h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
   const body = `${pageHead(title, intro)}<section class="section" style="padding-top:0"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
@@ -290,7 +291,7 @@ export function event(c, lang, i) {
   const ev = c.events[i], ui = UI[lang], cats = c.categories[lang];
   const nxt = c.events[(i + 1) % c.events.length];
   const title = t(ev.title, lang);
-  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} · ${n + 1}`)}</figure></a>`).join("");
+  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} · ${n + 1}`, { eager: n < 2, above: n < 6 })}</figure></a>`).join("");
   const nextBtn = c.events.length > 1 ? `<a class="btn btn--solid" href="${eventUrl(lang, nxt)}">${e(ui.next_event)}: ${e(t(nxt.title, lang))} ${ICON.arrow}</a>` : "";
   const body = `
 <section class="page-head">

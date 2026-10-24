@@ -10,7 +10,7 @@ var style_default = `/* Self-hosted fonts: latin + Romanian subset (was Google F
 :root {
   --ink: #161616;
   --ink-soft: #4a4a4a;
-  --muted: #8a8a8a;
+  --muted: #6b6b6b;
   --paper: #ffffff;
   --paper-2: #f6f4f0;
   --line: #e6e2da;
@@ -426,8 +426,8 @@ var postUrl = (lang, p) => `${r(lang, "blog")}${p.slug}/`;
 var small = (src) => src && src.startsWith("/media/") ? src.replace(/\.jpg$/, "-s.jpg") : src;
 var safeUrl = (u) => /^https?:\/\/[^\s"'<>]+$/i.test(u || "") ? u : "#";
 var waLink = (c, lang) => `https://wa.me/${String(c.contact.phone || "").replace(/\D/g, "")}?text=${encodeURIComponent(UI[lang].wa_msg)}`;
-function img(src, alt, { w, h, eager, cls, sizes } = {}) {
-  const a = [`src="${e(src)}"`, `alt="${e(alt)}"`, 'decoding="async"', eager ? 'fetchpriority="high"' : 'loading="lazy"'];
+function img(src, alt, { w, h, eager, above, cls, sizes } = {}) {
+  const a = [`src="${e(src)}"`, `alt="${e(alt)}"`, 'decoding="async"', eager ? 'fetchpriority="high"' : above ? "" : 'loading="lazy"'].filter(Boolean);
   if (/^\/media\/[0-9a-f]{24}\.jpg$/.test(src)) a.push(`srcset="${e(small(src))} 900w, ${e(src)} 2400w"`, `sizes="${sizes || "100vw"}"`);
   if (w && h) a.push(`width="${w}"`, `height="${h}"`);
   if (cls) a.push(`class="${cls}"`);
@@ -481,7 +481,7 @@ ${schemaTag}
     <nav class="nav" id="nav" aria-label="Main">
       <ul>${navItems}</ul>
       <button class="theme-toggle" type="button" aria-label="${e(ui.theme)}" title="${e(ui.theme)}">${ICON.moon}${ICON.sun}</button>
-      <a class="lang" href="${alt[OTHER[lang]]}" hreflang="${OTHER[lang]}" aria-label="${e(ui.switch_label)}">${ui.switch}</a>
+      <a class="lang" href="${alt[OTHER[lang]]}" hreflang="${OTHER[lang]}" aria-label="${ui.switch} \xB7 ${e(ui.switch_label)}">${ui.switch}</a>
       <a class="btn" href="${wa}" target="_blank" rel="noopener">${e(ui.book)}</a>
     </nav>
   </div>
@@ -629,7 +629,7 @@ function portfolio(c, lang) {
   const ui = UI[lang], cats = c.categories[lang];
   const used = Object.keys(cats).filter((k) => c.events.some((ev) => ev.cat === k));
   const filters = `<button data-filter="all" aria-pressed="true">${e(ui.all)}</button>` + used.map((k) => `<button data-filter="${e(k)}" aria-pressed="false">${e(cats[k])}</button>`).join("");
-  const cards = c.events.map((ev) => `<a class="event-card reveal" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang))}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} \xB7 ${e(t(ev.date, lang))}</span><h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
+  const cards = c.events.map((ev, n) => `<a class="event-card reveal" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0, above: n < 4 })}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} \xB7 ${e(t(ev.date, lang))}</span><h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
   const body = `${pageHead(title, intro)}<section class="section" style="padding-top:0"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
   return layout(c, lang, "portfolio", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") } });
 }
@@ -637,7 +637,7 @@ function event(c, lang, i) {
   const ev = c.events[i], ui = UI[lang], cats = c.categories[lang];
   const nxt = c.events[(i + 1) % c.events.length];
   const title = t(ev.title, lang);
-  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} \xB7 ${n + 1}`)}</figure></a>`).join("");
+  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} \xB7 ${n + 1}`, { eager: n < 2, above: n < 6 })}</figure></a>`).join("");
   const nextBtn = c.events.length > 1 ? `<a class="btn btn--solid" href="${eventUrl(lang, nxt)}">${e(ui.next_event)}: ${e(t(nxt.title, lang))} ${ICON.arrow}</a>` : "";
   const body = `
 <section class="page-head">
