@@ -32,3 +32,10 @@ Starting content lives in `src/content.py` (exported by `src/make_seed.py`).
 
 Workers KV free tier: 1,000 writes/deletes/lists per day, 100,000 reads per day, 1 GB.
 The worker keeps KV traffic low: content JSON is cached in the isolate (30 s) and edge cache (60 s), sessions are signed cookies, images are served through the edge cache. Each uploaded photo costs 2 writes (full + small); saving costs 1 write + 1 list + a delete per orphaned image. Avoid bulk imports of more than ~400 photos per day.
+
+## PageSpeed
+
+Rule: PageSpeed scores stay above 90 on mobile and desktop. Check with `tools/pagespeed.sh` after every change.
+Keep in mind: fonts are self-hosted (`/assets/fonts`, latin + Romanian subset) and CSS is inlined into `<head>`;
+don't add render-blocking third-party CSS/JS, don't fade in or rebuild anything in the first screen,
+and give images a size (attributes or `aspect-ratio`) so lazy ones don't pile into the first screen.
