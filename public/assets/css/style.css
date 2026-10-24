@@ -1,3 +1,10 @@
+/* Self-hosted fonts: latin + Romanian subset (was Google Fonts, render-blocking) */
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-display:swap;src:url(/assets/fonts/cormorant-garamond-400i.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/inter-400.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/inter-500.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/montserrat-500.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/montserrat-600.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:700;font-display:swap;src:url(/assets/fonts/montserrat-700.woff2) format('woff2')}
 /* Dan Căpitan de Plai — layout adapted from reference demo "Home 2" */
 :root {
   --ink: #161616;

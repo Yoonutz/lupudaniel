@@ -6,7 +6,9 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "5";
+const ASSET_V = "6";
+// style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
+import CSS from "../../public/assets/css/style.css";
 
 export const ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
@@ -115,10 +117,9 @@ ${alternates}
 <meta name="theme-color" content="#0f0f0f">
 ${THEME_JS}
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital@1&family=Inter:wght@400;500&family=Montserrat:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="/assets/css/style.css?v=${ASSET_V}">
+<link rel="preload" href="/assets/fonts/montserrat-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>${CSS}</style>
 ${schemaTag}
 </head>
 <body class="${hasHero ? "has-hero" : ""}">
