@@ -36,6 +36,7 @@ page = f'''<!doctype html><html lang="ro"><head><meta charset="utf-8">
 <script type="application/json" id="state">__STATE_JSON__</script>
 <script type="application/json" id="img">{img}</script>
 <script>{main}</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{{"token": "aaa745745f6e4368ac5f2a7f183c2f7a"}}'></script>
 </body></html>'''
 w = rd("worker-src.js")
 w = w.replace("__PAGE__", json.dumps(page), 1)
