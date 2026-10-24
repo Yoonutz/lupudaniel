@@ -17,9 +17,14 @@ from content import (CATEGORIES, EVENTS, FAQ, HERO_LINES, HERO_SLIDES, HOME, NAV
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "public")
 IMG = "/assets/img/"
-ASSET_V = "1"
+ASSET_V = "2"
 
 e = html.escape
+
+# Runs before CSS so the page paints in the right theme (saved choice, else device setting)
+THEME_JS = ("<script>(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}"
+            "if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}"
+            "document.documentElement.setAttribute('data-theme',t)})();</script>")
 
 ICON = {
     "menu": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg>',
@@ -32,6 +37,8 @@ ICON = {
     "x": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     "left": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>',
     "right": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>',
+    "sun": '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    "moon": '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
     "arrow": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
 }
 
@@ -92,6 +99,7 @@ def page(lang, key, title, desc, body, alt_path, has_hero=False, og_image="hero-
 <meta property="og:url" content="{canonical}">
 <meta property="og:locale" content="{'ro_RO' if lang == 'ro' else 'en_US'}">
 <meta name="theme-color" content="#0f0f0f">
+{THEME_JS}
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -107,6 +115,7 @@ def page(lang, key, title, desc, body, alt_path, has_hero=False, og_image="hero-
     <button class="menu-toggle" aria-controls="nav" aria-expanded="false" aria-label="{e(ui['menu'])}">{ICON['menu']}</button>
     <nav class="nav" id="nav" aria-label="Main">
       <ul>{nav_items}</ul>
+      <button class="theme-toggle" type="button" aria-label="{e(ui['theme'])}" title="{e(ui['theme'])}">{ICON['moon']}{ICON['sun']}</button>
       <a class="lang" href="{alt_path[OTHER[lang]]}" hreflang="{OTHER[lang]}" aria-label="{e(ui['switch_label'])}">{ui['switch']}</a>
       <a class="btn" href="{wa_link(lang)}" target="_blank" rel="noopener">{e(ui['book'])}</a>
     </nav>

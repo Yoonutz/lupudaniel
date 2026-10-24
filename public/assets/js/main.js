@@ -2,6 +2,26 @@
 (function () {
   document.documentElement.classList.remove('no-js');
 
+  // Light / dark theme: initial value set inline in <head>; this handles the toggle
+  var root = document.documentElement;
+  var themeBtn = document.querySelector('.theme-toggle');
+  var setTheme = function (t, save) {
+    root.setAttribute('data-theme', t);
+    if (themeBtn) themeBtn.setAttribute('aria-pressed', String(t === 'dark'));
+    if (save) { try { localStorage.setItem('theme', t); } catch (e) {} }
+  };
+  setTheme(root.getAttribute('data-theme') || 'light', false);
+  if (themeBtn) themeBtn.addEventListener('click', function () {
+    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+  });
+  // Follow the device setting until the visitor picks one
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var onChange = function (ev) {
+    var saved; try { saved = localStorage.getItem('theme'); } catch (e) {}
+    if (!saved) setTheme(ev.matches ? 'dark' : 'light', false);
+  };
+  mq.addEventListener ? mq.addEventListener('change', onChange) : mq.addListener(onChange);
+
   // Header turns solid after the hero
   var header = document.querySelector('.site-header');
   var onScroll = function () {

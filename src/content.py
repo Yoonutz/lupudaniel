@@ -48,6 +48,7 @@ UI = {
         "next": "Următoarea",
         "switch": "EN",
         "switch_label": "English version",
+        "theme": "Schimbă tema (luminoasă / întunecată)",
     },
     "en": {
         "book": "Book a chat",
@@ -70,6 +71,7 @@ UI = {
         "next": "Next",
         "switch": "RO",
         "switch_label": "Versiunea în română",
+        "theme": "Switch theme (light / dark)",
     },
 }
 
