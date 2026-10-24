@@ -94,9 +94,11 @@
     };
     var setCount = function () { if (counter) counter.textContent = pad(current + 1) + ' / ' + pad(slides.length); };
     // A fade ends by hiding the old photo; then a queued click (if any) gets its turn
-    var settle = function () {
+    var settle = function (snap) {
       if (!fading) return;
       clearTimeout(fading.t);
+      // Cut short (tab hidden, rebuild): show the new photo fully before hiding the old one
+      if (snap === true) { fading.to.style.transition = 'none'; void fading.to.offsetWidth; fading.to.style.transition = ''; }
       fading.to.removeEventListener('transitionend', fading.end);
       fading.from.classList.remove('is-prev');
       fading = null;
@@ -104,7 +106,7 @@
       if (queued != null) { var q = queued; queued = null; show(q, true); }
     };
     var build = function () {
-      gen++; queued = null; settle(); busy = false; pend = null; clearTimeout(timer);
+      gen++; queued = null; settle(true); busy = false; pend = null; clearTimeout(timer);
       var portrait = portraitMq.matches && data.mobile.length;
       var set = portrait ? data.mobile : data.desktop;
       // Phones get the 900px variant; wide screens pick between 900px and full via srcset
@@ -155,7 +157,7 @@
         // Done when the fade-in really ends; the timer is a backstop for frozen or skipped transitions
         var end = function (ev) { if (ev.target === to && ev.propertyName === 'opacity') { to.removeEventListener('transitionend', end); settle(); } };
         to.addEventListener('transitionend', end);
-        fading = { from: from, to: to, end: end, t: setTimeout(settle, d + 1000) };
+        fading = { from: from, to: to, end: end, t: setTimeout(function () { settle(true); }, d + 1000) };
         upNext = pickNext();
         ready(upNext);
         schedule(interval);
@@ -175,7 +177,7 @@
     // Background tabs pause the show (browsers freeze timers and transitions there);
     // on return the current photo gets a full interval before the next fade
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden) { clearTimeout(timer); queued = null; settle(); }
+      if (document.hidden) { clearTimeout(timer); queued = null; settle(true); }
       else schedule(interval);
     });
     // Rotating the phone or resizing the window swaps to the other set
