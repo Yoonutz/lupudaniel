@@ -212,7 +212,7 @@ p { margin: 0 0 1em; }
 .filters button[aria-pressed="true"], .filters button:hover { color: var(--ink); border-color: var(--ink); }
 .gallery { columns: 3 320px; column-gap: 12px; }
 .gallery a { display: block; margin-bottom: 12px; break-inside: avoid; position: relative; overflow: hidden; cursor: zoom-in; }
-.gallery img { width: 100%; transition: transform .8s ease, opacity .3s; }
+.gallery img { width: 100%; aspect-ratio: auto 3 / 4; /* reserve space until the photo loads (most are 3:4) */ transition: transform .8s ease, opacity .3s; }
 .gallery a:hover img { transform: scale(1.03); }
 .gallery a[hidden] { display: none; }
 .gallery figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 16px 14px; color: #fff; font: 500 12px/1 var(--head); letter-spacing: .15em; text-transform: uppercase; background: linear-gradient(transparent, rgba(0,0,0,.55)); opacity: 0; transition: opacity .3s; }
