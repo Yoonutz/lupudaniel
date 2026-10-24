@@ -8,7 +8,6 @@ const MAX_IMAGE = 8 * 1024 * 1024;
 const enc = new TextEncoder();
 const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
 const randomToken = () => hex(crypto.getRandomValues(new Uint8Array(32)));
-const sha256 = async s => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
 
 export const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
@@ -17,9 +16,30 @@ const adminEmails = env => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com
 
 // ---------- content ----------
 
-export async function getContent(env) {
-  const saved = await env.CONTENT.get("site", "json");
-  return saved ? { ...SEED, ...saved } : SEED;
+// KV free tier counts every read, so the content JSON is cached in the isolate
+// (30 s) and in the edge cache (60 s). Saving clears both for this location;
+// other locations catch up within a minute.
+const CONTENT_URL = "https://cache.internal/site";
+let memo = { at: 0, data: null };
+export async function getContent(env, ctx) {
+  if (memo.data && Date.now() - memo.at < 30_000) return memo.data;
+  const cache = caches.default;
+  let saved = null;
+  const hit = await cache.match(CONTENT_URL).catch(() => null);
+  if (hit) saved = await hit.json();
+  else {
+    saved = await env.CONTENT.get("site", "json");
+    const res = new Response(JSON.stringify(saved), { headers: { "content-type": "application/json", "cache-control": "max-age=60" } });
+    const put = cache.put(CONTENT_URL, res).catch(() => {});
+    ctx ? ctx.waitUntil(put) : await put;
+  }
+  const data = saved ? { ...SEED, ...saved } : SEED;
+  memo = { at: Date.now(), data };
+  return data;
+}
+async function forgetContent() {
+  memo = { at: 0, data: null };
+  await caches.default.delete(CONTENT_URL).catch(() => {});
 }
 
 // ---------- sessions ----------
@@ -29,10 +49,17 @@ function cookie(req, name) {
   return m ? m[1] : null;
 }
 
+// Sessions are signed cookies (exp.signature), so logging in costs no KV writes
+async function hmac(env, msg) {
+  const key = await crypto.subtle.importKey("raw", enc.encode(String(env.SESSION_SECRET || env.MOCK_LOGIN_KEY || "dev-secret")), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return hex(await crypto.subtle.sign("HMAC", key, enc.encode(msg)));
+}
 export async function session(req, env) {
   const sid = cookie(req, "sid");
-  if (!sid || !/^[0-9a-f]{64}$/.test(sid)) return null;
-  return env.CONTENT.get("sess:" + await sha256(sid), "json");
+  const m = sid && sid.match(/^(\d{1,16})\.([0-9a-f]{64})$/);
+  if (!m || Number(m[1]) < Date.now()) return null;
+  if (await hmac(env, m[1]) !== m[2]) return null;
+  return { email: adminEmails(env)[0] };
 }
 
 async function readJson(req, max) {
@@ -45,16 +72,14 @@ async function readJson(req, max) {
 // Swap for a real login (email link or password) before launch.
 async function quickLogin(req, env) {
   const email = adminEmails(env)[0];
-  const sid = randomToken();
-  await env.CONTENT.put("sess:" + await sha256(sid), JSON.stringify({ email, at: Date.now() }), { expirationTtl: SESSION_TTL });
+  const exp = String(Date.now() + SESSION_TTL * 1000);
+  const sid = exp + "." + await hmac(env, exp);
   return json({ ok: true, email }, 200, {
     "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`,
   });
 }
 
-async function logout(req, env) {
-  const sid = cookie(req, "sid");
-  if (sid && /^[0-9a-f]{64}$/.test(sid)) await env.CONTENT.delete("sess:" + await sha256(sid));
+async function logout() {
   return json({ ok: true }, 200, { "set-cookie": "sid=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
 }
 
@@ -127,9 +152,10 @@ function usedImages(c) {
 
 async function saveContent(req, env) {
   let body; try { body = await readJson(req, 2_000_000) } catch { return json({ error: "bad_request" }, 400) }
-  const current = await getContent(env);
-  const next = cleanContent(body, current);
+  const saved = await env.CONTENT.get("site", "json"); // fresh, not the cached copy
+  const next = cleanContent(body, saved ? { ...SEED, ...saved } : SEED);
   await env.CONTENT.put("site", JSON.stringify(next));
+  await forgetContent();
   // Drop uploaded images nothing points to any more
   const keep = usedImages(next);
   const listed = await env.CONTENT.list({ prefix: "img:" });

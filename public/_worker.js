@@ -1153,21 +1153,46 @@ var MAX_IMAGE = 8 * 1024 * 1024;
 var enc = new TextEncoder();
 var hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 var randomToken = () => hex(crypto.getRandomValues(new Uint8Array(32)));
-var sha256 = async (s) => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
 var json = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
 var adminEmails = (env) => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com").toLowerCase().split(",").map((s) => s.trim()).filter(Boolean);
-async function getContent(env) {
-  const saved = await env.CONTENT.get("site", "json");
-  return saved ? { ...seed_default, ...saved } : seed_default;
+var CONTENT_URL = "https://cache.internal/site";
+var memo = { at: 0, data: null };
+async function getContent(env, ctx) {
+  if (memo.data && Date.now() - memo.at < 3e4) return memo.data;
+  const cache = caches.default;
+  let saved = null;
+  const hit = await cache.match(CONTENT_URL).catch(() => null);
+  if (hit) saved = await hit.json();
+  else {
+    saved = await env.CONTENT.get("site", "json");
+    const res = new Response(JSON.stringify(saved), { headers: { "content-type": "application/json", "cache-control": "max-age=60" } });
+    const put = cache.put(CONTENT_URL, res).catch(() => {
+    });
+    ctx ? ctx.waitUntil(put) : await put;
+  }
+  const data = saved ? { ...seed_default, ...saved } : seed_default;
+  memo = { at: Date.now(), data };
+  return data;
+}
+async function forgetContent() {
+  memo = { at: 0, data: null };
+  await caches.default.delete(CONTENT_URL).catch(() => {
+  });
 }
 function cookie(req, name) {
   const m = (req.headers.get("cookie") || "").match(new RegExp("(?:^|;\\s*)" + name + "=([^;]+)"));
   return m ? m[1] : null;
 }
+async function hmac(env, msg) {
+  const key = await crypto.subtle.importKey("raw", enc.encode(String(env.SESSION_SECRET || env.MOCK_LOGIN_KEY || "dev-secret")), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return hex(await crypto.subtle.sign("HMAC", key, enc.encode(msg)));
+}
 async function session(req, env) {
   const sid = cookie(req, "sid");
-  if (!sid || !/^[0-9a-f]{64}$/.test(sid)) return null;
-  return env.CONTENT.get("sess:" + await sha256(sid), "json");
+  const m = sid && sid.match(/^(\d{1,16})\.([0-9a-f]{64})$/);
+  if (!m || Number(m[1]) < Date.now()) return null;
+  if (await hmac(env, m[1]) !== m[2]) return null;
+  return { email: adminEmails(env)[0] };
 }
 async function readJson(req, max) {
   const text = await req.text();
@@ -1176,15 +1201,13 @@ async function readJson(req, max) {
 }
 async function quickLogin(req, env) {
   const email = adminEmails(env)[0];
-  const sid = randomToken();
-  await env.CONTENT.put("sess:" + await sha256(sid), JSON.stringify({ email, at: Date.now() }), { expirationTtl: SESSION_TTL });
+  const exp = String(Date.now() + SESSION_TTL * 1e3);
+  const sid = exp + "." + await hmac(env, exp);
   return json({ ok: true, email }, 200, {
     "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`
   });
 }
-async function logout(req, env) {
-  const sid = cookie(req, "sid");
-  if (sid && /^[0-9a-f]{64}$/.test(sid)) await env.CONTENT.delete("sess:" + await sha256(sid));
+async function logout() {
   return json({ ok: true }, 200, { "set-cookie": "sid=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
 }
 var IMG_RE = /^\/(media\/[0-9a-f]{24}\.jpg|assets\/img\/[\w.-]+)$/;
@@ -1270,9 +1293,10 @@ async function saveContent(req, env) {
   } catch {
     return json({ error: "bad_request" }, 400);
   }
-  const current = await getContent(env);
-  const next = cleanContent(body, current);
+  const saved = await env.CONTENT.get("site", "json");
+  const next = cleanContent(body, saved ? { ...seed_default, ...saved } : seed_default);
   await env.CONTENT.put("site", JSON.stringify(next));
+  await forgetContent();
   const keep = usedImages(next);
   const listed = await env.CONTENT.list({ prefix: "img:" });
   await Promise.all(listed.keys.filter((k) => !keep.has(k.name.slice(4, 28))).map((k) => env.CONTENT.delete(k.name)));
@@ -1375,7 +1399,7 @@ var worker_default = {
         }
         return out;
       }
-      const c = await getContent(env);
+      const c = await getContent(env, ctx);
       if (p === "/sitemap.xml") return new Response(sitemap(c), { headers: { "content-type": "application/xml" } });
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url2.origin + p + "/" + url2.search, 301);
       const page = route(c, p);

@@ -33,7 +33,7 @@ export default {
         return out;
       }
 
-      const c = await getContent(env);
+      const c = await getContent(env, ctx);
       if (p === "/sitemap.xml") return new Response(sitemap(c), { headers: { "content-type": "application/xml" } });
       // Paths without a trailing slash go to the slash version
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url.origin + p + "/" + url.search, 301);
