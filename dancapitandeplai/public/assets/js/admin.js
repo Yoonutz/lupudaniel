@@ -253,6 +253,7 @@
             textField('Locație', ev, 'venue')),
           bilingual('Data (ex. Septembrie 2026)', ev, 'date'),
           bilingual('Descriere scurtă', ev, 'intro', { area: true })),
+        videoPanel(ev),
         h('div', { class: 'panel' },
           h('div', { class: 'panel-head' }, h('h2', { text: 'Poze (' + ev.photos.length + ')' })),
           h('p', { class: 'hint', text: 'Apasă ★ ca să alegi coperta din portofoliu.' }),
@@ -263,7 +264,7 @@
     return h('div', { class: 'panel' },
       h('div', { class: 'panel-head' }, h('h2', { text: 'Evenimente (' + c.events.length + ')' }),
         h('button', { class: 'btn btn-primary btn-sm', onclick: function () {
-          c.events.unshift({ id: uid(), slug: '', cat: Object.keys(cats)[0], venue: '', cover: '', photos: [], title: { ro: '', en: '' }, date: { ro: '', en: '' }, intro: { ro: '', en: '' } });
+          c.events.unshift({ id: uid(), slug: '', cat: Object.keys(cats)[0], venue: '', cover: '', photos: [], title: { ro: '', en: '' }, date: { ro: '', en: '' }, intro: { ro: '', en: '' }, video: '' });
           S.edit = 0; markDirty(); render();
         } }, '+ Eveniment nou')),
       h('p', { class: 'hint', text: 'Fiecare eveniment are pagina lui. Ordinea de aici e ordinea de pe site.' }),
@@ -351,6 +352,36 @@
     ];
   }
 
+  // ---------- event video (YouTube / Vimeo link) ----------
+  function videoInfo(link) {
+    var s = String(link || '').trim();
+    var m = s.match(/^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/i);
+    if (m) return { kind: 'YouTube', thumb: 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg' };
+    if (/^https?:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?\d{6,12}/i.test(s)) return { kind: 'Vimeo' };
+    return null;
+  }
+  function videoPanel(ev) {
+    ev.video = ev.video || '';
+    var input = h('input', { type: 'url', placeholder: 'https://youtu.be/... sau https://vimeo.com/...' });
+    input.value = ev.video;
+    var status = h('div', { class: 'video-status' });
+    function show() {
+      var v = videoInfo(input.value);
+      status.innerHTML = '';
+      if (!input.value.trim()) add(status, h('p', { class: 'hint', text: 'Fără film. Lipește un link ca să apară deasupra pozelor.' }));
+      else if (!v) add(status, h('p', { class: 'hint bad', text: 'Linkul nu e de YouTube sau Vimeo. Nu se salvează.' }));
+      else add(status, h('p', { class: 'hint ok' }, '✓ Film ' + v.kind + ' găsit.'), v.thumb ? h('img', { class: 'video-thumb', src: v.thumb, alt: '' }) : null);
+    }
+    input.addEventListener('input', function () { ev.video = input.value.trim(); markDirty(); show(); });
+    show();
+    return h('div', { class: 'panel' },
+      h('div', { class: 'panel-head' }, h('h2', { text: 'Film' }),
+        ev.video ? h('button', { class: 'btn btn-sm btn-danger', onclick: function () { ev.video = ''; markDirty(); render(); } }, 'Scoate filmul') : null),
+      h('p', { class: 'hint', text: 'Urcă filmul pe YouTube (poate fi „Nelistat”) sau Vimeo, apoi lipește aici linkul. Nu ocupă spațiu pe site.' }),
+      h('label', { class: 'f' }, h('span', { text: 'Link film' }), input),
+      status);
+  }
+
   // ---------- storage meter ----------
   var ST = { data: null, loading: false, error: '' };
   function mb(b) {
@@ -400,11 +431,11 @@
     ];
     var o = d.ops;
     out.push(h('div', { class: 'panel' },
-      h('div', { class: 'panel-head' }, h('h2', { text: 'Încărcări azi' })),
+      h('div', { class: 'panel-head' }, h('h2', { text: 'Câte poze pe zi' })),
       o ? [h('p', { class: 'big' }, h('strong', { text: String(o.used) }), ' din ' + o.limit + ' operații folosite azi'),
            meter(o.used, o.limit),
            h('p', { class: 'hint', text: 'Fiecare poză costă 2 operații, deci azi mai poți urca ~' + Math.max(0, Math.floor((o.limit - o.used) / 2)) + ' poze. Limita se resetează în fiecare zi la 02:00 (ora României, 03:00 vara).' })]
-        : h('p', { class: 'hint', text: 'Limita gratuită: 1.000 operații pe zi, fiecare poză costă 2, deci maxim ~400 de poze pe zi ca să rămână loc pentru salvări. Contorul de azi nu e pornit încă.' })));
+        : h('p', { class: 'hint', text: 'Regula: maxim ~400 de poze pe zi. Limita gratuită e de 1.000 operații pe zi, fiecare poză costă 2, iar restul rămâne pentru salvări. Limita se resetează în fiecare noapte la 02:00 (03:00 vara).' })));
     out.push(h('div', { class: 'panel' },
       h('div', { class: 'panel-head' }, h('h2', { text: 'Filme' })),
       h('p', { class: 'hint', text: 'Filmele nu intră aici: spațiul acesta primește maxim 25 MB pe fișier și ar umple 1 GB din câteva clipuri. Filmele se pun pe YouTube sau Vimeo și se leagă pe site.' })));

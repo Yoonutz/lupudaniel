@@ -111,3 +111,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .stats strong { display: block; font: 600 20px/1.2 var(--head); }
 .stats small { color: var(--muted); font-size: 12px; }
 @media (max-width: 560px) { .stats { grid-template-columns: 1fr; } }
+
+/* Event video */
+.hint.ok { color: var(--ok); margin: 0 0 10px; }
+.hint.bad { color: var(--danger); margin: 0; }
+.video-thumb { display: block; width: 240px; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 4px; }

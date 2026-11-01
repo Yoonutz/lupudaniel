@@ -101,6 +101,16 @@ const imgRef = v => (IMG_RE.test(String(v || "")) ? String(v) : "");
 const imgList = (v, n = 200) => list(v, n).map(imgRef).filter(Boolean);
 const url = v => (/^https?:\/\/[^\s"'<>]+$/i.test(String(v || "")) ? String(v).slice(0, 500) : "");
 
+// YouTube or Vimeo link → privacy-friendly player URL (null if it's neither)
+export function videoEmbed(link) {
+  const s = String(link || "").trim();
+  let m = s.match(/^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/i);
+  if (m) return { kind: "youtube", id: m[1], src: `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1&rel=0` };
+  m = s.match(/^https?:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d{6,12})(?:\/([0-9a-f]{6,20}))?/i);
+  if (m) return { kind: "vimeo", id: m[1], src: `https://player.vimeo.com/video/${m[1]}?autoplay=1${m[2] ? "&h=" + m[2] : ""}` };
+  return null;
+}
+
 export function slugify(s) {
   return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
     .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70) || "pagina";
@@ -128,6 +138,7 @@ export function cleanContent(c, base) {
     id: str(ev.id, 40) || randomToken().slice(0, 12), slug: str(ev.slug, 80),
     cat: cats.includes(ev.cat) ? ev.cat : cats[0], venue: str(ev.venue, 120),
     cover: imgRef(ev.cover), photos: imgList(ev.photos, 300),
+    video: videoEmbed(ev.video) ? url(ev.video) : "",
     title: bi(ev.title, 140), date: bi(ev.date, 60), intro: bi(ev.intro, 600),
   })));
   if (c.posts) out.posts = uniqueSlugs(list(c.posts, 300).map(p => ({

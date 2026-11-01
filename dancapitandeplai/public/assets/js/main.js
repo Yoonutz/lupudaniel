@@ -267,4 +267,18 @@
 
   var y = document.getElementById('year');
   if (y) y.textContent = new Date().getFullYear();
+  // Event video: swap the thumbnail for the YouTube/Vimeo player on click
+  document.querySelectorAll('.video[data-src]').forEach(function (box) {
+    var btn = box.querySelector('.video-play');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = box.getAttribute('data-src');
+      f.title = btn.getAttribute('aria-label') || 'Video';
+      f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+      f.allowFullscreen = true;
+      box.innerHTML = '';
+      box.appendChild(f);
+    });
+  });
 })();
