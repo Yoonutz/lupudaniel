@@ -1147,7 +1147,7 @@ p { margin: 0 0 1em; }
   color: #fff; transition: background .3s, color .3s, box-shadow .3s;
 }
 .site-header .wrap { display: flex; align-items: center; justify-content: space-between; height: 80px; gap: 24px; }
-.site-header.is-solid, body:not(.has-hero) .site-header { background: var(--header-bg); color: var(--ink); box-shadow: 0 1px 0 var(--line); backdrop-filter: blur(8px); }
+.site-header.is-solid, body:not(.has-hero) .site-header { background: var(--header-bg); color: var(--ink); box-shadow: 0 1px 0 var(--line); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 .logo { font: 700 15px/1.1 var(--head); letter-spacing: .18em; text-transform: uppercase; text-decoration: none; }
 .logo small { display: block; font-weight: 500; font-size: 10px; letter-spacing: .3em; opacity: .75; margin-top: 4px; }
 /* Brand logo (traced from Dan's logo PNGs). One SVG used as a mask, so it takes the text color:
@@ -1188,11 +1188,13 @@ p { margin: 0 0 1em; }
 
 /* Hero slider */
 .hero { position: relative; height: 100vh; height: 100svh; min-height: 560px; color: #fff; overflow: hidden; background: var(--dark); }
-.hero-slide { position: absolute; inset: 0; opacity: 0; z-index: 0; }
-.hero-slide.is-active { opacity: 1; z-index: 2; transition: opacity var(--hero-fade, 1500ms) ease-in-out; }
-.hero-slide.is-prev { opacity: 1; z-index: 1; }
-.hero-slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); }
-.hero-slide.is-active img, .hero-slide.is-prev img { transform: scale(1); transition: transform var(--hero-zoom, 6500ms) cubic-bezier(.25,.1,.25,1); }
+.hero-slide { position: absolute; inset: 0; opacity: 0; z-index: 0; visibility: hidden; }
+/* Hidden slides use visibility:hidden so phones (iOS Safari) can drop their layers + memory;
+   only the 2 slides in a crossfade are GPU layers (will-change), which keeps the fade and zoom smooth */
+.hero-slide.is-active { opacity: 1; z-index: 2; visibility: visible; transition: opacity var(--hero-fade, 1500ms) ease-in-out; will-change: opacity; }
+.hero-slide.is-prev { opacity: 1; z-index: 1; visibility: visible; }
+.hero-slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.hero-slide.is-active img, .hero-slide.is-prev img { transform: scale(1); transition: transform var(--hero-zoom, 6500ms) cubic-bezier(.25,.1,.25,1); will-change: transform; }
 .hero-slide::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.25) 45%, rgba(0,0,0,.55) 100%); }
 .hero-caption { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; text-align: center; padding: 0 var(--gutter); }
 .hero-caption h1, .hero-caption h2 { font-size: clamp(32px, 5.4vw, 68px); font-weight: 600; margin: 0 0 .35em; text-shadow: 0 2px 24px rgba(0,0,0,.25); }
@@ -1211,7 +1213,7 @@ p { margin: 0 0 1em; }
 @media (max-width: 700px) { .hero--quotes .hero-caption { padding: 0 16px 124px; } .hero-box { padding: 16px 18px; -webkit-backdrop-filter: blur(12px) saturate(1.3) brightness(.9); backdrop-filter: blur(12px) saturate(1.3) brightness(.9); } .hero-caption .hero-quote { font-size: 16px; } }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .hero-controls { position: absolute; z-index: 3; left: 50%; bottom: 32px; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; }
-.hero-controls button { background: none; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; color: #fff; cursor: pointer; transition: border-color .2s, background .2s; }
+.hero-controls button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; background: none; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; color: #fff; cursor: pointer; transition: border-color .2s, background .2s; }
 .hero-controls button:hover { border-color: #fff; background: rgba(255,255,255,.1); }
 .hero-controls svg { width: 20px; height: 20px; }
 .hero-count { font: 500 12px/1 var(--head); letter-spacing: .25em; min-width: 72px; text-align: center; }
@@ -1308,9 +1310,9 @@ p { margin: 0 0 1em; }
 .gallery a:hover figcaption, .gallery a:focus-visible figcaption { opacity: 1; }
 
 /* Lightbox */
-.lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(10,10,10,.96); display: none; align-items: center; justify-content: center; }
+.lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(10,10,10,.96); display: none; align-items: center; justify-content: center; overscroll-behavior: contain; -webkit-tap-highlight-color: transparent; }
 .lightbox.is-open { display: flex; }
-.lightbox img { max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); object-fit: contain; }
+.lightbox img { max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); object-fit: contain; }
 .lightbox button { position: absolute; background: none; border: 0; color: #fff; cursor: pointer; padding: 16px; opacity: .8; }
 .lightbox button:hover { opacity: 1; }
 .lightbox svg { width: 28px; height: 28px; }
@@ -1439,7 +1441,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "14";
+var ASSET_V = "16";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }

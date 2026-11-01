@@ -152,22 +152,33 @@
         if (!ok) { busy = false; upNext = pickNext(); schedule(1000); return; }
         if (queued != null && queued !== n) { busy = false; var q = queued; queued = null; return show(q, true); }
         queued = null;
-        var from = slides[current], to = slides[n];
-        void to.offsetWidth;                 // apply its hidden state first so the fade always runs
-        // Clicks get a quicker fade; auto-play uses the full one
-        var d = manual ? Math.min(fade, 700) : fade;
-        to.style.setProperty('--hero-fade', d + 'ms');
-        from.classList.remove('is-active'); from.classList.add('is-prev'); from.setAttribute('aria-hidden', 'true');
-        to.classList.add('is-active'); to.setAttribute('aria-hidden', 'false');
-        current = n; setCount();
-        // Done when the fade-in really ends; the timer is a backstop for frozen or skipped transitions
-        var end = function (ev) { if (ev.target === to && ev.propertyName === 'opacity') { to.removeEventListener('transitionend', end); settle(); } };
-        to.addEventListener('transitionend', end);
-        fading = { from: from, to: to, end: end, t: setTimeout(function () { settle(true); }, d + 1000) };
-        upNext = pickNext();
-        ready(upNext);
-        schedule(interval);
+        return fresh(slides[n]).then(function () { if (g !== gen) return; go(n, manual); });
       });
+    };
+    // iOS Safari throws away the decoded pixels of hidden photos to save memory; fading one in
+    // without decoding it again shows a black frame and then a pop. decode() is instant if it
+    // is still decoded; capped at 600 ms so a slow phone never stalls the show.
+    var fresh = function (el) {
+      var im = el.querySelector('img');
+      if (!im || !im.decode) return Promise.resolve();
+      return Promise.race([im.decode().catch(function () {}), new Promise(function (r) { setTimeout(r, 600); })]);
+    };
+    var go = function (n, manual) {
+      var from = slides[current], to = slides[n];
+      void to.offsetWidth;                 // apply its hidden state first so the fade always runs
+      // Clicks get a quicker fade; auto-play uses the full one
+      var d = manual ? Math.min(fade, 700) : fade;
+      to.style.setProperty('--hero-fade', d + 'ms');
+      from.classList.remove('is-active'); from.classList.add('is-prev'); from.setAttribute('aria-hidden', 'true');
+      to.classList.add('is-active'); to.setAttribute('aria-hidden', 'false');
+      current = n; setCount();
+      // Done when the fade-in really ends; the timer is a backstop for frozen or skipped transitions
+      var end = function (ev) { if (ev.target === to && ev.propertyName === 'opacity') { to.removeEventListener('transitionend', end); settle(); } };
+      to.addEventListener('transitionend', end);
+      fading = { from: from, to: to, end: end, t: setTimeout(function () { settle(true); }, d + 1000) };
+      upNext = pickNext();
+      ready(upNext);
+      schedule(interval);
     };
     var schedule = function (ms) {
       clearTimeout(timer);
@@ -186,6 +197,9 @@
       if (document.hidden) { clearTimeout(timer); queued = null; settle(true); }
       else schedule(interval);
     });
+    // iPhone back/forward cache: the page comes back frozen mid-fade unless we restart it
+    window.addEventListener('pagehide', function () { clearTimeout(timer); queued = null; settle(true); });
+    window.addEventListener('pageshow', function (ev) { if (ev.persisted) { busy = false; schedule(interval); } });
     // Rotating the phone or resizing the window swaps to the other set
     var onFlip = function () { build(); schedule(interval); };
     portraitMq.addEventListener ? portraitMq.addEventListener('change', onFlip) : portraitMq.addListener(onFlip);
@@ -235,11 +249,13 @@
       render();
       lb.classList.add('is-open');
       document.body.style.overflow = 'hidden';
+      root.style.overflow = 'hidden';           // iOS Safari ignores overflow on <body> alone
       lb.querySelector('.lb-close').focus();
     };
     var close = function () {
       lb.classList.remove('is-open');
       document.body.style.overflow = '';
+      root.style.overflow = '';
       lastFocus && lastFocus.focus();
     };
     var step = function (n) { idx = (idx + n + visible.length) % visible.length; render(); };
