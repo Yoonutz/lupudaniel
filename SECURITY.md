@@ -3,7 +3,7 @@
 This repo holds two websites, each in its own folder on `main`:
 
 - `resume/` — Daniel Lupu's resume site (lupudaniel.pages.dev)
-- `dancapitandeplai/` — Dan Căpitan de Plai photography site (dancapitandeplai.pages.dev)
+- `dancapitandeplai/` — Dan Căpitan de Plai photography site (dancapitandeplai.ro; preview dancapitandeplai.pages.dev)
 
 ## Reporting a problem
 

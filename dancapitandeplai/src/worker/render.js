@@ -4,7 +4,7 @@
 export const SITE = {
   name: "Dan Căpitan de Plai",
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
-  url: "https://dancapitandeplai.pages.dev",
+  url: "https://dancapitandeplai.ro",
 };
 const ASSET_V = "16";
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
