@@ -38,6 +38,13 @@ The worker keeps KV traffic low: content JSON is cached in the isolate (30 s) an
 ## PageSpeed
 
 Rule: PageSpeed scores stay above 90 on mobile and desktop. Check with `tools/pagespeed.sh` after every change.
-Keep in mind: fonts are self-hosted (`/assets/fonts`, latin + Romanian subset) and CSS is inlined into `<head>`;
+Keep in mind: fonts are self-hosted (`/assets/fonts`: Jost for titles/menu = brand font, Inter for text; latin + Romanian subset) and CSS is inlined into `<head>`;
 don't add render-blocking third-party CSS/JS, don't fade in or rebuild anything in the first screen,
 and give images a size (attributes or `aspect-ratio`) so lazy ones don't pile into the first screen.
+
+## Brand
+
+Dan's logo is traced to SVG: `public/assets/img/logo.svg` (monogram + wordmark) and `logo-mark.svg` (monogram).
+They are used as a CSS mask, so the logo takes the text color (white over hero photos and in dark mode, black in light mode).
+Favicon/app icons: `favicon.svg`, `/favicon.ico`, `apple-touch-icon.png`, `icon-192/512.png`, `assets/site.webmanifest`.
+If the logo changes, bump the `?v=` on the logo URLs in `style.css` / `admin.css`. Logos are static files, never in KV.
