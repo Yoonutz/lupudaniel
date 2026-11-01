@@ -131,6 +131,8 @@ p { margin: 0 0 1em; }
 .hero-caption { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; text-align: center; padding: 0 var(--gutter); }
 .hero-caption h1, .hero-caption h2 { font-size: clamp(32px, 5.4vw, 68px); font-weight: 600; margin: 0 0 .35em; text-shadow: 0 2px 24px rgba(0,0,0,.25); }
 .hero-caption p { font: 500 13px/1.4 var(--head); letter-spacing: .3em; text-transform: uppercase; margin: 0; opacity: .9; }
+.hero-caption .hero-quote { font: italic 400 clamp(20px, 2.6vw, 34px)/1.45 var(--serif); letter-spacing: 0; text-transform: none; max-width: 34em; margin: 0 auto 1.1em; opacity: 1; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .hero-controls { position: absolute; z-index: 3; left: 50%; bottom: 32px; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; }
 .hero-controls button { background: none; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; color: #fff; cursor: pointer; transition: border-color .2s, background .2s; }
 .hero-controls button:hover { border-color: #fff; background: rgba(255,255,255,.1); }
@@ -353,7 +355,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "11";
+var ASSET_V = "12";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
@@ -547,9 +549,11 @@ function home(c, lang) {
   const h = c.home[lang], ui = UI[lang];
   const desktop = c.hero.desktop.length ? c.hero.desktop : ["/assets/img/hero-1.jpg"];
   const mobile = c.hero.mobile.length ? c.hero.mobile : desktop;
-  const lines = c.hero.lines[lang] && c.hero.lines[lang].length ? c.hero.lines[lang] : [{ title: SITE.name, sub: SITE.tagline[lang] }];
+  const reviews = ((c.testimonials || {})[lang] || []).filter((x) => x.quote);
+  const quotes = reviews.length > 0;
+  const lines = quotes ? reviews.map((x) => ({ title: `\u201E${x.quote}\u201D`, sub: x.who })) : c.hero.lines[lang] && c.hero.lines[lang].length ? c.hero.lines[lang] : [{ title: SITE.name, sub: SITE.tagline[lang] }];
   const first = lines[0];
-  const heroData = JSON.stringify({ desktop, mobile, lines, interval: c.hero.interval || 5 }).replace(/</g, "\\u003c");
+  const heroData = JSON.stringify({ desktop, mobile, lines, quotes, interval: c.hero.interval || 5 }).replace(/</g, "\\u003c");
   const nav = NAV[lang].reduce((o, [k, l]) => (o[k] = l, o), {});
   const tiles = c.tiles.map((tl) => `<a class="tile reveal" href="${r(lang, tl.key)}">${img(small(tl.img), "", { w: 900, h: 1100 })}<div><span class="tile-label">${e(nav[tl.key])}</span><span class="tile-sub">${e(t(c.tile_sub, lang)[tl.key])}</span></div></a>`).join("");
   const services = c.services[lang].map((s) => `<div class="service"><h3>${e(s.title)}</h3><p>${e(s.text)}</p></div>`).join("");
@@ -558,10 +562,11 @@ function home(c, lang) {
   const ig = c.instagram_imgs.map((src) => `<a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${img(small(src), "", { w: 600, h: 600 })}</a>`).join("");
   const n = Math.max(desktop.length, 1);
   const body = `
-<section class="hero" aria-label="${e(SITE.name)}" data-hero>
+<section class="hero${quotes ? " hero--quotes" : ""}" aria-label="${e(SITE.name)}" data-hero>
+  ${quotes ? `<h1 class="sr-only">${e(SITE.name)} \xB7 ${e(SITE.tagline[lang])}</h1>` : ""}
   <div class="hero-slide is-active" aria-hidden="false">
     <picture><source media="(orientation: portrait)" srcset="${e(small(mobile[0]))}"><img src="${e(desktop[0])}" srcset="${e(small(desktop[0]))} 900w, ${e(desktop[0])} 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></picture>
-    <div class="hero-caption"><h1>${e(first.title)}</h1><p>${e(first.sub)}</p></div>
+    <div class="hero-caption">${quotes ? `<p class="hero-quote">${e(first.title)}</p>` : `<h1>${e(first.title)}</h1>`}<p>${e(first.sub)}</p></div>
   </div>
   <script type="application/json" id="hero-data">${heroData}<\/script>
   <div class="hero-controls"><button class="hero-prev" aria-label="${e(ui.prev)}">${ICON.left}</button><span class="hero-count" aria-live="polite">01 / ${String(n).padStart(2, "0")}</span><button class="hero-next" aria-label="${e(ui.next)}">${ICON.right}</button></div>
@@ -613,7 +618,7 @@ function home(c, lang) {
   </div>
 </section>
 
-${testi ? `<section class="section section--tint">
+${testi && !quotes ? `<section class="section section--tint">
   <div class="wrap">
     <h2 class="h-lg center reveal">${e(h.testimonials_title)}</h2>
     <div class="testimonials">${testi}</div>

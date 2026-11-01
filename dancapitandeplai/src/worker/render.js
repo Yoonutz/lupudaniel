@@ -6,7 +6,7 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "11";
+const ASSET_V = "12";
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
 import CSS from "../../public/assets/css/style.css";
 
@@ -183,10 +183,15 @@ export function home(c, lang) {
   const h = c.home[lang], ui = UI[lang];
   const desktop = c.hero.desktop.length ? c.hero.desktop : ["/assets/img/hero-1.jpg"];
   const mobile = c.hero.mobile.length ? c.hero.mobile : desktop;
-  const lines = c.hero.lines[lang] && c.hero.lines[lang].length ? c.hero.lines[lang] : [{ title: SITE.name, sub: SITE.tagline[lang] }];
+  // Client reviews take the place of the pitch text over the photos (Ionut, 2026-11-01).
+  // No reviews -> back to the hero texts from the admin.
+  const reviews = ((c.testimonials || {})[lang] || []).filter(x => x.quote);
+  const quotes = reviews.length > 0;
+  const lines = quotes ? reviews.map(x => ({ title: `„${x.quote}”`, sub: x.who }))
+    : c.hero.lines[lang] && c.hero.lines[lang].length ? c.hero.lines[lang] : [{ title: SITE.name, sub: SITE.tagline[lang] }];
   // First slide is real markup (fast first paint, picks the right set via <picture>); main.js builds the rest
   const first = lines[0];
-  const heroData = JSON.stringify({ desktop, mobile, lines, interval: c.hero.interval || 5 }).replace(/</g, "\\u003c");
+  const heroData = JSON.stringify({ desktop, mobile, lines, quotes, interval: c.hero.interval || 5 }).replace(/</g, "\\u003c");
   const nav = NAV[lang].reduce((o, [k, l]) => (o[k] = l, o), {});
   const tiles = c.tiles.map(tl => `<a class="tile reveal" href="${r(lang, tl.key)}">${img(small(tl.img), "", { w: 900, h: 1100 })}` +
     `<div><span class="tile-label">${e(nav[tl.key])}</span><span class="tile-sub">${e(t(c.tile_sub, lang)[tl.key])}</span></div></a>`).join("");
@@ -196,10 +201,11 @@ export function home(c, lang) {
   const ig = c.instagram_imgs.map(src => `<a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${img(small(src), "", { w: 600, h: 600 })}</a>`).join("");
   const n = Math.max(desktop.length, 1);
   const body = `
-<section class="hero" aria-label="${e(SITE.name)}" data-hero>
+<section class="hero${quotes ? " hero--quotes" : ""}" aria-label="${e(SITE.name)}" data-hero>
+  ${quotes ? `<h1 class="sr-only">${e(SITE.name)} · ${e(SITE.tagline[lang])}</h1>` : ""}
   <div class="hero-slide is-active" aria-hidden="false">
     <picture><source media="(orientation: portrait)" srcset="${e(small(mobile[0]))}"><img src="${e(desktop[0])}" srcset="${e(small(desktop[0]))} 900w, ${e(desktop[0])} 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></picture>
-    <div class="hero-caption"><h1>${e(first.title)}</h1><p>${e(first.sub)}</p></div>
+    <div class="hero-caption">${quotes ? `<p class="hero-quote">${e(first.title)}</p>` : `<h1>${e(first.title)}</h1>`}<p>${e(first.sub)}</p></div>
   </div>
   <script type="application/json" id="hero-data">${heroData}</script>
   <div class="hero-controls"><button class="hero-prev" aria-label="${e(ui.prev)}">${ICON.left}</button><span class="hero-count" aria-live="polite">01 / ${String(n).padStart(2, "0")}</span><button class="hero-next" aria-label="${e(ui.next)}">${ICON.right}</button></div>
@@ -251,7 +257,7 @@ export function home(c, lang) {
   </div>
 </section>
 
-${testi ? `<section class="section section--tint">
+${testi && !quotes ? `<section class="section section--tint">
   <div class="wrap">
     <h2 class="h-lg center reveal">${e(h.testimonials_title)}</h2>
     <div class="testimonials">${testi}</div>
