@@ -385,24 +385,47 @@
   }
 
   // ---------- login ----------
-  // The private admin link is /admin/#key=...; the key is remembered on this device.
+  // Main: email link (/admin/#t=TOKEN). Backup: private link /admin/#key=... while ADMIN_KEY exists.
   var hashKey = (location.hash.match(/[#&]key=([^&]+)/) || [])[1];
   if (hashKey) { try { localStorage.setItem('adminKey', decodeURIComponent(hashKey)); } catch (e) {} }
+  var linkToken = (location.hash.match(/[#&]t=([0-9a-f.]+)/) || [])[1];
   function adminKey() { try { return localStorage.getItem('adminKey') || ''; } catch (e) { return ''; } }
+  function lastEmail() { try { return localStorage.getItem('adminEmail') || ''; } catch (e) { return ''; } }
 
   function showLogin(msg) {
-    var info = h('p', { text: msg || (adminKey() ? 'Apasă butonul și ești înăuntru.' : 'Deschide linkul tău privat de admin ca să intri.') });
-    var btn = h('button', { class: 'btn btn-primary btn-block' }, 'Login');
-    btn.addEventListener('click', function () {
+    var info = h('p', { text: msg || 'Scrie emailul tău și îți trimitem un link de intrare.' });
+    var email = h('input', { type: 'email', class: 'input', placeholder: 'email@exemplu.ro', autocomplete: 'email' });
+    email.value = lastEmail();
+    var btn = h('button', { class: 'btn btn-primary btn-block' }, 'Trimite linkul');
+    var form = h('form', { class: 'login-form' }, email, btn);
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var addr = email.value.trim();
+      if (!addr) { email.focus(); return; }
+      try { localStorage.setItem('adminEmail', addr); } catch (e) {}
       btn.disabled = true;
-      api('POST', '/api/auth/login', { key: adminKey() }).then(start).catch(function (e) {
-        btn.disabled = false;
-        info.textContent = e.status === 403 ? 'Linkul de admin nu e valid. Folosește linkul privat primit.' : 'Ceva n-a mers: ' + e.message;
-      });
+      api('POST', '/api/auth/request', { email: addr }).then(function () {
+        info.textContent = 'Gata! Dacă adresa e de admin, linkul ajunge în câteva secunde (verifică și Spam). Merge 15 minute.';
+        btn.textContent = 'Trimite din nou';
+      }).catch(function (e) {
+        info.textContent = e.status === 429 ? 'Ți-am trimis deja un link. Mai încearcă peste 2 minute.'
+          : e.status === 503 ? 'Trimiterea emailurilor nu e pornită încă.' : 'Ceva n-a mers: ' + e.message;
+      }).finally(function () { btn.disabled = false; });
     });
+    var extra = [];
+    if (adminKey()) {
+      var quick = h('button', { class: 'btn btn-sm', type: 'button' }, 'Intră cu linkul privat');
+      quick.addEventListener('click', function () {
+        api('POST', '/api/auth/login', { key: adminKey() }).then(start).catch(function () {
+          try { localStorage.removeItem('adminKey'); } catch (e) {}
+          quick.remove(); info.textContent = 'Linkul privat nu mai e valid. Folosește emailul.';
+        });
+      });
+      extra.push(quick);
+    }
     app.innerHTML = '';
     add(app, h('div', { class: 'login' }, h('div', { class: 'login-card' },
-      h('h1', { text: 'Admin' }), info, btn)));
+      [h('h1', { text: 'Admin' }), info, form].concat(extra))));
   }
 
   function start() {
@@ -412,5 +435,11 @@
     });
   }
 
-  start().catch(function () { showLogin(); });
+  if (linkToken) {
+    history.replaceState(null, '', '/admin/');
+    api('POST', '/api/auth/verify', { token: linkToken }).then(start)
+      .catch(function () { showLogin('Linkul a expirat sau a fost folosit deja. Cere unul nou.'); });
+  } else {
+    start().catch(function () { showLogin(); });
+  }
 })();

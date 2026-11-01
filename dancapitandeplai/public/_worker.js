@@ -1497,7 +1497,7 @@ var enc = new TextEncoder();
 var hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 var randomToken = () => hex(crypto.getRandomValues(new Uint8Array(32)));
 var json = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
-var adminEmails = (env) => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com").toLowerCase().split(",").map((s) => s.trim()).filter(Boolean);
+var adminEmails = (env) => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com,ionut.filea@gmail.com").toLowerCase().split(",").map((s) => s.trim()).filter(Boolean);
 var CONTENT_URL = "https://cache.internal/site";
 var memo = { at: 0, data: null };
 async function getContent(env, ctx) {
@@ -1535,26 +1535,73 @@ async function hmac(env, msg) {
 var sha256 = async (s) => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
 async function session(req, env) {
   const sid = cookie(req, "sid");
-  const m = sid && sid.match(/^(\d{1,16})\.([0-9a-f]{64})$/);
+  const m = sid && sid.match(/^(\d{1,16})\.(\d{1,2})\.([0-9a-f]{64})$/);
   if (!m || Number(m[1]) < Date.now()) return null;
-  if (await hmac(env, m[1]) !== m[2]) return null;
-  return { email: adminEmails(env)[0] };
+  const email = adminEmails(env)[Number(m[2])];
+  if (!email || await hmac(env, m[1] + "." + email) !== m[3]) return null;
+  return { email };
 }
 async function readJson(req, max) {
   const text = await req.text();
   if (text.length > max) throw new Error("too_large");
   return JSON.parse(text);
 }
+var LINK_TTL = 15 * 60;
+var MAIL_COOLDOWN = 120;
+async function startSession(env, email) {
+  const idx = adminEmails(env).indexOf(email);
+  const exp = String(Date.now() + SESSION_TTL * 1e3);
+  const sid = exp + "." + idx + "." + await hmac(env, exp + "." + email);
+  return json({ ok: true, email }, 200, {
+    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`
+  });
+}
+async function requestLink(req, env, url2) {
+  const body = await readJson(req, 1e3).catch(() => ({}));
+  const email = String(body.email || "").trim().toLowerCase();
+  if (!adminEmails(env).includes(email)) return json({ ok: true });
+  if (!env.MAILER) return json({ error: "mail_off" }, 503);
+  if (await env.CONTENT.get("auth:cooldown")) return json({ error: "wait" }, 429);
+  await env.CONTENT.put("auth:cooldown", "1", { expirationTtl: MAIL_COOLDOWN });
+  const nonce = randomToken().slice(0, 32);
+  const exp = String(Date.now() + LINK_TTL * 1e3);
+  const token = `${nonce}.${exp}.${await hmac(env, "link:" + nonce + "." + exp + "." + email)}`;
+  const link = `${url2.origin}/admin/#t=${token}`;
+  const res = await env.MAILER.fetch("https://mailer/send", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      to: email,
+      subject: "Link de intrare \xEEn admin \xB7 Dan C\u0103pitan de Plai",
+      text: `Salut,
+
+Apas\u0103 linkul de mai jos ca s\u0103 intri \xEEn panoul de admin al site-ului:
+
+${link}
+
+Linkul merge o singur\u0103 dat\u0103 \u0219i expir\u0103 \xEEn 15 minute. Dac\u0103 nu ai cerut tu linkul, ignor\u0103 acest email.
+`
+    })
+  });
+  if (!res.ok) return json({ error: "mail_failed" }, 502);
+  return json({ ok: true });
+}
+async function verifyLink(req, env) {
+  const body = await readJson(req, 1e3).catch(() => ({}));
+  const m = String(body.token || "").match(/^([0-9a-f]{32})\.(\d{1,16})\.([0-9a-f]{64})$/);
+  if (!m || Number(m[2]) < Date.now()) return json({ error: "bad_link" }, 403);
+  let email = null;
+  for (const e2 of adminEmails(env)) if (await hmac(env, "link:" + m[1] + "." + m[2] + "." + e2) === m[3]) email = e2;
+  if (!email) return json({ error: "bad_link" }, 403);
+  if (await env.CONTENT.get("auth:used:" + m[1])) return json({ error: "bad_link" }, 403);
+  await env.CONTENT.put("auth:used:" + m[1], "1", { expirationTtl: LINK_TTL + 60 });
+  return startSession(env, email);
+}
 async function quickLogin(req, env) {
   const body = await readJson(req, 1e3).catch(() => ({}));
   const given = String(body.key || ""), want = String(env.ADMIN_KEY || "");
   if (!want || await sha256(given) !== await sha256(want)) return json({ error: "bad_key" }, 403);
-  const email = adminEmails(env)[0];
-  const exp = String(Date.now() + SESSION_TTL * 1e3);
-  const sid = exp + "." + await hmac(env, exp);
-  return json({ ok: true, email }, 200, {
-    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`
-  });
+  return startSession(env, adminEmails(env)[0]);
 }
 async function logout() {
   return json({ ok: true }, 200, { "set-cookie": "sid=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
@@ -1708,6 +1755,8 @@ async function serveMedia(env, path, ctx, req) {
 async function handleApi(req, env, url2) {
   const p = url2.pathname, m = req.method;
   if (m === "POST" && p === "/api/auth/login") return quickLogin(req, env);
+  if (m === "POST" && p === "/api/auth/request") return requestLink(req, env, url2);
+  if (m === "POST" && p === "/api/auth/verify") return verifyLink(req, env);
   if (m === "POST" && p === "/api/auth/logout") return logout(req, env);
   if (m === "GET" && p === "/api/content/public") return json(await getContent(env));
   const s = await session(req, env);
