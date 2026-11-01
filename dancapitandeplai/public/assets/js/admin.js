@@ -96,6 +96,7 @@
     S.saving = true; updateStatus();
     api('PUT', '/api/content', S.content).then(function (d) {
       S.content = d.content; S.dirty = false; S.saving = false; render(); toast('Salvat. Modificările sunt live pe site.');
+      loadStorage();
     }).catch(function (e) {
       S.saving = false; updateStatus();
       if (e.status === 401) { toast('Sesiunea a expirat. Intră din nou.'); return showLogin(); }
@@ -350,7 +351,67 @@
     ];
   }
 
-  var TABS = [['hero', 'Hero'], ['page', 'Pagina'], ['events', 'Portofoliu'], ['blog', 'Blog'], ['faq', 'Întrebări'], ['contact', 'Contact']];
+  // ---------- storage meter ----------
+  var ST = { data: null, loading: false, error: '' };
+  function mb(b) {
+    if (b >= 1e9) return (b / 1e9).toFixed(2).replace('.', ',') + ' GB';
+    if (b >= 1e7) return Math.round(b / 1e6) + ' MB';
+    if (b >= 1e6) return (b / 1e6).toFixed(1).replace('.', ',') + ' MB';
+    return Math.round(b / 1e3) + ' KB';
+  }
+  function loadStorage(fresh) {
+    if (ST.loading) return;
+    ST.loading = true; ST.error = '';
+    api('GET', '/api/storage' + (fresh ? '?fresh=1' : '')).then(function (d) { ST.data = d; })
+      .catch(function (e) { ST.error = e.message; })
+      .finally(function () { ST.loading = false; render(); });
+  }
+  function meter(used, limit) {
+    var pct = Math.min(100, used / limit * 100);
+    var level = pct >= 90 ? ' bad' : pct >= 70 ? ' warn' : '';
+    return h('div', { class: 'meter' + level, role: 'meter', 'aria-valuemin': '0', 'aria-valuemax': String(limit), 'aria-valuenow': String(used) },
+      h('span', { style: 'width:' + Math.max(pct, 0.5).toFixed(1) + '%' }));
+  }
+  function storageChip() {
+    var d = ST.data;
+    var label = d ? 'Spațiu: ' + mb(d.bytes) + ' / 1 GB' : 'Spațiu…';
+    return h('button', { class: 'btn btn-sm chip', title: 'Cât spațiu mai e pentru poze', onclick: function () { S.tab = 'storage'; S.edit = null; render(); window.scrollTo(0, 0); } },
+      d ? h('i', { class: 'dot' + (d.bytes / d.limit >= 0.9 ? ' bad' : d.bytes / d.limit >= 0.7 ? ' warn' : '') }) : null, label);
+  }
+  function storageTab() {
+    var d = ST.data;
+    var refresh = h('button', { class: 'btn btn-sm', disabled: ST.loading, onclick: function () { loadStorage(true); render(); } }, ST.loading ? 'Se numără…' : 'Reîmprospătează');
+    if (!d) return h('div', { class: 'panel' }, h('div', { class: 'panel-head' }, h('h2', { text: 'Spațiu de stocare' }), refresh),
+      h('p', { class: 'hint', text: ST.error ? 'Nu am putut citi spațiul: ' + ST.error : 'Se încarcă…' }));
+    var left = Math.max(0, d.limit - d.bytes);
+    var perPhoto = d.perPhoto || 500000;
+    var fit = Math.floor(left / perPhoto);
+    var when = new Date(d.at).toLocaleString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    var out = [
+      h('div', { class: 'panel' },
+        h('div', { class: 'panel-head' }, h('h2', { text: 'Spațiu de stocare' }), refresh),
+        h('p', { class: 'big' }, h('strong', { text: mb(d.bytes) }), ' folosiți din 1 GB'),
+        meter(d.bytes, d.limit),
+        h('div', { class: 'stats' },
+          h('div', null, h('strong', { text: mb(left) }), h('small', { text: 'liberi' })),
+          h('div', null, h('strong', { text: String(d.photos) }), h('small', { text: 'poze încărcate' })),
+          h('div', null, h('strong', { text: '~' + fit.toLocaleString('ro-RO') }), h('small', { text: 'poze mai încap (' + mb(perPhoto) + ' / poză)' }))),
+        h('p', { class: 'hint', text: 'Numărat la ' + when + '. Se actualizează singur după fiecare Salvează.' + (d.pending ? ' Încă ' + d.pending + ' poze vechi de măsurat: apasă Reîmprospătează.' : '') })),
+    ];
+    var o = d.ops;
+    out.push(h('div', { class: 'panel' },
+      h('div', { class: 'panel-head' }, h('h2', { text: 'Încărcări azi' })),
+      o ? [h('p', { class: 'big' }, h('strong', { text: String(o.used) }), ' din ' + o.limit + ' operații folosite azi'),
+           meter(o.used, o.limit),
+           h('p', { class: 'hint', text: 'Fiecare poză costă 2 operații, deci azi mai poți urca ~' + Math.max(0, Math.floor((o.limit - o.used) / 2)) + ' poze. Limita se resetează în fiecare zi la 02:00 (ora României, 03:00 vara).' })]
+        : h('p', { class: 'hint', text: 'Limita gratuită: 1.000 operații pe zi, fiecare poză costă 2, deci maxim ~400 de poze pe zi ca să rămână loc pentru salvări. Contorul de azi nu e pornit încă.' })));
+    out.push(h('div', { class: 'panel' },
+      h('div', { class: 'panel-head' }, h('h2', { text: 'Filme' })),
+      h('p', { class: 'hint', text: 'Filmele nu intră aici: spațiul acesta primește maxim 25 MB pe fișier și ar umple 1 GB din câteva clipuri. Filmele se pun pe YouTube sau Vimeo și se leagă pe site.' })));
+    return out;
+  }
+
+  var TABS = [['hero', 'Hero'], ['page', 'Pagina'], ['events', 'Portofoliu'], ['blog', 'Blog'], ['faq', 'Întrebări'], ['contact', 'Contact'], ['storage', 'Spațiu']];
   var statusEl, saveBtn;
   function updateStatus() {
     if (!statusEl) return;
@@ -363,12 +424,13 @@
     var y = window.scrollY;
     statusEl = h('span', { class: 'status' });
     saveBtn = h('button', { class: 'btn btn-primary', onclick: save }, 'Salvează');
-    var body = { hero: heroTab, page: pageTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab }[S.tab]();
+    var body = { hero: heroTab, page: pageTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab, storage: storageTab }[S.tab]();
     app.innerHTML = '';
     add(app, [
       h('header', { class: 'topbar' },
         h('div', { class: 'topbar-in' },
           h('div', { class: 'brand' }, 'Dan Căpitan de Plai', h('small', { text: 'Admin · ' + S.email })),
+          storageChip(),
           h('a', { class: 'btn btn-sm', href: '/', target: '_blank' }, 'Vezi site-ul'),
           h('button', { class: 'btn btn-sm', onclick: function () {
             if (S.dirty && !confirm('Ai modificări nesalvate. Ieși oricum?')) return;
@@ -409,6 +471,7 @@
     history.replaceState(null, '', '/admin/');
     return Promise.all([api('GET', '/api/auth/me'), api('GET', '/api/content')]).then(function (r) {
       S.email = r[0].email; S.content = r[1]; S.dirty = false; render();
+      loadStorage();
     });
   }
 

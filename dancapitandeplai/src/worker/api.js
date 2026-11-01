@@ -184,7 +184,8 @@ function isImage(buf) {
 async function storeImage(env, id, variant, buf, meta = {}) {
   const type = isImage(buf);
   if (!type || buf.byteLength > MAX_IMAGE) return false;
-  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, ...meta } });
+  // size in metadata lets the storage meter add up bytes from one list call
+  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, size: buf.byteLength, ...meta } });
   return true;
 }
 
@@ -226,6 +227,87 @@ export async function serveMedia(env, path, ctx, req) {
   return res;
 }
 
+// ---------- storage meter ----------
+
+// Free tier: 1 GB stored, 1,000 writes+deletes+lists a day (whole account), resets 00:00 UTC.
+const KV_LIMIT_BYTES = 1e9, KV_LIMIT_WRITES = 1000;
+const STATS_URL = "https://cache.internal/storage";
+
+// Bytes of photos uploaded before sizes went into metadata, measured once (reads only)
+// and kept in one KV key, so later refreshes cost a single list.
+async function storageStats(env) {
+  const keys = [];
+  let cursor;
+  do {
+    const page = await env.CONTENT.list({ prefix: "img:", cursor });
+    keys.push(...page.keys);
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  const known = (await env.CONTENT.get("sizes", "json")) || {};
+  const missing = keys.filter(k => !(k.metadata && k.metadata.size) && !(k.name in known));
+  // Stay well under the per-request KV call limit; any rest is measured on the next refresh
+  const batch = missing.slice(0, 400);
+  for (let i = 0; i < batch.length; i += 20) {
+    await Promise.all(batch.slice(i, i + 20).map(async k => {
+      const v = await env.CONTENT.get(k.name, "arrayBuffer");
+      known[k.name] = v ? v.byteLength : 0;
+    }));
+  }
+  const names = new Set(keys.map(k => k.name));
+  for (const n of Object.keys(known)) if (!names.has(n)) delete known[n];
+  if (batch.length) await env.CONTENT.put("sizes", JSON.stringify(known));
+  const site = await env.CONTENT.get("site");
+  let bytes = site ? enc.encode(site).byteLength : 0, photoBytes = 0;
+  for (const k of keys) photoBytes += (k.metadata && k.metadata.size) || known[k.name] || 0;
+  bytes += photoBytes;
+  const photos = keys.filter(k => !k.name.endsWith("-s")).length;
+  return {
+    bytes, limit: KV_LIMIT_BYTES, photos,
+    perPhoto: photos ? Math.round(photoBytes / photos) : 0, // full + small together
+    pending: missing.length - batch.length,
+    at: new Date().toISOString(),
+  };
+}
+
+// Today's KV operations for the whole account, from Cloudflare's analytics API.
+// Needs CF_API_TOKEN (Account Analytics: Read) and CF_ACCOUNT_ID; without them we skip it.
+async function todaysOps(env) {
+  if (!env.CF_API_TOKEN || !env.CF_ACCOUNT_ID) return null;
+  const date = new Date().toISOString().slice(0, 10);
+  const query = `query($a:String!,$d:Date!){viewer{accounts(filter:{accountTag:$a}){
+    kvOperationsAdaptiveGroups(limit:20,filter:{date:$d}){sum{requests} dimensions{actionType}}}}}`;
+  try {
+    const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+      method: "POST",
+      headers: { authorization: "Bearer " + env.CF_API_TOKEN, "content-type": "application/json" },
+      body: JSON.stringify({ query, variables: { a: env.CF_ACCOUNT_ID, d: date } }),
+    });
+    const d = await res.json();
+    const rows = d?.data?.viewer?.accounts?.[0]?.kvOperationsAdaptiveGroups;
+    if (!rows) return null;
+    const ops = { read: 0, write: 0, delete: 0, list: 0 };
+    for (const r of rows) ops[r.dimensions.actionType] = (ops[r.dimensions.actionType] || 0) + r.sum.requests;
+    return { ...ops, used: ops.write + ops.delete + ops.list, limit: KV_LIMIT_WRITES, date };
+  } catch { return null; }
+}
+
+// Cached 10 minutes at the edge so opening the admin doesn't spend list operations.
+// ?fresh=1 (the Refresh button) recounts.
+async function storage(env, params) {
+  const cache = caches.default;
+  let stats = null;
+  if (params.get("fresh") !== "1") {
+    const hit = await cache.match(STATS_URL).catch(() => null);
+    if (hit) stats = await hit.json();
+  }
+  if (!stats) {
+    stats = await storageStats(env);
+    await cache.put(STATS_URL, new Response(JSON.stringify(stats), { headers: { "cache-control": "max-age=600" } })).catch(() => {});
+  }
+  return json({ ...stats, ops: await todaysOps(env) });
+}
+const forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {});
+
 // ---------- router ----------
 
 export async function handleApi(req, env, url) {
@@ -241,7 +323,8 @@ export async function handleApi(req, env, url) {
 
   if (m === "GET" && p === "/api/auth/me") return json({ email: s.email });
   if (m === "GET" && p === "/api/content") return json(await getContent(env));
-  if (m === "PUT" && p === "/api/content") return saveContent(req, env);
+  if (m === "GET" && p === "/api/storage") return storage(env, url.searchParams);
+  if (m === "PUT" && p === "/api/content") { await forgetStorage(); return saveContent(req, env); }
   if (m === "POST" && p === "/api/media") return uploadMedia(req, env, url.searchParams);
   if (m === "POST" && p === "/api/media/import") return importMedia(req, env);
   return json({ error: "not_found" }, 404);

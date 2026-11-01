@@ -96,3 +96,18 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .single strong { display: block; font-size: 14px; }
 .single small { color: var(--muted); font-size: 12px; }
 .single .tools { justify-content: center; }
+
+/* Storage meter */
+.chip { gap: 6px; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; }
+.chip .dot.warn, .meter.warn span { background: #e0a020; }
+.chip .dot.bad, .meter.bad span { background: var(--danger); }
+.big { font-size: 15px; color: var(--soft); margin: 0 0 10px; }
+.big strong { font: 600 28px/1.1 var(--head); color: var(--ink); margin-right: 4px; }
+.meter { height: 12px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; margin-bottom: 18px; }
+.meter span { display: block; height: 100%; background: var(--ok); border-radius: 99px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+.stats > div { background: var(--bg); border-radius: 6px; padding: 12px; }
+.stats strong { display: block; font: 600 20px/1.2 var(--head); }
+.stats small { color: var(--muted); font-size: 12px; }
+@media (max-width: 560px) { .stats { grid-template-columns: 1fr; } }

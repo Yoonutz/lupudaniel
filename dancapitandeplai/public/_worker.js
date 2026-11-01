@@ -1662,7 +1662,7 @@ function isImage(buf) {
 async function storeImage(env, id, variant, buf, meta = {}) {
   const type = isImage(buf);
   if (!type || buf.byteLength > MAX_IMAGE) return false;
-  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, ...meta } });
+  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, size: buf.byteLength, ...meta } });
   return true;
 }
 async function uploadMedia(req, env, params) {
@@ -1705,6 +1705,81 @@ async function serveMedia(env, path, ctx, req) {
   ctx.waitUntil(cache.put(req, res.clone()));
   return res;
 }
+var KV_LIMIT_BYTES = 1e9;
+var KV_LIMIT_WRITES = 1e3;
+var STATS_URL = "https://cache.internal/storage";
+async function storageStats(env) {
+  const keys = [];
+  let cursor;
+  do {
+    const page = await env.CONTENT.list({ prefix: "img:", cursor });
+    keys.push(...page.keys);
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  const known = await env.CONTENT.get("sizes", "json") || {};
+  const missing = keys.filter((k) => !(k.metadata && k.metadata.size) && !(k.name in known));
+  const batch = missing.slice(0, 400);
+  for (let i = 0; i < batch.length; i += 20) {
+    await Promise.all(batch.slice(i, i + 20).map(async (k) => {
+      const v = await env.CONTENT.get(k.name, "arrayBuffer");
+      known[k.name] = v ? v.byteLength : 0;
+    }));
+  }
+  const names = new Set(keys.map((k) => k.name));
+  for (const n of Object.keys(known)) if (!names.has(n)) delete known[n];
+  if (batch.length) await env.CONTENT.put("sizes", JSON.stringify(known));
+  const site = await env.CONTENT.get("site");
+  let bytes = site ? enc.encode(site).byteLength : 0, photoBytes = 0;
+  for (const k of keys) photoBytes += k.metadata && k.metadata.size || known[k.name] || 0;
+  bytes += photoBytes;
+  const photos = keys.filter((k) => !k.name.endsWith("-s")).length;
+  return {
+    bytes,
+    limit: KV_LIMIT_BYTES,
+    photos,
+    perPhoto: photos ? Math.round(photoBytes / photos) : 0,
+    // full + small together
+    pending: missing.length - batch.length,
+    at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+}
+async function todaysOps(env) {
+  if (!env.CF_API_TOKEN || !env.CF_ACCOUNT_ID) return null;
+  const date = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  const query = `query($a:String!,$d:Date!){viewer{accounts(filter:{accountTag:$a}){
+    kvOperationsAdaptiveGroups(limit:20,filter:{date:$d}){sum{requests} dimensions{actionType}}}}}`;
+  try {
+    const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+      method: "POST",
+      headers: { authorization: "Bearer " + env.CF_API_TOKEN, "content-type": "application/json" },
+      body: JSON.stringify({ query, variables: { a: env.CF_ACCOUNT_ID, d: date } })
+    });
+    const d = await res.json();
+    const rows = d?.data?.viewer?.accounts?.[0]?.kvOperationsAdaptiveGroups;
+    if (!rows) return null;
+    const ops = { read: 0, write: 0, delete: 0, list: 0 };
+    for (const r2 of rows) ops[r2.dimensions.actionType] = (ops[r2.dimensions.actionType] || 0) + r2.sum.requests;
+    return { ...ops, used: ops.write + ops.delete + ops.list, limit: KV_LIMIT_WRITES, date };
+  } catch {
+    return null;
+  }
+}
+async function storage(env, params) {
+  const cache = caches.default;
+  let stats = null;
+  if (params.get("fresh") !== "1") {
+    const hit = await cache.match(STATS_URL).catch(() => null);
+    if (hit) stats = await hit.json();
+  }
+  if (!stats) {
+    stats = await storageStats(env);
+    await cache.put(STATS_URL, new Response(JSON.stringify(stats), { headers: { "cache-control": "max-age=600" } })).catch(() => {
+    });
+  }
+  return json({ ...stats, ops: await todaysOps(env) });
+}
+var forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {
+});
 async function handleApi(req, env, url2) {
   const p = url2.pathname, m = req.method;
   if (m === "POST" && p === "/api/auth/login") return quickLogin(req, env);
@@ -1715,7 +1790,11 @@ async function handleApi(req, env, url2) {
   if (m !== "GET" && req.headers.get("x-admin") !== "1") return json({ error: "forbidden" }, 403);
   if (m === "GET" && p === "/api/auth/me") return json({ email: s.email });
   if (m === "GET" && p === "/api/content") return json(await getContent(env));
-  if (m === "PUT" && p === "/api/content") return saveContent(req, env);
+  if (m === "GET" && p === "/api/storage") return storage(env, url2.searchParams);
+  if (m === "PUT" && p === "/api/content") {
+    await forgetStorage();
+    return saveContent(req, env);
+  }
   if (m === "POST" && p === "/api/media") return uploadMedia(req, env, url2.searchParams);
   if (m === "POST" && p === "/api/media/import") return importMedia(req, env);
   return json({ error: "not_found" }, 404);
