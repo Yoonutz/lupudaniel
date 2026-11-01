@@ -232,7 +232,35 @@
         h('div', { class: 'panel-head' }, h('h2', { text: 'Bandă Instagram (' + c.instagram_imgs.length + ')' })),
         h('p', { class: 'hint', text: 'Pozele mici de jos, cu link spre Instagram. Ideal 6.' }),
         imageGrid(c.instagram_imgs, { shape: 'square' })),
+      reviewsPanel(c),
     ];
+  }
+
+  // Client reviews: one row = same review in RO + EN, optional round photo
+  function reviewsPanel(c) {
+    var t = c.testimonials = c.testimonials || { ro: [], en: [] };
+    t.ro = t.ro || []; t.en = t.en || [];
+    var n = Math.max(t.ro.length, t.en.length);
+    var rows = [];
+    for (var i = 0; i < n; i++) (function (i) {
+      var ro = t.ro[i] = t.ro[i] || { img: '', quote: '', who: '' };
+      var en = t.en[i] = t.en[i] || { img: ro.img, quote: '', who: '' };
+      rows.push(h('div', { class: 'faq-row' },
+        h('div', { class: 'grid2' },
+          h('div', null, textField('Recenzie', ro, 'quote', { lang: 'RO', area: true }), textField('Nume · eveniment', ro, 'who', { lang: 'RO' })),
+          h('div', null, textField('Recenzie', en, 'quote', { lang: 'EN', area: true }), textField('Nume · eveniment', en, 'who', { lang: 'EN' }))),
+        h('div', { class: 'row-tools' },
+          ro.img ? h('img', { src: small(ro.img), alt: '', style: 'width:48px;height:48px;border-radius:50%;object-fit:cover' }) : null,
+          h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { ro.img = en.img = res[0].url; }); } }, ro.img ? 'Schimbă poza' : '+ Poză (opțional)'),
+          ro.img ? h('button', { class: 'btn btn-sm', onclick: function () { ro.img = en.img = ''; markDirty(); render(); } }, 'Fără poză') : null,
+          h('button', { class: 'btn btn-sm', onclick: function () { move(t.ro, i, -1); move(t.en, i, -1); } }, '↑'),
+          h('button', { class: 'btn btn-sm btn-danger', onclick: function () { if (!confirm('Ștergi recenzia?')) return; t.ro.splice(i, 1); t.en.splice(i, 1); markDirty(); render(); } }, 'Șterge'))));
+    })(i);
+    return h('div', { class: 'panel' },
+      h('div', { class: 'panel-head' }, h('h2', { text: 'Recenzii clienți (' + n + ')' }),
+        h('button', { class: 'btn btn-sm', onclick: function () { t.ro.push({ img: '', quote: '', who: '' }); t.en.push({ img: '', quote: '', who: '' }); markDirty(); render(); } }, '+ Recenzie nouă')),
+      h('p', { class: 'hint', text: 'Doar recenzii reale, cu acordul clientului. Apar pe prima pagină. Fără recenzii, secțiunea se ascunde.' }),
+      rows);
   }
 
   function eventsTab() {

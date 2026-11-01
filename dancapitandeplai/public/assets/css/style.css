@@ -184,7 +184,7 @@ p { margin: 0 0 1em; }
 .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(24px, 4vw, 56px); margin-top: 56px; }
 .testimonial { text-align: center; }
 .testimonial img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin: 0 auto 24px; }
-.testimonial blockquote { font: italic 400 22px/1.5 var(--serif); margin: 0 0 20px; color: var(--ink-soft); }
+.testimonial blockquote { font: italic 400 22px/1.5 var(--serif); margin: 0 auto 20px; max-width: 40em; color: var(--ink-soft); }
 .testimonial cite { font: 600 12px/1 var(--head); letter-spacing: .2em; text-transform: uppercase; font-style: normal; }
 
 /* CTA */

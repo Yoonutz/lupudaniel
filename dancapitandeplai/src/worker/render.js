@@ -6,7 +6,7 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "9";
+const ASSET_V = "10";
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
 import CSS from "../../public/assets/css/style.css";
 
@@ -189,7 +189,7 @@ export function home(c, lang) {
     `<div><span class="tile-label">${e(nav[tl.key])}</span><span class="tile-sub">${e(t(c.tile_sub, lang)[tl.key])}</span></div></a>`).join("");
   const services = c.services[lang].map(s => `<div class="service"><h3>${e(s.title)}</h3><p>${e(s.text)}</p></div>`).join("");
   const stats = c.stats[lang].map(s => `<div class="stat"><strong>${e(s.num)}</strong><span>${e(s.label)}</span></div>`).join("");
-  const testi = c.testimonials[lang].map(x => `<figure class="testimonial reveal">${img(small(x.img), "", { w: 300, h: 300 })}<blockquote>„${e(x.quote)}”</blockquote><cite>${e(x.who)}</cite></figure>`).join("");
+  const testi = ((c.testimonials || {})[lang] || []).filter(x => x.quote).map(x => `<figure class="testimonial reveal">${x.img ? img(small(x.img), "", { w: 300, h: 300 }) : ""}<blockquote>„${e(x.quote)}”</blockquote><cite>${e(x.who)}</cite></figure>`).join("");
   const ig = c.instagram_imgs.map(src => `<a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${img(small(src), "", { w: 600, h: 600 })}</a>`).join("");
   const n = Math.max(desktop.length, 1);
   const body = `
@@ -248,12 +248,12 @@ export function home(c, lang) {
   </div>
 </section>
 
-<section class="section section--tint">
+${testi ? `<section class="section section--tint">
   <div class="wrap">
     <h2 class="h-lg center reveal">${e(h.testimonials_title)}</h2>
     <div class="testimonials">${testi}</div>
   </div>
-</section>
+</section>` : ""}
 
 <section class="section cta">
   ${img(c.cta_img, "", { w: 1600, h: 900 })}
