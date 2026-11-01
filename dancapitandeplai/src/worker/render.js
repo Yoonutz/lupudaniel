@@ -258,7 +258,7 @@ export function home(c, lang) {
   </div>
 </section>
 
-${testi && !quotes ? `<section class="section section--tint">
+${testi ? `<section class="section section--tint">
   <div class="wrap">
     <h2 class="h-lg center reveal">${e(h.testimonials_title)}</h2>
     <div class="testimonials">${testi}</div>

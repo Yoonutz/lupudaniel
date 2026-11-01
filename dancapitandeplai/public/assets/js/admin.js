@@ -260,7 +260,7 @@
     return h('div', { class: 'panel' },
       h('div', { class: 'panel-head' }, h('h2', { text: 'Recenzii clienți (' + n + ')' }),
         h('button', { class: 'btn btn-sm', onclick: function () { t.ro.push({ img: '', quote: '', who: '' }); t.en.push({ img: '', quote: '', who: '' }); markDirty(); render(); } }, '+ Recenzie nouă')),
-      h('p', { class: 'hint', text: 'Doar recenzii reale, cu acordul clientului. Apar peste pozele din hero, prima pagină, câte una pe poză. Fără recenzii, hero-ul arată textele din tab-ul Hero.' }),
+      h('p', { class: 'hint', text: 'Doar recenzii reale, cu acordul clientului. Apar peste pozele din hero și în secțiunea de recenzii de pe prima pagină. Fără recenzii, hero-ul arată textele din tab-ul Hero.' }),
       rows);
   }
 
