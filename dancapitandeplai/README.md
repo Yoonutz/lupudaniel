@@ -9,8 +9,10 @@ Romanian at `/`, English at `/en/`. Hosted on Cloudflare Pages (project `dancapi
   content JSON stored in KV (`CONTENT` binding, key `site`). Until the first save it uses `src/worker/seed.json`.
 - `/admin/` is the admin panel (static files) talking to a JSON REST API under `/api/`:
   - `POST /api/auth/login` → one-click 24 h session cookie, HMAC-signed (no KV ops). Only works from the private admin link `/admin/#key=<ADMIN_KEY>`; replace with email-link login before launch
+  - `GET /api/storage` → storage meter (admin tab Spațiu): bytes used of 1 GB, photo count, photos that still fit. One KV list, cached 10 min, refreshed after each save
   - `GET|PUT /api/content`, `POST /api/media` (image bytes), `POST /api/media/import` (from URL)
   - Images live in KV as `img:<id>` (full, max 2400 px) and `img:<id>-s` (900 px), served at `/media/<id>.jpg`.
+- Events can have one video: a YouTube/Vimeo link (admin → event → Film). The page shows a thumbnail + play button; the player loads only on click (no third-party JS before that). Videos never go in KV.
 - Hero has two photo sets: `desktop` (landscape) and `mobile` (portrait); the page picks by screen orientation.
 
 ## Settings (Pages project)
@@ -18,6 +20,7 @@ Romanian at `/`, English at `/en/`. Hosted on Cloudflare Pages (project `dancapi
 - `CONTENT` KV namespace
 - `ADMIN_EMAILS`: who may log in (comma separated)
 - `ADMIN_KEY` (secret): key in the private admin link. Change it to lock everyone out.
+- Optional `CF_API_TOKEN` (secret, Account Analytics: Read) + `CF_ACCOUNT_ID`: turns on the "uploads today" counter (KV writes/deletes/lists used of 1,000)
 
 ## Develop
 

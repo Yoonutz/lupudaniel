@@ -6,8 +6,9 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "12";
+const ASSET_V = "13";
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
+import { videoEmbed } from "./api.js";
 import CSS from "../../public/assets/css/style.css";
 
 export const ROUTES = {
@@ -22,14 +23,14 @@ const UI = {
   ro: {
     book: "Programează o discuție", wa_msg: "Bună, Dan! Am văzut site-ul și aș vrea să vorbim despre o ședință foto.",
     scroll: "Derulează", view_work: "Vezi portofoliul", all: "Toate", photos: "fotografii",
-    back_portfolio: "Înapoi la portofoliu", read_more: "Citește", back_blog: "Înapoi la blog", next_event: "Următorul eveniment",
+    back_portfolio: "Înapoi la portofoliu", read_more: "Citește", back_blog: "Înapoi la blog", next_event: "Următorul eveniment", play_video: "Pornește filmul",
     rights: "Toate drepturile rezervate.", top: "Sus", menu: "Meniu", close: "Închide", prev: "Anterioara", next: "Următoarea",
     switch: "EN", switch_label: "English version", theme: "Schimbă tema (luminoasă / întunecată)",
   },
   en: {
     book: "Book a chat", wa_msg: "Hi Dan! I saw your website and I'd like to talk about a photo session.",
     scroll: "Scroll", view_work: "View portfolio", all: "All", photos: "photos",
-    back_portfolio: "Back to portfolio", read_more: "Read", back_blog: "Back to blog", next_event: "Next event",
+    back_portfolio: "Back to portfolio", read_more: "Read", back_blog: "Back to blog", next_event: "Next event", play_video: "Play video",
     rights: "All rights reserved.", top: "Top", menu: "Menu", close: "Close", prev: "Previous", next: "Next",
     switch: "RO", switch_label: "Versiunea în română", theme: "Switch theme (light / dark)",
   },
@@ -302,6 +303,11 @@ export function event(c, lang, i) {
   const nxt = c.events[(i + 1) % c.events.length];
   const title = t(ev.title, lang);
   const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} · ${n + 1}`, { eager: n === 0, above: n < 3 })}</figure></a>`).join("");
+  const vid = videoEmbed(ev.video);
+  const video = vid ? `<div class="video" data-kind="${vid.kind}" data-id="${e(vid.id)}"${vid.hash ? ` data-h="${e(vid.hash)}"` : ""}>
+      ${vid.kind === "youtube" ? `<img src="https://i.ytimg.com/vi/${e(vid.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360">` : ""}
+      <button class="video-play" aria-label="${e(ui.play_video)}: ${e(title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></button>
+    </div>` : "";
   const nextBtn = c.events.length > 1 ? `<a class="btn btn--solid" href="${eventUrl(lang, nxt)}">${e(ui.next_event)}: ${e(t(nxt.title, lang))} ${ICON.arrow}</a>` : "";
   const body = `
 <section class="page-head">
@@ -314,6 +320,7 @@ export function event(c, lang, i) {
 </section>
 <section class="section" style="padding-top:0">
   <div class="wrap">
+    ${video}
     <div class="gallery">${photos}</div>
     <div class="event-nav">
       <a class="btn" href="${r(lang, "portfolio")}">← ${e(ui.back_portfolio)}</a>

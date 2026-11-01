@@ -346,3 +346,10 @@ p { margin: 0 0 1em; }
 @media (max-width: 900px) { .nav .theme-toggle { align-self: flex-start; padding: 16px 0; } }
 :root[data-theme="dark"] .gallery img, :root[data-theme="dark"] .event-card img { filter: brightness(.95); }
 body, .site-header, .service, .note, .section--tint { transition: background-color .3s, color .3s; }
+
+/* Event video: thumbnail + play button; the player loads only on click */
+.video { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+.video img, .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+.video-play { position: absolute; inset: 0; margin: auto; width: 76px; height: 76px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; display: grid; place-items: center; transition: background .2s, transform .2s; }
+.video-play:hover, .video-play:focus-visible { background: rgba(0,0,0,.85); transform: scale(1.06); }
+.video-play svg { width: 34px; height: 34px; margin-left: 4px; }
