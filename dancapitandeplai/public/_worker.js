@@ -1,11 +1,10 @@
 // public/assets/css/style.css
 var style_default = `/* Self-hosted fonts: latin + Romanian subset (was Google Fonts, render-blocking) */
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 700;font-display:swap;src:url(/assets/fonts/jost-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 700;font-display:swap;src:url(/assets/fonts/jost-ro.woff2) format('woff2');unicode-range:U+0100-0103,U+015E-0163,U+0218-021B}
 @font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-display:swap;src:url(/assets/fonts/cormorant-garamond-400i.woff2) format('woff2')}
 @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/inter-400.woff2) format('woff2')}
 @font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/inter-500.woff2) format('woff2')}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/montserrat-500.woff2) format('woff2')}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/montserrat-600.woff2) format('woff2')}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:700;font-display:swap;src:url(/assets/fonts/montserrat-700.woff2) format('woff2')}
 /* Dan C\u0103pitan de Plai \u2014 layout adapted from reference demo "Home 2" */
 :root {
   --ink: #161616;
@@ -17,7 +16,7 @@ var style_default = `/* Self-hosted fonts: latin + Romanian subset (was Google F
   --accent: #b08d57;
   --accent-ink: #8a6a3a;
   --dark: #0f0f0f;
-  --head: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --head: "Jost", system-ui, -apple-system, "Segoe UI", sans-serif;
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "Cormorant Garamond", Georgia, serif;
   --wrap: 1200px;
@@ -55,7 +54,7 @@ body {
 }
 img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
-h1, h2, h3, h4 { font-family: var(--head); font-weight: 600; line-height: 1.2; margin: 0 0 .5em; letter-spacing: -.01em; }
+h1, h2, h3, h4 { font-family: var(--head); font-weight: 500; line-height: 1.2; margin: 0 0 .5em; letter-spacing: 0; }
 p { margin: 0 0 1em; }
 .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 .skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--on-ink); padding: 8px 12px; z-index: 100; }
@@ -85,6 +84,15 @@ p { margin: 0 0 1em; }
 .site-header.is-solid, body:not(.has-hero) .site-header { background: var(--header-bg); color: var(--ink); box-shadow: 0 1px 0 var(--line); backdrop-filter: blur(8px); }
 .logo { font: 700 15px/1.1 var(--head); letter-spacing: .18em; text-transform: uppercase; text-decoration: none; }
 .logo small { display: block; font-weight: 500; font-size: 10px; letter-spacing: .3em; opacity: .75; margin-top: 4px; }
+/* Brand logo (traced from Dan's logo PNGs). One SVG used as a mask, so it takes the text color:
+   white over the hero photo and in dark mode, black in light mode. */
+.logo-img { display: block; width: 190px; aspect-ratio: 1782 / 338; background: currentColor;
+  -webkit-mask: url(/assets/img/logo.svg?v=1) center / contain no-repeat; mask: url(/assets/img/logo.svg?v=1) center / contain no-repeat; }
+.site-header .logo { display: block; flex: none; }
+.site-footer .logo-img { width: 230px; }
+@media (min-width: 901px) { .site-header .logo-img { width: 230px; } }
+.site-footer .logo small { margin-top: 12px; }
+@media (max-width: 380px) { .site-header .logo-img { width: 160px; } }
 .nav { display: flex; align-items: center; gap: 32px; }
 .nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; }
 .nav a { font: 500 13px/1 var(--head); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; }
@@ -345,7 +353,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "10";
+var ASSET_V = "11";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
@@ -467,8 +475,11 @@ ${alternates}
 <meta property="og:locale" content="${lang === "ro" ? "ro_RO" : "en_US"}">
 <meta name="theme-color" content="#0f0f0f">
 ${THEME_JS}
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="/assets/fonts/montserrat-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/assets/img/favicon.svg?v=${ASSET_V}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png?v=${ASSET_V}">
+<link rel="manifest" href="/assets/site.webmanifest?v=${ASSET_V}">
+<link rel="preload" href="/assets/fonts/jost-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <style>${style_default}</style>
 ${schemaTag}
@@ -477,7 +488,7 @@ ${schemaTag}
 <a class="skip" href="#main">Skip</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="${r(lang, "home")}">${e(SITE.name)}<small>${e(SITE.tagline[lang])}</small></a>
+    <a class="logo" href="${r(lang, "home")}" aria-label="${e(SITE.name)}"><span class="logo-img" aria-hidden="true"></span></a>
     <button class="menu-toggle" aria-controls="nav" aria-expanded="false" aria-label="${e(ui.menu)}">${ICON.menu}</button>
     <nav class="nav" id="nav" aria-label="Main">
       <ul>${navItems}</ul>
@@ -493,7 +504,7 @@ ${body}
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-top">
-      <a class="logo" href="${r(lang, "home")}">${e(SITE.name)}<small>${e(SITE.tagline[lang])}</small></a>
+      <a class="logo" href="${r(lang, "home")}" aria-label="${e(SITE.name)}"><span class="logo-img" aria-hidden="true"></span><small>${e(SITE.tagline[lang])}</small></a>
       <ul class="footer-nav">${footerNav}</ul>
       <div class="socials">
         <a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${ICON.ig}</a>
@@ -520,6 +531,7 @@ function businessSchema(c, lang) {
     name: SITE.name,
     description: t(c.home, lang).desc,
     url: SITE.url + r(lang, "home"),
+    logo: SITE.url + "/assets/img/icon-512.png",
     image: SITE.url + (c.hero && c.hero.desktop[0] || "/assets/img/hero-1.jpg"),
     telephone: c.contact.phone,
     email: c.contact.email,
@@ -1781,7 +1793,7 @@ var worker_default = {
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
       const media = await serveMedia(env, p, ctx, req);
       if (media) return media;
-      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt") {
+      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico") {
         if (p === "/admin") return Response.redirect(url2.origin + "/admin/", 301);
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);

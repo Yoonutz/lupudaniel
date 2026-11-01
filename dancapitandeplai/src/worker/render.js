@@ -6,7 +6,7 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "10";
+const ASSET_V = "11";
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
 import CSS from "../../public/assets/css/style.css";
 
@@ -117,8 +117,11 @@ ${alternates}
 <meta property="og:locale" content="${lang === "ro" ? "ro_RO" : "en_US"}">
 <meta name="theme-color" content="#0f0f0f">
 ${THEME_JS}
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="/assets/fonts/montserrat-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/assets/img/favicon.svg?v=${ASSET_V}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png?v=${ASSET_V}">
+<link rel="manifest" href="/assets/site.webmanifest?v=${ASSET_V}">
+<link rel="preload" href="/assets/fonts/jost-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <style>${CSS}</style>
 ${schemaTag}
@@ -127,7 +130,7 @@ ${schemaTag}
 <a class="skip" href="#main">Skip</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="${r(lang, "home")}">${e(SITE.name)}<small>${e(SITE.tagline[lang])}</small></a>
+    <a class="logo" href="${r(lang, "home")}" aria-label="${e(SITE.name)}"><span class="logo-img" aria-hidden="true"></span></a>
     <button class="menu-toggle" aria-controls="nav" aria-expanded="false" aria-label="${e(ui.menu)}">${ICON.menu}</button>
     <nav class="nav" id="nav" aria-label="Main">
       <ul>${navItems}</ul>
@@ -143,7 +146,7 @@ ${body}
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-top">
-      <a class="logo" href="${r(lang, "home")}">${e(SITE.name)}<small>${e(SITE.tagline[lang])}</small></a>
+      <a class="logo" href="${r(lang, "home")}" aria-label="${e(SITE.name)}"><span class="logo-img" aria-hidden="true"></span><small>${e(SITE.tagline[lang])}</small></a>
       <ul class="footer-nav">${footerNav}</ul>
       <div class="socials">
         <a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${ICON.ig}</a>
@@ -167,7 +170,7 @@ ${body}
 function businessSchema(c, lang) {
   return {
     "@context": "https://schema.org", "@type": "ProfessionalService", name: SITE.name,
-    description: t(c.home, lang).desc, url: SITE.url + r(lang, "home"), image: SITE.url + ((c.hero && c.hero.desktop[0]) || "/assets/img/hero-1.jpg"),
+    description: t(c.home, lang).desc, url: SITE.url + r(lang, "home"), logo: SITE.url + "/assets/img/icon-512.png", image: SITE.url + ((c.hero && c.hero.desktop[0]) || "/assets/img/hero-1.jpg"),
     telephone: c.contact.phone, email: c.contact.email, priceRange: "€€", areaServed: "Romania",
     address: { "@type": "PostalAddress", addressLocality: "Brașov", addressCountry: "RO" },
     sameAs: [c.contact.facebook, c.contact.instagram].filter(Boolean), founder: { "@type": "Person", name: "Daniel Lupu" },
