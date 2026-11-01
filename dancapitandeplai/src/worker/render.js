@@ -6,7 +6,7 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.pages.dev",
 };
-const ASSET_V = "15";
+const ASSET_V = "16";
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
 import { videoEmbed } from "./api.js";
 import CSS from "../../public/assets/css/style.css";
@@ -206,7 +206,7 @@ export function home(c, lang) {
   ${quotes ? `<h1 class="sr-only">${e(SITE.name)} · ${e(SITE.tagline[lang])}</h1>` : ""}
   <div class="hero-slide is-active" aria-hidden="false">
     <picture><source media="(orientation: portrait)" srcset="${e(small(mobile[0]))}"><img src="${e(desktop[0])}" srcset="${e(small(desktop[0]))} 900w, ${e(desktop[0])} 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></picture>
-    <div class="hero-caption">${quotes ? `<p class="hero-quote">${e(first.title)}</p>` : `<h1>${e(first.title)}</h1>`}<p>${e(first.sub)}</p></div>
+    <div class="hero-caption">${quotes ? `<div class="hero-box"><p class="hero-quote">${e(first.title)}</p><p>${e(first.sub)}</p></div>` : `<h1>${e(first.title)}</h1><p>${e(first.sub)}</p>`}</div>
   </div>
   <script type="application/json" id="hero-data">${heroData}</script>
   <div class="hero-controls"><button class="hero-prev" aria-label="${e(ui.prev)}">${ICON.left}</button><span class="hero-count" aria-live="polite">01 / ${String(n).padStart(2, "0")}</span><button class="hero-next" aria-label="${e(ui.next)}">${ICON.right}</button></div>
