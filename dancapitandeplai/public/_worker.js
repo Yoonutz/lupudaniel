@@ -1208,7 +1208,7 @@ p { margin: 0 0 1em; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .hero-box { background: rgba(30,30,30,.55); } }
 .hero-caption .hero-quote { font: italic 400 clamp(17px, 1.7vw, 24px)/1.45 var(--serif); letter-spacing: 0; text-transform: none; margin: 0 auto .9em; opacity: 1; }
 .hero-box p:not(.hero-quote) { font-size: 11px; letter-spacing: .28em; }
-@media (max-width: 700px) { .hero--quotes .hero-caption { padding: 0 16px 124px; } .hero-box { padding: 16px 18px; } .hero-caption .hero-quote { font-size: 16px; } }
+@media (max-width: 700px) { .hero--quotes .hero-caption { padding: 0 16px 124px; } .hero-box { padding: 16px 18px; -webkit-backdrop-filter: blur(12px) saturate(1.3) brightness(.9); backdrop-filter: blur(12px) saturate(1.3) brightness(.9); } .hero-caption .hero-quote { font-size: 16px; } }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .hero-controls { position: absolute; z-index: 3; left: 50%; bottom: 32px; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; }
 .hero-controls button { background: none; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; color: #fff; cursor: pointer; transition: border-color .2s, background .2s; }
