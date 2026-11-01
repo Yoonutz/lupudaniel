@@ -268,17 +268,25 @@
   var y = document.getElementById('year');
   if (y) y.textContent = new Date().getFullYear();
   // Event video: swap the thumbnail for the YouTube/Vimeo player on click
-  document.querySelectorAll('.video[data-src]').forEach(function (box) {
+  // The player URL is rebuilt here from a fixed host + a strictly checked id
+  function playerUrl(box) {
+    var kind = box.getAttribute('data-kind'), id = box.getAttribute('data-id') || '', hash = box.getAttribute('data-h') || '';
+    if (kind === 'youtube' && /^[\w-]{11}$/.test(id)) return 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0';
+    if (kind === 'vimeo' && /^\d{6,12}$/.test(id)) return 'https://player.vimeo.com/video/' + id + '?autoplay=1' + (/^[0-9a-f]{6,20}$/.test(hash) ? '&h=' + hash : '');
+    return null;
+  }
+  document.querySelectorAll('.video[data-kind]').forEach(function (box) {
     var btn = box.querySelector('.video-play');
     if (!btn) return;
     btn.addEventListener('click', function () {
+      var src = playerUrl(box);
+      if (!src) return;
       var f = document.createElement('iframe');
-      f.src = box.getAttribute('data-src');
+      f.src = src;
       f.title = btn.getAttribute('aria-label') || 'Video';
       f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
       f.allowFullscreen = true;
-      box.innerHTML = '';
-      box.appendChild(f);
+      box.replaceChildren(f);
     });
   });
 })();

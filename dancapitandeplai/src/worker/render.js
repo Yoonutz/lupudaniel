@@ -295,7 +295,7 @@ export function event(c, lang, i) {
   const title = t(ev.title, lang);
   const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} · ${n + 1}`, { eager: n === 0, above: n < 3 })}</figure></a>`).join("");
   const vid = videoEmbed(ev.video);
-  const video = vid ? `<div class="video" data-src="${e(vid.src)}">
+  const video = vid ? `<div class="video" data-kind="${vid.kind}" data-id="${e(vid.id)}"${vid.hash ? ` data-h="${e(vid.hash)}"` : ""}>
       ${vid.kind === "youtube" ? `<img src="https://i.ytimg.com/vi/${e(vid.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360">` : ""}
       <button class="video-play" aria-label="${e(ui.play_video)}: ${e(title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></button>
     </div>` : "";

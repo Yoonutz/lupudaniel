@@ -783,7 +783,7 @@ function videoEmbed(link) {
   let m = s.match(/^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/i);
   if (m) return { kind: "youtube", id: m[1], src: `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1&rel=0` };
   m = s.match(/^https?:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d{6,12})(?:\/([0-9a-f]{6,20}))?/i);
-  if (m) return { kind: "vimeo", id: m[1], src: `https://player.vimeo.com/video/${m[1]}?autoplay=1${m[2] ? "&h=" + m[2] : ""}` };
+  if (m) return { kind: "vimeo", id: m[1], hash: m[2] || "", src: `https://player.vimeo.com/video/${m[1]}?autoplay=1${m[2] ? "&h=" + m[2] : ""}` };
   return null;
 }
 function slugify(s) {
@@ -1672,7 +1672,7 @@ function event(c, lang, i) {
   const title = t(ev.title, lang);
   const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} \xB7 ${n + 1}`, { eager: n === 0, above: n < 3 })}</figure></a>`).join("");
   const vid = videoEmbed(ev.video);
-  const video = vid ? `<div class="video" data-src="${e(vid.src)}">
+  const video = vid ? `<div class="video" data-kind="${vid.kind}" data-id="${e(vid.id)}"${vid.hash ? ` data-h="${e(vid.hash)}"` : ""}>
       ${vid.kind === "youtube" ? `<img src="https://i.ytimg.com/vi/${e(vid.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360">` : ""}
       <button class="video-play" aria-label="${e(ui.play_video)}: ${e(title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></button>
     </div>` : "";
