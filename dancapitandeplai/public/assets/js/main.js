@@ -118,7 +118,7 @@
       slides = set.map(function (src, i) {
         if (i === 0 && keep) return keep;
         var line = data.lines[i % data.lines.length];
-        var tag = i === 0 ? 'h1' : 'h2';
+        var tag = data.quotes ? 'p' : i === 0 ? 'h1' : 'h2';
         var el = document.createElement('div');
         el.className = 'hero-slide' + (i === 0 ? ' is-active' : '');
         el.setAttribute('aria-hidden', i === 0 ? 'false' : 'true');
@@ -126,7 +126,7 @@
         var real = portrait ? sm(src) : src;
         el.innerHTML = '<img ' + (i === 0 ? 'src' : 'data-src') + '="' + esc(real) + '" alt="" decoding="async"' + ss +
           (i === 0 ? '' : ' src="data:image/gif;base64,R0lGODlhAQABAAAAACw="') + '>' +
-          '<div class="hero-caption"><' + tag + '>' + esc(line.title) + '</' + tag + '><p>' + esc(line.sub) + '</p></div>';
+          '<div class="hero-caption"><' + tag + (data.quotes ? ' class="hero-quote"' : '') + '>' + esc(line.title) + '</' + tag + '><p>' + esc(line.sub) + '</p></div>';
         hero.insertBefore(el, dataEl);
         return el;
       });
