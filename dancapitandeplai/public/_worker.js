@@ -1197,7 +1197,18 @@ p { margin: 0 0 1em; }
 .hero-caption { position: absolute; inset: 0; z-index: 2; display: grid; place-content: center; text-align: center; padding: 0 var(--gutter); }
 .hero-caption h1, .hero-caption h2 { font-size: clamp(32px, 5.4vw, 68px); font-weight: 600; margin: 0 0 .35em; text-shadow: 0 2px 24px rgba(0,0,0,.25); }
 .hero-caption p { font: 500 13px/1.4 var(--head); letter-spacing: .3em; text-transform: uppercase; margin: 0; opacity: .9; }
-.hero-caption .hero-quote { font: italic 400 clamp(20px, 2.6vw, 34px)/1.45 var(--serif); letter-spacing: 0; text-transform: none; max-width: 34em; margin: 0 auto 1.1em; opacity: 1; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+/* Reviews in the hero: glass box, bottom middle, above the arrows */
+.hero--quotes .hero-caption { place-content: end center; padding-bottom: 128px; }
+/* Clear glass box (Dan's pick): light frosted glass, white rim + highlight */
+.hero-box { max-width: min(860px, 100%); margin: 0 auto; padding: 22px 32px 20px; border-radius: 22px; border: 1px solid rgba(255,255,255,.45);
+  background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,.06)), rgba(0,0,0,.14);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4) brightness(.9); backdrop-filter: blur(22px) saturate(1.4) brightness(.9);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 8px 32px rgba(0,0,0,.2); }
+.hero-box p { text-shadow: 0 1px 8px rgba(0,0,0,.35); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .hero-box { background: rgba(30,30,30,.55); } }
+.hero-caption .hero-quote { font: italic 400 clamp(17px, 1.7vw, 24px)/1.45 var(--serif); letter-spacing: 0; text-transform: none; margin: 0 auto .9em; opacity: 1; }
+.hero-box p:not(.hero-quote) { font-size: 11px; letter-spacing: .28em; }
+@media (max-width: 700px) { .hero--quotes .hero-caption { padding: 0 16px 124px; } .hero-box { padding: 16px 18px; } .hero-caption .hero-quote { font-size: 16px; } }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .hero-controls { position: absolute; z-index: 3; left: 50%; bottom: 32px; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; }
 .hero-controls button { background: none; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; width: 44px; height: 44px; display: grid; place-items: center; color: #fff; cursor: pointer; transition: border-color .2s, background .2s; }
@@ -1428,7 +1439,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "13";
+var ASSET_V = "14";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
@@ -1641,7 +1652,7 @@ function home(c, lang) {
   ${quotes ? `<h1 class="sr-only">${e(SITE.name)} \xB7 ${e(SITE.tagline[lang])}</h1>` : ""}
   <div class="hero-slide is-active" aria-hidden="false">
     <picture><source media="(orientation: portrait)" srcset="${e(small(mobile[0]))}"><img src="${e(desktop[0])}" srcset="${e(small(desktop[0]))} 900w, ${e(desktop[0])} 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></picture>
-    <div class="hero-caption">${quotes ? `<p class="hero-quote">${e(first.title)}</p>` : `<h1>${e(first.title)}</h1>`}<p>${e(first.sub)}</p></div>
+    <div class="hero-caption">${quotes ? `<div class="hero-box"><p class="hero-quote">${e(first.title)}</p><p>${e(first.sub)}</p></div>` : `<h1>${e(first.title)}</h1><p>${e(first.sub)}</p>`}</div>
   </div>
   <script type="application/json" id="hero-data">${heroData}<\/script>
   <div class="hero-controls"><button class="hero-prev" aria-label="${e(ui.prev)}">${ICON.left}</button><span class="hero-count" aria-live="polite">01 / ${String(n).padStart(2, "0")}</span><button class="hero-next" aria-label="${e(ui.next)}">${ICON.right}</button></div>

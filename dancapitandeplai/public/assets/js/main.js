@@ -126,7 +126,9 @@
         var real = portrait ? sm(src) : src;
         el.innerHTML = '<img ' + (i === 0 ? 'src' : 'data-src') + '="' + esc(real) + '" alt="" decoding="async"' + ss +
           (i === 0 ? '' : ' src="data:image/gif;base64,R0lGODlhAQABAAAAACw="') + '>' +
-          '<div class="hero-caption"><' + tag + (data.quotes ? ' class="hero-quote"' : '') + '>' + esc(line.title) + '</' + tag + '><p>' + esc(line.sub) + '</p></div>';
+          '<div class="hero-caption">' + (data.quotes
+            ? '<div class="hero-box"><p class="hero-quote">' + esc(line.title) + '</p><p>' + esc(line.sub) + '</p></div>'
+            : '<' + tag + '>' + esc(line.title) + '</' + tag + '><p>' + esc(line.sub) + '</p>') + '</div>';
         hero.insertBefore(el, dataEl);
         return el;
       });
