@@ -185,7 +185,7 @@ p { margin: 0 0 1em; }
 .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(24px, 4vw, 56px); margin-top: 56px; }
 .testimonial { text-align: center; }
 .testimonial img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin: 0 auto 24px; }
-.testimonial blockquote { font: italic 400 22px/1.5 var(--serif); margin: 0 0 20px; color: var(--ink-soft); }
+.testimonial blockquote { font: italic 400 22px/1.5 var(--serif); margin: 0 auto 20px; max-width: 40em; color: var(--ink-soft); }
 .testimonial cite { font: 600 12px/1 var(--head); letter-spacing: .2em; text-transform: uppercase; font-style: normal; }
 
 /* CTA */
@@ -345,7 +345,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "9";
+var ASSET_V = "10";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
@@ -542,7 +542,7 @@ function home(c, lang) {
   const tiles = c.tiles.map((tl) => `<a class="tile reveal" href="${r(lang, tl.key)}">${img(small(tl.img), "", { w: 900, h: 1100 })}<div><span class="tile-label">${e(nav[tl.key])}</span><span class="tile-sub">${e(t(c.tile_sub, lang)[tl.key])}</span></div></a>`).join("");
   const services = c.services[lang].map((s) => `<div class="service"><h3>${e(s.title)}</h3><p>${e(s.text)}</p></div>`).join("");
   const stats = c.stats[lang].map((s) => `<div class="stat"><strong>${e(s.num)}</strong><span>${e(s.label)}</span></div>`).join("");
-  const testi = c.testimonials[lang].map((x) => `<figure class="testimonial reveal">${img(small(x.img), "", { w: 300, h: 300 })}<blockquote>\u201E${e(x.quote)}\u201D</blockquote><cite>${e(x.who)}</cite></figure>`).join("");
+  const testi = ((c.testimonials || {})[lang] || []).filter((x) => x.quote).map((x) => `<figure class="testimonial reveal">${x.img ? img(small(x.img), "", { w: 300, h: 300 }) : ""}<blockquote>\u201E${e(x.quote)}\u201D</blockquote><cite>${e(x.who)}</cite></figure>`).join("");
   const ig = c.instagram_imgs.map((src) => `<a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${img(small(src), "", { w: 600, h: 600 })}</a>`).join("");
   const n = Math.max(desktop.length, 1);
   const body = `
@@ -601,12 +601,12 @@ function home(c, lang) {
   </div>
 </section>
 
-<section class="section section--tint">
+${testi ? `<section class="section section--tint">
   <div class="wrap">
     <h2 class="h-lg center reveal">${e(h.testimonials_title)}</h2>
     <div class="testimonials">${testi}</div>
   </div>
-</section>
+</section>` : ""}
 
 <section class="section cta">
   ${img(c.cta_img, "", { w: 1600, h: 900 })}
@@ -1049,26 +1049,16 @@ var seed_default = {
   testimonials: {
     ro: [
       {
-        img: "/assets/img/client-1.jpg",
-        quote: "Dan a prins momente pe care nici nu \u0219tiam c\u0103 s-au \xEEnt\xE2mplat. Am uitat complet c\u0103 e acolo, \u0219i asta se vede \xEEn poze.",
-        who: "Exemplu \xB7 Andreea & Mihai"
-      },
-      {
-        img: "/assets/img/client-2.jpg",
-        quote: "Super r\u0103bd\u0103tor \u0219i relaxat, chiar \u0219i cu noi, care suntem cei mai timizi oameni din lume. Pozele sunt superbe.",
-        who: "Exemplu \xB7 Ioana & Radu"
+        img: "",
+        quote: "Fotografiile, de la sosirea la prim\u0103rie \u0219i p\xE2n\u0103 la \u0219edin\u021Ba foto al\u0103turi de invita\u021Bi, au ie\u0219it absolut superbe. A reu\u0219it s\u0103 surprind\u0103\u2026 gesturi \u0219i priviri spontane pe care noi nici m\u0103car nu le-am observat. Nu suntem persoane foarte confortabile \xEEn fa\u021Ba camerei, \xEEns\u0103 a creat o atmosfer\u0103 relaxat\u0103 \u0219i natural\u0103.",
+        who: "Laura \u0218tefania \xB7 Cununie civil\u0103, Bra\u0219ov"
       }
     ],
     en: [
       {
-        img: "/assets/img/client-1.jpg",
-        quote: "Dan caught moments we didn't even know happened. We completely forgot he was there, and it shows in the photos.",
-        who: "Sample \xB7 Andreea & Mihai"
-      },
-      {
-        img: "/assets/img/client-2.jpg",
-        quote: "So patient and relaxed, even with us, the shyest people alive. The photos are gorgeous.",
-        who: "Sample \xB7 Ioana & Radu"
+        img: "",
+        quote: "The photos, from arriving at the town hall to the shoot with our guests, came out absolutely beautiful. He caught\u2026 spontaneous gestures and looks we didn't even notice. We're not comfortable in front of the camera, but he made it relaxed and natural.",
+        who: "Laura \u0218tefania \xB7 Civil ceremony, Bra\u0219ov"
       }
     ]
   },
@@ -1514,6 +1504,7 @@ async function getContent(env, ctx) {
     ctx ? ctx.waitUntil(put) : await put;
   }
   const data = saved ? { ...seed_default, ...saved } : seed_default;
+  if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = seed_default.testimonials;
   memo = { at: Date.now(), data };
   return data;
 }
@@ -1618,6 +1609,10 @@ function cleanContent(c, base) {
   });
   for (const k of ["portrait", "profile", "cta_img"]) if (k in c) out[k] = imgRef(c[k]) || base[k];
   if (c.instagram_imgs) out.instagram_imgs = imgList(c.instagram_imgs, 12);
+  if (c.testimonials) {
+    const tl = (v) => list(v, 30).map((x) => ({ img: imgRef(x && x.img), quote: str(x && x.quote, 800), who: str(x && x.who, 120) })).filter((x) => x.quote);
+    out.testimonials = { ro: tl(c.testimonials.ro), en: tl(c.testimonials.en) };
+  }
   if (c.faq) out.faq = list(c.faq, 100).map((f) => ({ q: bi(f.q, 300), a: bi(f.a, 2e3) }));
   if (c.contact) out.contact = {
     phone: str(c.contact.phone, 40),

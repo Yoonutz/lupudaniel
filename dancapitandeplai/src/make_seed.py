@@ -31,7 +31,7 @@ seed = {
     "tile_sub": both(C.TILE_SUB),
     "services": {l: [{"title": t, "text": d} for t, d in C.SERVICES[l]] for l in ("ro", "en")},
     "stats": {l: [{"num": n, "label": t} for n, t in C.STATS[l]] for l in ("ro", "en")},
-    "testimonials": {l: [{"img": A + p, "quote": q, "who": w} for p, q, w in C.TESTIMONIALS[l]] for l in ("ro", "en")},
+    "testimonials": {l: [{"img": A + p if p else "", "quote": q, "who": w} for p, q, w in C.TESTIMONIALS[l]] for l in ("ro", "en")},
     "portrait": A + "portrait.jpg",
     "profile": A + "profile.jpg",
     "cta_img": A + "banner-1.jpg",

@@ -34,6 +34,8 @@ export async function getContent(env, ctx) {
     ctx ? ctx.waitUntil(put) : await put;
   }
   const data = saved ? { ...SEED, ...saved } : SEED;
+  // Old saves still carry the sample reviews; show the real ones from the seed instead
+  if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = SEED.testimonials;
   memo = { at: Date.now(), data };
   return data;
 }
@@ -142,6 +144,10 @@ export function cleanContent(c, base) {
   });
   for (const k of ["portrait", "profile", "cta_img"]) if (k in c) out[k] = imgRef(c[k]) || base[k];
   if (c.instagram_imgs) out.instagram_imgs = imgList(c.instagram_imgs, 12);
+  if (c.testimonials) {
+    const tl = v => list(v, 30).map(x => ({ img: imgRef(x && x.img), quote: str(x && x.quote, 800), who: str(x && x.who, 120) })).filter(x => x.quote);
+    out.testimonials = { ro: tl(c.testimonials.ro), en: tl(c.testimonials.en) };
+  }
   if (c.faq) out.faq = list(c.faq, 100).map(f => ({ q: bi(f.q, 300), a: bi(f.a, 2000) }));
   if (c.contact) out.contact = {
     phone: str(c.contact.phone, 40), email: str(c.contact.email, 120),
