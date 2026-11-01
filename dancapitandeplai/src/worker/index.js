@@ -24,7 +24,7 @@ export default {
       const media = await serveMedia(env, p, ctx, req);
       if (media) return media;
 
-      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt") {
+      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico") {
         if (p === "/admin") return Response.redirect(url.origin + "/admin/", 301);
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);

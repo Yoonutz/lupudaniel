@@ -1,5 +1,5 @@
-// REST API for the admin panel: one-click login, content, media.
-// Bindings: CONTENT (KV); vars: ADMIN_EMAILS (comma separated).
+// REST API for the admin panel: email-link login, content, media.
+// Bindings: CONTENT (KV), MAILER (service -> dancapitandeplai-mailer); vars: ADMIN_EMAILS (comma separated).
 import SEED from "./seed.json";
 
 const SESSION_TTL = 24 * 3600; // Dan logs in once a day
@@ -12,7 +12,7 @@ const randomToken = () => hex(crypto.getRandomValues(new Uint8Array(32)));
 export const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
 
-const adminEmails = env => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com").toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
+const adminEmails = env => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com,ionut.filea@gmail.com").toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
 
 // ---------- content ----------
 
@@ -34,6 +34,8 @@ export async function getContent(env, ctx) {
     ctx ? ctx.waitUntil(put) : await put;
   }
   const data = saved ? { ...SEED, ...saved } : SEED;
+  // Old saves still carry the sample reviews; show the real ones from the seed instead
+  if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = SEED.testimonials;
   memo = { at: Date.now(), data };
   return data;
 }
@@ -59,10 +61,11 @@ async function hmac(env, msg) {
 const sha256 = async s => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
 export async function session(req, env) {
   const sid = cookie(req, "sid");
-  const m = sid && sid.match(/^(\d{1,16})\.([0-9a-f]{64})$/);
+  const m = sid && sid.match(/^(\d{1,16})\.(\d{1,2})\.([0-9a-f]{64})$/);
   if (!m || Number(m[1]) < Date.now()) return null;
-  if (await hmac(env, m[1]) !== m[2]) return null;
-  return { email: adminEmails(env)[0] };
+  const email = adminEmails(env)[Number(m[2])];
+  if (!email || await hmac(env, m[1] + "." + email) !== m[3]) return null;
+  return { email };
 }
 
 async function readJson(req, max) {
@@ -71,19 +74,68 @@ async function readJson(req, max) {
   return JSON.parse(text);
 }
 
-// One-click login, but only from the private admin link (/admin/#key=...).
-// The key is the ADMIN_KEY secret in the Pages project settings; without it nobody can log in.
-// Swap for a real login (email link) before launch.
+// ---------- login ----------
+// Main login: magic link by email. Dan types his address, gets a link to
+// /admin/#t=TOKEN (hash, so mail scanners never send it to the server), the
+// admin page posts the token here and gets a 1-day session cookie.
+// Token = nonce.exp.signature, valid 15 min, single use (nonce kept in KV).
+// Emails go out through the MAILER service binding (Worker with send_email).
+const LINK_TTL = 15 * 60;
+const MAIL_COOLDOWN = 120; // one email per 2 min, caps KV writes and inbox spam
+
+async function startSession(env, email) {
+  const idx = adminEmails(env).indexOf(email);
+  const exp = String(Date.now() + SESSION_TTL * 1000);
+  const sid = exp + "." + idx + "." + await hmac(env, exp + "." + email);
+  return json({ ok: true, email }, 200, {
+    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`,
+  });
+}
+
+async function requestLink(req, env, url) {
+  const body = await readJson(req, 1000).catch(() => ({}));
+  const email = String(body.email || "").trim().toLowerCase();
+  // Same answer for unknown addresses, so the form doesn't reveal who is admin
+  if (!adminEmails(env).includes(email)) return json({ ok: true });
+  if (!env.MAILER) return json({ error: "mail_off" }, 503);
+  if (await env.CONTENT.get("auth:cooldown")) return json({ error: "wait" }, 429);
+  await env.CONTENT.put("auth:cooldown", "1", { expirationTtl: MAIL_COOLDOWN });
+  const nonce = randomToken().slice(0, 32);
+  const exp = String(Date.now() + LINK_TTL * 1000);
+  const token = `${nonce}.${exp}.${await hmac(env, "link:" + nonce + "." + exp + "." + email)}`;
+  const link = `${url.origin}/admin/#t=${token}`;
+  const res = await env.MAILER.fetch("https://mailer/send", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      to: email,
+      subject: "Link de intrare în admin · Dan Căpitan de Plai",
+      text: `Salut,\n\nApasă linkul de mai jos ca să intri în panoul de admin al site-ului:\n\n${link}\n\nLinkul merge o singură dată și expiră în 15 minute. Dacă nu ai cerut tu linkul, ignoră acest email.\n`,
+    }),
+  });
+  if (!res.ok) return json({ error: "mail_failed" }, 502);
+  return json({ ok: true });
+}
+
+async function verifyLink(req, env) {
+  const body = await readJson(req, 1000).catch(() => ({}));
+  const m = String(body.token || "").match(/^([0-9a-f]{32})\.(\d{1,16})\.([0-9a-f]{64})$/);
+  if (!m || Number(m[2]) < Date.now()) return json({ error: "bad_link" }, 403);
+  let email = null;
+  for (const e of adminEmails(env)) if (await hmac(env, "link:" + m[1] + "." + m[2] + "." + e) === m[3]) email = e;
+  if (!email) return json({ error: "bad_link" }, 403);
+  if (await env.CONTENT.get("auth:used:" + m[1])) return json({ error: "bad_link" }, 403);
+  await env.CONTENT.put("auth:used:" + m[1], "1", { expirationTtl: LINK_TTL + 60 });
+  return startSession(env, email);
+}
+
+// Backup login from a private link (/admin/#key=...), only while the ADMIN_KEY
+// secret exists. Delete ADMIN_KEY in Cloudflare to turn it off.
 async function quickLogin(req, env) {
   const body = await readJson(req, 1000).catch(() => ({}));
   const given = String(body.key || ""), want = String(env.ADMIN_KEY || "");
   if (!want || await sha256(given) !== await sha256(want)) return json({ error: "bad_key" }, 403);
-  const email = adminEmails(env)[0];
-  const exp = String(Date.now() + SESSION_TTL * 1000);
-  const sid = exp + "." + await hmac(env, exp);
-  return json({ ok: true, email }, 200, {
-    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`,
-  });
+  return startSession(env, adminEmails(env)[0]);
 }
 
 async function logout() {
@@ -153,6 +205,10 @@ export function cleanContent(c, base) {
   });
   for (const k of ["portrait", "profile", "cta_img"]) if (k in c) out[k] = imgRef(c[k]) || base[k];
   if (c.instagram_imgs) out.instagram_imgs = imgList(c.instagram_imgs, 12);
+  if (c.testimonials) {
+    const tl = v => list(v, 30).map(x => ({ img: imgRef(x && x.img), quote: str(x && x.quote, 800), who: str(x && x.who, 120) })).filter(x => x.quote);
+    out.testimonials = { ro: tl(c.testimonials.ro), en: tl(c.testimonials.en) };
+  }
   if (c.faq) out.faq = list(c.faq, 100).map(f => ({ q: bi(f.q, 300), a: bi(f.a, 2000) }));
   if (c.contact) out.contact = {
     phone: str(c.contact.phone, 40), email: str(c.contact.email, 120),
@@ -324,6 +380,8 @@ const forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {});
 export async function handleApi(req, env, url) {
   const p = url.pathname, m = req.method;
   if (m === "POST" && p === "/api/auth/login") return quickLogin(req, env);
+  if (m === "POST" && p === "/api/auth/request") return requestLink(req, env, url);
+  if (m === "POST" && p === "/api/auth/verify") return verifyLink(req, env);
   if (m === "POST" && p === "/api/auth/logout") return logout(req, env);
   if (m === "GET" && p === "/api/content/public") return json(await getContent(env));
 

@@ -233,7 +233,35 @@
         h('div', { class: 'panel-head' }, h('h2', { text: 'Bandă Instagram (' + c.instagram_imgs.length + ')' })),
         h('p', { class: 'hint', text: 'Pozele mici de jos, cu link spre Instagram. Ideal 6.' }),
         imageGrid(c.instagram_imgs, { shape: 'square' })),
+      reviewsPanel(c),
     ];
+  }
+
+  // Client reviews: one row = same review in RO + EN, optional round photo
+  function reviewsPanel(c) {
+    var t = c.testimonials = c.testimonials || { ro: [], en: [] };
+    t.ro = t.ro || []; t.en = t.en || [];
+    var n = Math.max(t.ro.length, t.en.length);
+    var rows = [];
+    for (var i = 0; i < n; i++) (function (i) {
+      var ro = t.ro[i] = t.ro[i] || { img: '', quote: '', who: '' };
+      var en = t.en[i] = t.en[i] || { img: ro.img, quote: '', who: '' };
+      rows.push(h('div', { class: 'faq-row' },
+        h('div', { class: 'grid2' },
+          h('div', null, textField('Recenzie', ro, 'quote', { lang: 'RO', area: true }), textField('Nume · eveniment', ro, 'who', { lang: 'RO' })),
+          h('div', null, textField('Recenzie', en, 'quote', { lang: 'EN', area: true }), textField('Nume · eveniment', en, 'who', { lang: 'EN' }))),
+        h('div', { class: 'row-tools' },
+          ro.img ? h('img', { src: small(ro.img), alt: '', style: 'width:48px;height:48px;border-radius:50%;object-fit:cover' }) : null,
+          h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { ro.img = en.img = res[0].url; }); } }, ro.img ? 'Schimbă poza' : '+ Poză (opțional)'),
+          ro.img ? h('button', { class: 'btn btn-sm', onclick: function () { ro.img = en.img = ''; markDirty(); render(); } }, 'Fără poză') : null,
+          h('button', { class: 'btn btn-sm', onclick: function () { move(t.ro, i, -1); move(t.en, i, -1); } }, '↑'),
+          h('button', { class: 'btn btn-sm btn-danger', onclick: function () { if (!confirm('Ștergi recenzia?')) return; t.ro.splice(i, 1); t.en.splice(i, 1); markDirty(); render(); } }, 'Șterge'))));
+    })(i);
+    return h('div', { class: 'panel' },
+      h('div', { class: 'panel-head' }, h('h2', { text: 'Recenzii clienți (' + n + ')' }),
+        h('button', { class: 'btn btn-sm', onclick: function () { t.ro.push({ img: '', quote: '', who: '' }); t.en.push({ img: '', quote: '', who: '' }); markDirty(); render(); } }, '+ Recenzie nouă')),
+      h('p', { class: 'hint', text: 'Doar recenzii reale, cu acordul clientului. Apar pe prima pagină. Fără recenzii, secțiunea se ascunde.' }),
+      rows);
   }
 
   function eventsTab() {
@@ -478,24 +506,47 @@
   }
 
   // ---------- login ----------
-  // The private admin link is /admin/#key=...; the key is remembered on this device.
+  // Main: email link (/admin/#t=TOKEN). Backup: private link /admin/#key=... while ADMIN_KEY exists.
   var hashKey = (location.hash.match(/[#&]key=([^&]+)/) || [])[1];
   if (hashKey) { try { localStorage.setItem('adminKey', decodeURIComponent(hashKey)); } catch (e) {} }
+  var linkToken = (location.hash.match(/[#&]t=([0-9a-f.]+)/) || [])[1];
   function adminKey() { try { return localStorage.getItem('adminKey') || ''; } catch (e) { return ''; } }
+  function lastEmail() { try { return localStorage.getItem('adminEmail') || ''; } catch (e) { return ''; } }
 
   function showLogin(msg) {
-    var info = h('p', { text: msg || (adminKey() ? 'Apasă butonul și ești înăuntru.' : 'Deschide linkul tău privat de admin ca să intri.') });
-    var btn = h('button', { class: 'btn btn-primary btn-block' }, 'Login');
-    btn.addEventListener('click', function () {
+    var info = h('p', { text: msg || 'Scrie emailul tău și îți trimitem un link de intrare.' });
+    var email = h('input', { type: 'email', class: 'input', placeholder: 'email@exemplu.ro', autocomplete: 'email' });
+    email.value = lastEmail();
+    var btn = h('button', { class: 'btn btn-primary btn-block' }, 'Trimite linkul');
+    var form = h('form', { class: 'login-form' }, email, btn);
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var addr = email.value.trim();
+      if (!addr) { email.focus(); return; }
+      try { localStorage.setItem('adminEmail', addr); } catch (e) {}
       btn.disabled = true;
-      api('POST', '/api/auth/login', { key: adminKey() }).then(start).catch(function (e) {
-        btn.disabled = false;
-        info.textContent = e.status === 403 ? 'Linkul de admin nu e valid. Folosește linkul privat primit.' : 'Ceva n-a mers: ' + e.message;
-      });
+      api('POST', '/api/auth/request', { email: addr }).then(function () {
+        info.textContent = 'Gata! Dacă adresa e de admin, linkul ajunge în câteva secunde (verifică și Spam). Merge 15 minute.';
+        btn.textContent = 'Trimite din nou';
+      }).catch(function (e) {
+        info.textContent = e.status === 429 ? 'Ți-am trimis deja un link. Mai încearcă peste 2 minute.'
+          : e.status === 503 ? 'Trimiterea emailurilor nu e pornită încă.' : 'Ceva n-a mers: ' + e.message;
+      }).finally(function () { btn.disabled = false; });
     });
+    var extra = [];
+    if (adminKey()) {
+      var quick = h('button', { class: 'btn btn-sm', type: 'button' }, 'Intră cu linkul privat');
+      quick.addEventListener('click', function () {
+        api('POST', '/api/auth/login', { key: adminKey() }).then(start).catch(function () {
+          try { localStorage.removeItem('adminKey'); } catch (e) {}
+          quick.remove(); info.textContent = 'Linkul privat nu mai e valid. Folosește emailul.';
+        });
+      });
+      extra.push(quick);
+    }
     app.innerHTML = '';
     add(app, h('div', { class: 'login' }, h('div', { class: 'login-card' },
-      h('h1', { text: 'Admin' }), info, btn)));
+      [h('h1', { text: 'Admin' }), info, form].concat(extra))));
   }
 
   function start() {
@@ -506,5 +557,11 @@
     });
   }
 
-  start().catch(function () { showLogin(); });
+  if (linkToken) {
+    history.replaceState(null, '', '/admin/');
+    api('POST', '/api/auth/verify', { token: linkToken }).then(start)
+      .catch(function () { showLogin('Linkul a expirat sau a fost folosit deja. Cere unul nou.'); });
+  } else {
+    start().catch(function () { showLogin(); });
+  }
 })();

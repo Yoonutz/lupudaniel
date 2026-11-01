@@ -260,26 +260,16 @@ var seed_default = {
   testimonials: {
     ro: [
       {
-        img: "/assets/img/client-1.jpg",
-        quote: "Dan a prins momente pe care nici nu \u0219tiam c\u0103 s-au \xEEnt\xE2mplat. Am uitat complet c\u0103 e acolo, \u0219i asta se vede \xEEn poze.",
-        who: "Exemplu \xB7 Andreea & Mihai"
-      },
-      {
-        img: "/assets/img/client-2.jpg",
-        quote: "Super r\u0103bd\u0103tor \u0219i relaxat, chiar \u0219i cu noi, care suntem cei mai timizi oameni din lume. Pozele sunt superbe.",
-        who: "Exemplu \xB7 Ioana & Radu"
+        img: "",
+        quote: "Fotografiile, de la sosirea la prim\u0103rie \u0219i p\xE2n\u0103 la \u0219edin\u021Ba foto al\u0103turi de invita\u021Bi, au ie\u0219it absolut superbe. A reu\u0219it s\u0103 surprind\u0103\u2026 gesturi \u0219i priviri spontane pe care noi nici m\u0103car nu le-am observat. Nu suntem persoane foarte confortabile \xEEn fa\u021Ba camerei, \xEEns\u0103 a creat o atmosfer\u0103 relaxat\u0103 \u0219i natural\u0103.",
+        who: "Laura \u0218tefania \xB7 Cununie civil\u0103, Bra\u0219ov"
       }
     ],
     en: [
       {
-        img: "/assets/img/client-1.jpg",
-        quote: "Dan caught moments we didn't even know happened. We completely forgot he was there, and it shows in the photos.",
-        who: "Sample \xB7 Andreea & Mihai"
-      },
-      {
-        img: "/assets/img/client-2.jpg",
-        quote: "So patient and relaxed, even with us, the shyest people alive. The photos are gorgeous.",
-        who: "Sample \xB7 Ioana & Radu"
+        img: "",
+        quote: "The photos, from arriving at the town hall to the shoot with our guests, came out absolutely beautiful. He caught\u2026 spontaneous gestures and looks we didn't even notice. We're not comfortable in front of the camera, but he made it relaxed and natural.",
+        who: "Laura \u0218tefania \xB7 Civil ceremony, Bra\u0219ov"
       }
     ]
   },
@@ -708,7 +698,7 @@ var enc = new TextEncoder();
 var hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 var randomToken = () => hex(crypto.getRandomValues(new Uint8Array(32)));
 var json = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
-var adminEmails = (env) => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com").toLowerCase().split(",").map((s) => s.trim()).filter(Boolean);
+var adminEmails = (env) => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com,ionut.filea@gmail.com").toLowerCase().split(",").map((s) => s.trim()).filter(Boolean);
 var CONTENT_URL = "https://cache.internal/site";
 var memo = { at: 0, data: null };
 async function getContent(env, ctx) {
@@ -725,6 +715,7 @@ async function getContent(env, ctx) {
     ctx ? ctx.waitUntil(put) : await put;
   }
   const data = saved ? { ...seed_default, ...saved } : seed_default;
+  if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = seed_default.testimonials;
   memo = { at: Date.now(), data };
   return data;
 }
@@ -746,26 +737,73 @@ async function hmac(env, msg) {
 var sha256 = async (s) => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
 async function session(req, env) {
   const sid = cookie(req, "sid");
-  const m = sid && sid.match(/^(\d{1,16})\.([0-9a-f]{64})$/);
+  const m = sid && sid.match(/^(\d{1,16})\.(\d{1,2})\.([0-9a-f]{64})$/);
   if (!m || Number(m[1]) < Date.now()) return null;
-  if (await hmac(env, m[1]) !== m[2]) return null;
-  return { email: adminEmails(env)[0] };
+  const email = adminEmails(env)[Number(m[2])];
+  if (!email || await hmac(env, m[1] + "." + email) !== m[3]) return null;
+  return { email };
 }
 async function readJson(req, max) {
   const text = await req.text();
   if (text.length > max) throw new Error("too_large");
   return JSON.parse(text);
 }
+var LINK_TTL = 15 * 60;
+var MAIL_COOLDOWN = 120;
+async function startSession(env, email) {
+  const idx = adminEmails(env).indexOf(email);
+  const exp = String(Date.now() + SESSION_TTL * 1e3);
+  const sid = exp + "." + idx + "." + await hmac(env, exp + "." + email);
+  return json({ ok: true, email }, 200, {
+    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`
+  });
+}
+async function requestLink(req, env, url2) {
+  const body = await readJson(req, 1e3).catch(() => ({}));
+  const email = String(body.email || "").trim().toLowerCase();
+  if (!adminEmails(env).includes(email)) return json({ ok: true });
+  if (!env.MAILER) return json({ error: "mail_off" }, 503);
+  if (await env.CONTENT.get("auth:cooldown")) return json({ error: "wait" }, 429);
+  await env.CONTENT.put("auth:cooldown", "1", { expirationTtl: MAIL_COOLDOWN });
+  const nonce = randomToken().slice(0, 32);
+  const exp = String(Date.now() + LINK_TTL * 1e3);
+  const token = `${nonce}.${exp}.${await hmac(env, "link:" + nonce + "." + exp + "." + email)}`;
+  const link = `${url2.origin}/admin/#t=${token}`;
+  const res = await env.MAILER.fetch("https://mailer/send", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      to: email,
+      subject: "Link de intrare \xEEn admin \xB7 Dan C\u0103pitan de Plai",
+      text: `Salut,
+
+Apas\u0103 linkul de mai jos ca s\u0103 intri \xEEn panoul de admin al site-ului:
+
+${link}
+
+Linkul merge o singur\u0103 dat\u0103 \u0219i expir\u0103 \xEEn 15 minute. Dac\u0103 nu ai cerut tu linkul, ignor\u0103 acest email.
+`
+    })
+  });
+  if (!res.ok) return json({ error: "mail_failed" }, 502);
+  return json({ ok: true });
+}
+async function verifyLink(req, env) {
+  const body = await readJson(req, 1e3).catch(() => ({}));
+  const m = String(body.token || "").match(/^([0-9a-f]{32})\.(\d{1,16})\.([0-9a-f]{64})$/);
+  if (!m || Number(m[2]) < Date.now()) return json({ error: "bad_link" }, 403);
+  let email = null;
+  for (const e2 of adminEmails(env)) if (await hmac(env, "link:" + m[1] + "." + m[2] + "." + e2) === m[3]) email = e2;
+  if (!email) return json({ error: "bad_link" }, 403);
+  if (await env.CONTENT.get("auth:used:" + m[1])) return json({ error: "bad_link" }, 403);
+  await env.CONTENT.put("auth:used:" + m[1], "1", { expirationTtl: LINK_TTL + 60 });
+  return startSession(env, email);
+}
 async function quickLogin(req, env) {
   const body = await readJson(req, 1e3).catch(() => ({}));
   const given = String(body.key || ""), want = String(env.ADMIN_KEY || "");
   if (!want || await sha256(given) !== await sha256(want)) return json({ error: "bad_key" }, 403);
-  const email = adminEmails(env)[0];
-  const exp = String(Date.now() + SESSION_TTL * 1e3);
-  const sid = exp + "." + await hmac(env, exp);
-  return json({ ok: true, email }, 200, {
-    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`
-  });
+  return startSession(env, adminEmails(env)[0]);
 }
 async function logout() {
   return json({ ok: true }, 200, { "set-cookie": "sid=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
@@ -838,6 +876,10 @@ function cleanContent(c, base) {
   });
   for (const k of ["portrait", "profile", "cta_img"]) if (k in c) out[k] = imgRef(c[k]) || base[k];
   if (c.instagram_imgs) out.instagram_imgs = imgList(c.instagram_imgs, 12);
+  if (c.testimonials) {
+    const tl = (v) => list(v, 30).map((x) => ({ img: imgRef(x && x.img), quote: str(x && x.quote, 800), who: str(x && x.who, 120) })).filter((x) => x.quote);
+    out.testimonials = { ro: tl(c.testimonials.ro), en: tl(c.testimonials.en) };
+  }
   if (c.faq) out.faq = list(c.faq, 100).map((f) => ({ q: bi(f.q, 300), a: bi(f.a, 2e3) }));
   if (c.contact) out.contact = {
     phone: str(c.contact.phone, 40),
@@ -1003,6 +1045,8 @@ var forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {
 async function handleApi(req, env, url2) {
   const p = url2.pathname, m = req.method;
   if (m === "POST" && p === "/api/auth/login") return quickLogin(req, env);
+  if (m === "POST" && p === "/api/auth/request") return requestLink(req, env, url2);
+  if (m === "POST" && p === "/api/auth/verify") return verifyLink(req, env);
   if (m === "POST" && p === "/api/auth/logout") return logout(req, env);
   if (m === "GET" && p === "/api/content/public") return json(await getContent(env));
   const s = await session(req, env);
@@ -1022,12 +1066,11 @@ async function handleApi(req, env, url2) {
 
 // public/assets/css/style.css
 var style_default = `/* Self-hosted fonts: latin + Romanian subset (was Google Fonts, render-blocking) */
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 700;font-display:swap;src:url(/assets/fonts/jost-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300 700;font-display:swap;src:url(/assets/fonts/jost-ro.woff2) format('woff2');unicode-range:U+0100-0103,U+015E-0163,U+0218-021B}
 @font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-display:swap;src:url(/assets/fonts/cormorant-garamond-400i.woff2) format('woff2')}
 @font-face{font-family:'Inter';font-style:normal;font-weight:400;font-display:swap;src:url(/assets/fonts/inter-400.woff2) format('woff2')}
 @font-face{font-family:'Inter';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/inter-500.woff2) format('woff2')}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:500;font-display:swap;src:url(/assets/fonts/montserrat-500.woff2) format('woff2')}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:600;font-display:swap;src:url(/assets/fonts/montserrat-600.woff2) format('woff2')}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:700;font-display:swap;src:url(/assets/fonts/montserrat-700.woff2) format('woff2')}
 /* Dan C\u0103pitan de Plai \u2014 layout adapted from reference demo "Home 2" */
 :root {
   --ink: #161616;
@@ -1039,7 +1082,7 @@ var style_default = `/* Self-hosted fonts: latin + Romanian subset (was Google F
   --accent: #b08d57;
   --accent-ink: #8a6a3a;
   --dark: #0f0f0f;
-  --head: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --head: "Jost", system-ui, -apple-system, "Segoe UI", sans-serif;
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "Cormorant Garamond", Georgia, serif;
   --wrap: 1200px;
@@ -1077,7 +1120,7 @@ body {
 }
 img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
-h1, h2, h3, h4 { font-family: var(--head); font-weight: 600; line-height: 1.2; margin: 0 0 .5em; letter-spacing: -.01em; }
+h1, h2, h3, h4 { font-family: var(--head); font-weight: 500; line-height: 1.2; margin: 0 0 .5em; letter-spacing: 0; }
 p { margin: 0 0 1em; }
 .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 .skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--on-ink); padding: 8px 12px; z-index: 100; }
@@ -1107,6 +1150,15 @@ p { margin: 0 0 1em; }
 .site-header.is-solid, body:not(.has-hero) .site-header { background: var(--header-bg); color: var(--ink); box-shadow: 0 1px 0 var(--line); backdrop-filter: blur(8px); }
 .logo { font: 700 15px/1.1 var(--head); letter-spacing: .18em; text-transform: uppercase; text-decoration: none; }
 .logo small { display: block; font-weight: 500; font-size: 10px; letter-spacing: .3em; opacity: .75; margin-top: 4px; }
+/* Brand logo (traced from Dan's logo PNGs). One SVG used as a mask, so it takes the text color:
+   white over the hero photo and in dark mode, black in light mode. */
+.logo-img { display: block; width: 190px; aspect-ratio: 1782 / 338; background: currentColor;
+  -webkit-mask: url(/assets/img/logo.svg?v=1) center / contain no-repeat; mask: url(/assets/img/logo.svg?v=1) center / contain no-repeat; }
+.site-header .logo { display: block; flex: none; }
+.site-footer .logo-img { width: 230px; }
+@media (min-width: 901px) { .site-header .logo-img { width: 230px; } }
+.site-footer .logo small { margin-top: 12px; }
+@media (max-width: 380px) { .site-header .logo-img { width: 160px; } }
 .nav { display: flex; align-items: center; gap: 32px; }
 .nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; }
 .nav a { font: 500 13px/1 var(--head); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; }
@@ -1207,7 +1259,7 @@ p { margin: 0 0 1em; }
 .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(24px, 4vw, 56px); margin-top: 56px; }
 .testimonial { text-align: center; }
 .testimonial img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin: 0 auto 24px; }
-.testimonial blockquote { font: italic 400 22px/1.5 var(--serif); margin: 0 0 20px; color: var(--ink-soft); }
+.testimonial blockquote { font: italic 400 22px/1.5 var(--serif); margin: 0 auto 20px; max-width: 40em; color: var(--ink-soft); }
 .testimonial cite { font: 600 12px/1 var(--head); letter-spacing: .2em; text-transform: uppercase; font-style: normal; }
 
 /* CTA */
@@ -1374,7 +1426,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.pages.dev"
 };
-var ASSET_V = "10";
+var ASSET_V = "12";
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
@@ -1498,8 +1550,11 @@ ${alternates}
 <meta property="og:locale" content="${lang === "ro" ? "ro_RO" : "en_US"}">
 <meta name="theme-color" content="#0f0f0f">
 ${THEME_JS}
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="/assets/fonts/montserrat-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/assets/img/favicon.svg?v=${ASSET_V}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png?v=${ASSET_V}">
+<link rel="manifest" href="/assets/site.webmanifest?v=${ASSET_V}">
+<link rel="preload" href="/assets/fonts/jost-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <style>${style_default}</style>
 ${schemaTag}
@@ -1508,7 +1563,7 @@ ${schemaTag}
 <a class="skip" href="#main">Skip</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="${r(lang, "home")}">${e(SITE.name)}<small>${e(SITE.tagline[lang])}</small></a>
+    <a class="logo" href="${r(lang, "home")}" aria-label="${e(SITE.name)}"><span class="logo-img" aria-hidden="true"></span></a>
     <button class="menu-toggle" aria-controls="nav" aria-expanded="false" aria-label="${e(ui.menu)}">${ICON.menu}</button>
     <nav class="nav" id="nav" aria-label="Main">
       <ul>${navItems}</ul>
@@ -1524,7 +1579,7 @@ ${body}
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-top">
-      <a class="logo" href="${r(lang, "home")}">${e(SITE.name)}<small>${e(SITE.tagline[lang])}</small></a>
+      <a class="logo" href="${r(lang, "home")}" aria-label="${e(SITE.name)}"><span class="logo-img" aria-hidden="true"></span><small>${e(SITE.tagline[lang])}</small></a>
       <ul class="footer-nav">${footerNav}</ul>
       <div class="socials">
         <a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${ICON.ig}</a>
@@ -1551,6 +1606,7 @@ function businessSchema(c, lang) {
     name: SITE.name,
     description: t(c.home, lang).desc,
     url: SITE.url + r(lang, "home"),
+    logo: SITE.url + "/assets/img/icon-512.png",
     image: SITE.url + (c.hero && c.hero.desktop[0] || "/assets/img/hero-1.jpg"),
     telephone: c.contact.phone,
     email: c.contact.email,
@@ -1573,7 +1629,7 @@ function home(c, lang) {
   const tiles = c.tiles.map((tl) => `<a class="tile reveal" href="${r(lang, tl.key)}">${img(small(tl.img), "", { w: 900, h: 1100 })}<div><span class="tile-label">${e(nav[tl.key])}</span><span class="tile-sub">${e(t(c.tile_sub, lang)[tl.key])}</span></div></a>`).join("");
   const services = c.services[lang].map((s) => `<div class="service"><h3>${e(s.title)}</h3><p>${e(s.text)}</p></div>`).join("");
   const stats = c.stats[lang].map((s) => `<div class="stat"><strong>${e(s.num)}</strong><span>${e(s.label)}</span></div>`).join("");
-  const testi = c.testimonials[lang].map((x) => `<figure class="testimonial reveal">${img(small(x.img), "", { w: 300, h: 300 })}<blockquote>\u201E${e(x.quote)}\u201D</blockquote><cite>${e(x.who)}</cite></figure>`).join("");
+  const testi = ((c.testimonials || {})[lang] || []).filter((x) => x.quote).map((x) => `<figure class="testimonial reveal">${x.img ? img(small(x.img), "", { w: 300, h: 300 }) : ""}<blockquote>\u201E${e(x.quote)}\u201D</blockquote><cite>${e(x.who)}</cite></figure>`).join("");
   const ig = c.instagram_imgs.map((src) => `<a href="${e(safeUrl(c.contact.instagram))}" target="_blank" rel="noopener" aria-label="Instagram">${img(small(src), "", { w: 600, h: 600 })}</a>`).join("");
   const n = Math.max(desktop.length, 1);
   const body = `
@@ -1632,12 +1688,12 @@ function home(c, lang) {
   </div>
 </section>
 
-<section class="section section--tint">
+${testi ? `<section class="section section--tint">
   <div class="wrap">
     <h2 class="h-lg center reveal">${e(h.testimonials_title)}</h2>
     <div class="testimonials">${testi}</div>
   </div>
-</section>
+</section>` : ""}
 
 <section class="section cta">
   ${img(c.cta_img, "", { w: 1600, h: 900 })}
@@ -1840,7 +1896,7 @@ var worker_default = {
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
       const media = await serveMedia(env, p, ctx, req);
       if (media) return media;
-      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt") {
+      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico") {
         if (p === "/admin") return Response.redirect(url2.origin + "/admin/", 301);
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);

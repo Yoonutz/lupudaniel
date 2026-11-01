@@ -176,15 +176,14 @@ STATS = {
     "en": [("~8", "years behind the camera"), ("6", "portfolio awards"), ("100%", "natural light"), ("∞", "happy to travel")],
 }
 
-# PLACEHOLDER testimonials: replace with real reviews (FB / fotografi-cameramani.ro)
+# Real client reviews (verified on fotografi-cameramani.ro), trimmed. Image is optional ("" = no photo).
+# More can be added from the admin (Pagina tab).
 TESTIMONIALS = {
     "ro": [
-        ("client-1.jpg", "Dan a prins momente pe care nici nu știam că s-au întâmplat. Am uitat complet că e acolo, și asta se vede în poze.", "Exemplu · Andreea & Mihai"),
-        ("client-2.jpg", "Super răbdător și relaxat, chiar și cu noi, care suntem cei mai timizi oameni din lume. Pozele sunt superbe.", "Exemplu · Ioana & Radu"),
+        ("", "Fotografiile, de la sosirea la primărie și până la ședința foto alături de invitați, au ieșit absolut superbe. A reușit să surprindă… gesturi și priviri spontane pe care noi nici măcar nu le-am observat. Nu suntem persoane foarte confortabile în fața camerei, însă a creat o atmosferă relaxată și naturală.", "Laura Ștefania · Cununie civilă, Brașov"),
     ],
     "en": [
-        ("client-1.jpg", "Dan caught moments we didn't even know happened. We completely forgot he was there, and it shows in the photos.", "Sample · Andreea & Mihai"),
-        ("client-2.jpg", "So patient and relaxed, even with us, the shyest people alive. The photos are gorgeous.", "Sample · Ioana & Radu"),
+        ("", "The photos, from arriving at the town hall to the shoot with our guests, came out absolutely beautiful. He caught… spontaneous gestures and looks we didn't even notice. We're not comfortable in front of the camera, but he made it relaxed and natural.", "Laura Ștefania · Civil ceremony, Brașov"),
     ],
 }
 
