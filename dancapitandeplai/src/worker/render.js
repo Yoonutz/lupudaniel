@@ -68,15 +68,15 @@ const OTHER = { ro: "en", en: "ro" };
 const SEO = {
   ro: {
     home: ["Fotograf nuntă și botez Brașov · Dan Căpitan de Plai",
-      "Fotograf de nuntă și botez în Brașov: fotografie documentară, momente reale, lumină naturală. Cununii civile, evenimente și ședințe foto de familie. Cere o ofertă."],
+      "Fotograf de nuntă și botez în Brașov: fotografie documentară, momente reale, lumină naturală. Cununii civile, evenimente și ședințe foto de familie. Cereți o ofertă."],
     portfolio: ["Portofoliu fotograf nuntă și botez Brașov · Dan Căpitan de Plai",
       "Nunți, botezuri și cununii civile fotografiate în Brașov și împrejurimi. Fotografie de nuntă documentară: alege un eveniment și intră în ziua respectivă."],
     blog: ["Blog · Sfaturi de la un fotograf de nuntă din Brașov",
       "Sfaturi pentru miri și părinți de la un fotograf de nuntă și botez din Brașov: pregătiri, ședințe foto, cum să nu vă pierdeți pozele."],
-    faq: ["Întrebări frecvente · Prețuri fotograf nuntă și botez Brașov",
-      "Cât costă un fotograf de nuntă sau de botez în Brașov, cum lucrez și ce primiți. Răspunsuri scurte la ce mă întreabă cel mai des cuplurile."],
+    faq: ["Întrebări frecvente · Fotograf nuntă și botez Brașov",
+      "Cum lucrez, ce primiți și cum se stabilește oferta pentru o nuntă sau un botez în Brașov. Răspunsuri scurte la ce mă întreabă cel mai des cuplurile."],
     contact: ["Contact · Fotograf Brașov pentru nunți, botezuri și evenimente",
-      "Scrieți-mi data și locul: fotograf de nuntă, botez și evenimente în Brașov. Ofertă personalizată de preț, răspund de obicei în aceeași zi."],
+      "Scrieți-mi data și locul: fotograf de nuntă, botez și evenimente în Brașov. Ofertă personalizată; de obicei răspund în aceeași zi."],
   },
   en: {
     home: ["Wedding & christening photographer in Brașov · Dan Căpitan de Plai",
@@ -85,8 +85,8 @@ const SEO = {
       "Weddings, christenings and civil ceremonies photographed in and around Brașov, Romania. Documentary wedding photography: pick an event and step into that day."],
     blog: ["Blog · Tips from a Brașov wedding photographer",
       "Tips for couples and parents from a wedding and christening photographer in Brașov: getting ready, photo sessions and how not to lose your photos."],
-    faq: ["FAQ · Wedding photographer prices in Brașov",
-      "What a wedding or christening photographer in Brașov costs, how I work and what you get. Short answers to what couples ask me most."],
+    faq: ["FAQ · Wedding and christening photographer in Brașov",
+      "How I work, what you get and how the quote is worked out for a wedding or christening in Brașov. Short answers to what couples ask me most."],
     contact: ["Contact · Photographer in Brașov for weddings and events",
       "Send me your date and place: wedding, christening and event photographer in Brașov, Romania. Tailored quote, I usually reply the same day."],
   },
@@ -233,7 +233,7 @@ function businessSchema(c, lang) {
   return {
     "@context": "https://schema.org", "@type": "ProfessionalService", name: SITE.name,
     description: t(c.home, lang).desc, url: SITE.url + r(lang, "home"), logo: SITE.url + "/assets/img/icon-512.png", image: SITE.url + ((c.hero && c.hero.desktop[0]) || "/assets/img/hero-1.jpg"),
-    telephone: c.contact.phone, email: c.contact.email, priceRange: "€€", areaServed: [{ "@type": "City", name: "Brașov" }, "Romania"],
+    telephone: c.contact.phone, email: c.contact.email, areaServed: [{ "@type": "City", name: "Brașov" }, "Romania"],
     knowsAbout: lang === "ro" ? ["fotografie de nuntă", "fotograf botez", "fotograf cununie civilă", "fotograf evenimente", "ședință foto familie"] : ["wedding photography", "christening photography", "civil ceremony photography", "event photography", "family photo sessions"],
     address: { "@type": "PostalAddress", addressLocality: "Brașov", addressCountry: "RO" },
     sameAs: [c.contact.facebook, c.contact.instagram].filter(Boolean), founder: { "@type": "Person", name: "Daniel Lupu" },
@@ -494,22 +494,22 @@ const LANDING = {
     cats: ["nunta", "cununie", "after"],
     ro: {
       h1: "Fotograf nuntă Brașov",
-      title: "Fotograf nuntă Brașov: prețuri și portofoliu · Dan Căpitan de Plai",
-      desc: "Fotograf de nuntă în Brașov: fotografie de nuntă documentară, momente reale, lumină naturală. Nunți, cununii civile și after-wedding. Prețuri de la aprox. 1.000 EUR.",
-      lead: "Fotografie documentară de nuntă în Brașov. Vă las să vă trăiți ziua, eu prind momentele reale.",
+      title: "Fotograf nuntă Brașov: portofoliu și ofertă · Dan Căpitan de Plai",
+      desc: "Fotograf de nuntă în Brașov: fotografie de nuntă documentară, momente reale, lumină naturală. Nunți, cununii civile și after-wedding, cu ofertă personalizată.",
+      lead: "Fotografie documentară de nuntă în Brașov. Voi vă trăiți ziua, eu surprind momentele reale.",
       sections: [
         ["Cum lucrez la nuntă", [
-          "Sunt cu voi toată ziua, de la pregătiri până la petrecere. Nu vă cer să pozați și nu opresc ziua pentru poze. Stau aproape, discret, și fotografiez ce se întâmplă de fapt: emoția părinților, glumele prietenilor, privirile dintre voi.",
-          "Lucrez cu lumină naturală. Dacă sunteți timizi în fața aparatului, e perfect: majoritatea cuplurilor uită de mine după primele minute.",
+          "Sunt alături de voi toată ziua, de la pregătiri până la petrecere. Nu vă cer să pozați și nu opresc nimic pentru fotografii. Stau aproape, discret, și fotografiez ce se întâmplă cu adevărat: emoția părinților, glumele prietenilor, privirile dintre voi.",
+          "Lucrez cu lumină naturală. Dacă sunteți timizi în fața aparatului, nu e nicio problemă: majoritatea cuplurilor uită de mine după primele minute.",
         ]],
         ["Unde fotografiez", [
-          "Sunt din Brașov și fotografiez nunți în oraș și în jur: Centrul Vechi, Poiana Brașov, conace și restaurante din zonă. Am lucrat, printre altele, la Conacul Albert și Naturalia Inn. Merg oriunde vreți voi; în afara Brașovului se adaugă transportul și cazarea.",
+          "Sunt din Brașov și fotografiez nunți în oraș și în împrejurimi: în Centrul Vechi, în Poiana Brașov, la conace și restaurante din zonă. Am lucrat, printre altele, la Conacul Albert și la Naturalia Inn. Merg oriunde vreți voi; în afara Brașovului, transportul și cazarea se plătesc separat.",
         ]],
-        ["Cât costă un fotograf de nuntă în Brașov", [
-          "Nu am pachete fixe. O nuntă completă pornește în jur de 1.000 EUR, iar oferta finală depinde de durată, locație și ce vă doriți. Scrieți-mi data și locul și vă trimit o ofertă personalizată.",
+        ["Ofertă personalizată pentru nunta voastră", [
+          "Nu am pachete fixe. Oferta depinde de durată, de locație și de ce vă doriți. Scrieți-mi data și locul, iar eu vă trimit o ofertă personalizată.",
         ]],
         ["Și după nuntă", [
-          "Pe lângă nunta propriu-zisă, fotografiez cununii civile la starea civilă din Brașov, ședințe after-wedding și Trash The Dress în munți, pentru o zi doar a voastră. Dacă vă trebuie un fotograf de cununie civilă în Brașov, doar pentru câteva ore, scrieți-mi.",
+          "Pe lângă nunta propriu-zisă, fotografiez cununii civile la starea civilă din Brașov, ședințe after-wedding și Trash The Dress la munte, pentru o zi doar a voastră. Dacă aveți nevoie de un fotograf de cununie civilă în Brașov doar pentru câteva ore, scrieți-mi.",
         ]],
       ],
       work: "Nunți fotografiate de mine",
@@ -517,7 +517,7 @@ const LANDING = {
     },
     en: {
       h1: "Wedding photographer in Brașov",
-      title: "Wedding photographer in Brașov: prices & portfolio · Dan Căpitan de Plai",
+      title: "Wedding photographer in Brașov: portfolio & quote · Dan Căpitan de Plai",
       desc: "Wedding photographer in Brașov, Romania: documentary photography, real moments, natural light. Weddings, civil ceremonies and after-wedding sessions in Brașov and anywhere you like.",
       lead: "Documentary wedding photography in Brașov. You enjoy your day, I catch the real moments.",
       sections: [
@@ -526,10 +526,10 @@ const LANDING = {
           "I work with natural light. If you're shy in front of the camera, that's perfect: most couples forget I'm there after the first few minutes.",
         ]],
         ["Where I shoot", [
-          "I'm based in Brașov and photograph weddings in the city and around it: the Old Town, Poiana Brașov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Brașov, travel and accommodation are added.",
+          "I'm based in Brașov and photograph weddings in the city and around it: the Old Town, Poiana Brașov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Brașov, travel and accommodation are charged separately.",
         ]],
-        ["What a wedding photographer in Brașov costs", [
-          "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote.",
+        ["A quote made for your wedding", [
+          "I don't do fixed packages. The quote depends on hours, location and what you'd like. Send me your date and place and I'll send you a tailored quote.",
         ]],
         ["After the wedding", [
           "Besides the wedding day, I photograph civil ceremonies, after-wedding sessions and Trash The Dress in the mountains: a day just for the two of you.",
@@ -543,22 +543,22 @@ const LANDING = {
     cats: ["botez", "familie"],
     ro: {
       h1: "Fotograf botez Brașov",
-      title: "Fotograf botez Brașov: prețuri și portofoliu · Dan Căpitan de Plai",
+      title: "Fotograf botez Brașov: portofoliu și ofertă · Dan Căpitan de Plai",
       desc: "Fotograf de botez în Brașov: momente reale de la biserică și de la petrecere, fără agitație, cu lumină naturală. Botezuri, ședințe foto de familie și nou-născuți.",
       lead: "Fotografie de botez în Brașov, fără agitație. Familia, nașii și cel mic, așa cum sunt.",
       sections: [
         ["Cum lucrez la botez", [
-          "Fotografiez de la pregătirile de acasă, la slujba de la biserică și până la petrecere. Nu opresc nimic pentru poze și nu stresez copilul: stau discret și prind momentele care contează, de la baia în cristelniță la zâmbetele bunicilor.",
-          "Lucrez cu lumină naturală și am răbdare cu cei mici. Copiii nu pozează, iar asta e exact ce iese cel mai frumos.",
+          "Fotografiez totul, de la pregătirile de acasă și slujba de la biserică până la petrecere. Nu opresc nimic pentru fotografii și nu stresez copilul: stau discret și surprind momentele care contează, de la cristelniță până la zâmbetele bunicilor.",
+          "Lucrez cu lumină naturală și am răbdare cu cei mici. Copiii nu pozează, și tocmai de aceea fotografiile lor ies cele mai frumoase.",
         ]],
         ["Unde fotografiez", [
-          "Sunt din Brașov și fotografiez botezuri în bisericile și restaurantele din oraș și din jur, inclusiv la Conacul Albert și Restaurant Adaggio. Merg și în afara Brașovului; atunci se adaugă transportul și cazarea.",
+          "Sunt din Brașov și fotografiez botezuri în bisericile și restaurantele din oraș și din împrejurimi, inclusiv la Conacul Albert și la Restaurant Adaggio. Merg și în afara Brașovului; în acest caz, transportul și cazarea se plătesc separat.",
         ]],
         ["Ședințe foto de familie și nou-născuți", [
-          "Dacă vreți mai multe amintiri cu cel mic, fac și ședințe foto de familie în Brașov, acasă sau în natură, și ședințe cu nou-născuți, cu blândețe și răbdare.",
+          "Dacă vreți mai multe amintiri cu cel mic, fac și ședințe foto de familie în Brașov, acasă sau în natură, precum și ședințe cu nou-născuți, cu blândețe și răbdare.",
         ]],
-        ["Cât costă un fotograf de botez în Brașov", [
-          "Nu am pachete fixe. Scrieți-mi data, biserica și locul petrecerii și vă trimit o ofertă personalizată.",
+        ["Ofertă personalizată pentru botez", [
+          "Nu am pachete fixe. Scrieți-mi data, biserica și locul petrecerii, iar eu vă trimit o ofertă personalizată.",
         ]],
       ],
       work: "Botezuri și familii fotografiate de mine",
@@ -566,7 +566,7 @@ const LANDING = {
     },
     en: {
       h1: "Christening photographer in Brașov",
-      title: "Christening photographer in Brașov: prices & portfolio · Dan Căpitan de Plai",
+      title: "Christening photographer in Brașov: portfolio & quote · Dan Căpitan de Plai",
       desc: "Christening (baptism) photographer in Brașov, Romania: real moments at church and at the party, no fuss, natural light. Christenings, family and newborn sessions.",
       lead: "Christening photography in Brașov, without the fuss. Family, godparents and the little one, just as they are.",
       sections: [
@@ -575,13 +575,13 @@ const LANDING = {
           "I work with natural light and I'm patient with little ones. Kids don't pose, and that's exactly what turns out best.",
         ]],
         ["Where I shoot", [
-          "I'm based in Brașov and photograph christenings in churches and restaurants in and around the city, including Conacul Albert and Restaurant Adaggio. I also travel outside Brașov; then travel and accommodation are added.",
+          "I'm based in Brașov and photograph christenings in churches and restaurants in and around the city, including Conacul Albert and Restaurant Adaggio. I also travel outside Brașov; then travel and accommodation are charged separately.",
         ]],
         ["Family and newborns", [
           "If you'd like more memories of your little one, I also do family sessions, at home or outdoors, and gentle, patient newborn sessions.",
         ]],
-        ["What a christening photographer in Brașov costs", [
-          "I don't do fixed packages. Send me the date, the church and the party venue and I'll send a tailored quote.",
+        ["A quote made for your christening", [
+          "I don't do fixed packages. Send me the date, the church and the party venue and I'll send you a tailored quote.",
         ]],
       ],
       work: "Christenings and families I've photographed",

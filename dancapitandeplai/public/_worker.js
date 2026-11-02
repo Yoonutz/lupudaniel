@@ -644,22 +644,22 @@ var seed_default = {
   faq: [
     {
       q: {
-        ro: "C\xE2t cost\u0103 fotografia de nunt\u0103?",
-        en: "How much does wedding photography cost?"
+        ro: "Cum se stabile\u0219te oferta?",
+        en: "How is the quote worked out?"
       },
       a: {
-        ro: "Nu am pachete fixe. O nunt\u0103 complet\u0103 porne\u0219te \xEEn jur de 1.000 EUR, iar oferta final\u0103 depinde de durat\u0103, loca\u021Bie \u0219i ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103.",
-        en: "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote."
+        ro: "Nu am pachete fixe. Oferta depinde de durat\u0103, de loca\u021Bie \u0219i de ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul, iar eu v\u0103 trimit o ofert\u0103 personalizat\u0103.",
+        en: "I don't do fixed packages. The quote depends on hours, location and what you'd like. Send me your date and place and I'll send you a tailored quote."
       }
     },
     {
       q: {
-        ro: "Ce nu e inclus \xEEn pre\u021B?",
-        en: "What isn't included?"
+        ro: "Ce nu este inclus \xEEn ofert\u0103?",
+        en: "What isn't included in the quote?"
       },
       a: {
-        ro: "Albumul tip\u0103rit, \u0219edin\u021Bele suplimentare (after-wedding, Trash The Dress) \u0219i al doilea fotograf se adaug\u0103 separat.",
-        en: "Printed albums, extra sessions (after-wedding, Trash The Dress) and a second photographer are added separately."
+        ro: "Albumul tip\u0103rit, \u0219edin\u021Bele suplimentare (after-wedding, Trash The Dress) \u0219i al doilea fotograf sunt op\u021Bionale \u0219i se pl\u0103tesc separat.",
+        en: "Printed albums, extra sessions (after-wedding, Trash The Dress) and a second photographer are optional and charged separately."
       }
     },
     {
@@ -668,8 +668,8 @@ var seed_default = {
         en: "Do you travel outside Bra\u0219ov?"
       },
       a: {
-        ro: "Da, merg oriunde vre\u021Bi voi. Pentru evenimentele din afara Bra\u0219ovului se adaug\u0103 transportul \u0219i cazarea.",
-        en: "Yes, I'll go wherever you want. For events outside Bra\u0219ov, travel and accommodation are added."
+        ro: "Da, merg oriunde vre\u021Bi voi. Pentru evenimentele din afara Bra\u0219ovului, transportul \u0219i cazarea se pl\u0103tesc separat.",
+        en: "Yes, I'll go wherever you want. For events outside Bra\u0219ov, travel and accommodation are charged separately."
       }
     },
     {
@@ -678,7 +678,7 @@ var seed_default = {
         en: "We're shy in front of the camera. Is that a problem?"
       },
       a: {
-        ro: "Deloc. Stilul meu e documentar: nu trebuie s\u0103 poza\u021Bi. Majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute.",
+        ro: "Deloc. Stilul meu este documentar, a\u0219a c\u0103 nu trebuie s\u0103 poza\u021Bi. Majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute.",
         en: "Not at all. My style is documentary: you don't need to pose. Most couples forget I'm there after the first few minutes."
       }
     },
@@ -698,7 +698,7 @@ var seed_default = {
         en: "How do we book a date?"
       },
       a: {
-        ro: "Scrie\u021Bi-mi pe WhatsApp sau pe email cu data \u0219i locul. Stabilim o discu\u021Bie, apoi confirm\u0103m data.",
+        ro: "Scrie\u021Bi-mi pe WhatsApp sau pe email data \u0219i locul. Stabilim o discu\u021Bie, apoi confirm\u0103m data.",
         en: "Message me on WhatsApp or email with your date and place. We'll have a quick chat, then confirm the date."
       }
     }
@@ -719,13 +719,13 @@ var seed_default = {
       ],
       contact: [
         "Contact",
-        "Spune-mi data, locul \u0219i c\xE2teva cuvinte despre voi. R\u0103spund de obicei \xEEn aceea\u0219i zi."
+        "Spune\u021Bi-mi data, locul \u0219i c\xE2teva cuvinte despre voi. De obicei r\u0103spund \xEEn aceea\u0219i zi."
       ],
       contact_side_title: "Bine de \u0219tiut",
       contact_side: [
-        "Oferta e personalizat\u0103, f\u0103r\u0103 pachete fixe (\xEEn jur de 1.000 EUR pentru o nunt\u0103).",
-        "Deplasez oriunde; \xEEn afara Bra\u0219ovului se adaug\u0103 transport \u0219i cazare.",
-        "Album, \u0219edin\u021Be extra \u0219i al doilea fotograf se adaug\u0103 separat."
+        "Fiecare ofert\u0103 este personalizat\u0103, f\u0103r\u0103 pachete fixe.",
+        "Merg oriunde; \xEEn afara Bra\u0219ovului, transportul \u0219i cazarea se pl\u0103tesc separat.",
+        "Albumul, \u0219edin\u021Bele suplimentare \u0219i al doilea fotograf sunt op\u021Bionale \u0219i se pl\u0103tesc separat."
       ],
       wa_label: "WhatsApp (preferat)",
       phone_label: "Telefon",
@@ -754,9 +754,9 @@ var seed_default = {
       ],
       contact_side_title: "Good to know",
       contact_side: [
-        "Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).",
-        "Happy to travel; outside Bra\u0219ov, travel and accommodation are added.",
-        "Albums, extra sessions and a second photographer are extra."
+        "Every quote is tailored; no fixed packages.",
+        "Happy to travel; outside Bra\u0219ov, travel and accommodation are charged separately.",
+        "Albums, extra sessions and a second photographer are optional and charged separately."
       ],
       wa_label: "WhatsApp (preferred)",
       phone_label: "Phone",
@@ -780,18 +780,18 @@ var seed_default = {
     },
     notes: {
       ro: [
-        "Oferta e personalizat\u0103, f\u0103r\u0103 pachete fixe (\xEEn jur de 1.000 EUR pentru o nunt\u0103).",
-        "Deplasez oriunde; \xEEn afara Bra\u0219ovului se adaug\u0103 transport \u0219i cazare.",
-        "Album, \u0219edin\u021Be extra \u0219i al doilea fotograf se adaug\u0103 separat."
+        "Fiecare ofert\u0103 este personalizat\u0103, f\u0103r\u0103 pachete fixe.",
+        "Merg oriunde; \xEEn afara Bra\u0219ovului, transportul \u0219i cazarea se pl\u0103tesc separat.",
+        "Albumul, \u0219edin\u021Bele suplimentare \u0219i al doilea fotograf sunt op\u021Bionale \u0219i se pl\u0103tesc separat."
       ],
       en: [
-        "Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).",
-        "Happy to travel; outside Bra\u0219ov, travel and accommodation are added.",
-        "Albums, extra sessions and a second photographer are extra."
+        "Every quote is tailored; no fixed packages.",
+        "Happy to travel; outside Bra\u0219ov, travel and accommodation are charged separately.",
+        "Albums, extra sessions and a second photographer are optional and charged separately."
       ]
     },
     intro: {
-      ro: "Spune-mi data, locul \u0219i c\xE2teva cuvinte despre voi. R\u0103spund de obicei \xEEn aceea\u0219i zi.",
+      ro: "Spune\u021Bi-mi data, locul \u0219i c\xE2teva cuvinte despre voi. De obicei r\u0103spund \xEEn aceea\u0219i zi.",
       en: "Tell me your date, place and a few words about you. I usually reply the same day."
     }
   }
@@ -807,6 +807,32 @@ var json = (data, status = 200, headers = {}) => new Response(JSON.stringify(dat
 var adminEmails = (env) => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com,ionut.filea@gmail.com").toLowerCase().split(",").map((s) => s.trim()).filter(Boolean);
 var CONTENT_URL = "https://cache.internal/site";
 var memo = { at: 0, data: null };
+var TEXT_FIXES = [
+  ["C\xE2t cost\u0103 fotografia de nunt\u0103?", "Cum se stabile\u0219te oferta?"],
+  ["Nu am pachete fixe. O nunt\u0103 complet\u0103 porne\u0219te \xEEn jur de 1.000 EUR, iar oferta final\u0103 depinde de durat\u0103, loca\u021Bie \u0219i ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103.", "Nu am pachete fixe. Oferta depinde de durat\u0103, de loca\u021Bie \u0219i de ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul, iar eu v\u0103 trimit o ofert\u0103 personalizat\u0103."],
+  ["Ce nu e inclus \xEEn pre\u021B?", "Ce nu este inclus \xEEn ofert\u0103?"],
+  ["Albumul tip\u0103rit, \u0219edin\u021Bele suplimentare (after-wedding, Trash The Dress) \u0219i al doilea fotograf se adaug\u0103 separat.", "Albumul tip\u0103rit, \u0219edin\u021Bele suplimentare (after-wedding, Trash The Dress) \u0219i al doilea fotograf sunt op\u021Bionale \u0219i se pl\u0103tesc separat."],
+  ["Da, merg oriunde vre\u021Bi voi. Pentru evenimentele din afara Bra\u0219ovului se adaug\u0103 transportul \u0219i cazarea.", "Da, merg oriunde vre\u021Bi voi. Pentru evenimentele din afara Bra\u0219ovului, transportul \u0219i cazarea se pl\u0103tesc separat."],
+  ["Deloc. Stilul meu e documentar: nu trebuie s\u0103 poza\u021Bi. Majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute.", "Deloc. Stilul meu este documentar, a\u0219a c\u0103 nu trebuie s\u0103 poza\u021Bi. Majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute."],
+  ["Scrie\u021Bi-mi pe WhatsApp sau pe email cu data \u0219i locul. Stabilim o discu\u021Bie, apoi confirm\u0103m data.", "Scrie\u021Bi-mi pe WhatsApp sau pe email data \u0219i locul. Stabilim o discu\u021Bie, apoi confirm\u0103m data."],
+  ["How much does wedding photography cost?", "How is the quote worked out?"],
+  ["I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote.", "I don't do fixed packages. The quote depends on hours, location and what you'd like. Send me your date and place and I'll send you a tailored quote."],
+  ["What isn't included?", "What isn't included in the quote?"],
+  ["Printed albums, extra sessions (after-wedding, Trash The Dress) and a second photographer are added separately.", "Printed albums, extra sessions (after-wedding, Trash The Dress) and a second photographer are optional and charged separately."],
+  ["Yes, I'll go wherever you want. For events outside Bra\u0219ov, travel and accommodation are added.", "Yes, I'll go wherever you want. For events outside Bra\u0219ov, travel and accommodation are charged separately."],
+  ["Spune-mi data, locul \u0219i c\xE2teva cuvinte despre voi. R\u0103spund de obicei \xEEn aceea\u0219i zi.", "Spune\u021Bi-mi data, locul \u0219i c\xE2teva cuvinte despre voi. De obicei r\u0103spund \xEEn aceea\u0219i zi."],
+  ["Oferta e personalizat\u0103, f\u0103r\u0103 pachete fixe (\xEEn jur de 1.000 EUR pentru o nunt\u0103).", "Fiecare ofert\u0103 este personalizat\u0103, f\u0103r\u0103 pachete fixe."],
+  ["Deplasez oriunde; \xEEn afara Bra\u0219ovului se adaug\u0103 transport \u0219i cazare.", "Merg oriunde; \xEEn afara Bra\u0219ovului, transportul \u0219i cazarea se pl\u0103tesc separat."],
+  ["Album, \u0219edin\u021Be extra \u0219i al doilea fotograf se adaug\u0103 separat.", "Albumul, \u0219edin\u021Bele suplimentare \u0219i al doilea fotograf sunt op\u021Bionale \u0219i se pl\u0103tesc separat."],
+  ["Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).", "Every quote is tailored; no fixed packages."],
+  ["Happy to travel; outside Bra\u0219ov, travel and accommodation are added.", "Happy to travel; outside Bra\u0219ov, travel and accommodation are charged separately."],
+  ["Albums, extra sessions and a second photographer are extra.", "Albums, extra sessions and a second photographer are optional and charged separately."]
+];
+function fixText(saved) {
+  let s = JSON.stringify(saved);
+  for (const [a, b] of TEXT_FIXES) s = s.split(JSON.stringify(a).slice(1, -1)).join(JSON.stringify(b).slice(1, -1));
+  return JSON.parse(s);
+}
 async function getContent(env, ctx) {
   if (memo.data && Date.now() - memo.at < 3e4) return memo.data;
   const cache = caches.default;
@@ -820,6 +846,7 @@ async function getContent(env, ctx) {
     });
     ctx ? ctx.waitUntil(put) : await put;
   }
+  if (saved) saved = fixText(saved);
   const data = saved ? { ...seed_default, ...saved } : seed_default;
   if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = seed_default.testimonials;
   memo = { at: Date.now(), data };
@@ -1888,7 +1915,7 @@ var SEO = {
   ro: {
     home: [
       "Fotograf nunt\u0103 \u0219i botez Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
-      "Fotograf de nunt\u0103 \u0219i botez \xEEn Bra\u0219ov: fotografie documentar\u0103, momente reale, lumin\u0103 natural\u0103. Cununii civile, evenimente \u0219i \u0219edin\u021Be foto de familie. Cere o ofert\u0103."
+      "Fotograf de nunt\u0103 \u0219i botez \xEEn Bra\u0219ov: fotografie documentar\u0103, momente reale, lumin\u0103 natural\u0103. Cununii civile, evenimente \u0219i \u0219edin\u021Be foto de familie. Cere\u021Bi o ofert\u0103."
     ],
     portfolio: [
       "Portofoliu fotograf nunt\u0103 \u0219i botez Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
@@ -1899,12 +1926,12 @@ var SEO = {
       "Sfaturi pentru miri \u0219i p\u0103rin\u021Bi de la un fotograf de nunt\u0103 \u0219i botez din Bra\u0219ov: preg\u0103tiri, \u0219edin\u021Be foto, cum s\u0103 nu v\u0103 pierde\u021Bi pozele."
     ],
     faq: [
-      "\xCEntreb\u0103ri frecvente \xB7 Pre\u021Buri fotograf nunt\u0103 \u0219i botez Bra\u0219ov",
-      "C\xE2t cost\u0103 un fotograf de nunt\u0103 sau de botez \xEEn Bra\u0219ov, cum lucrez \u0219i ce primi\u021Bi. R\u0103spunsuri scurte la ce m\u0103 \xEEntreab\u0103 cel mai des cuplurile."
+      "\xCEntreb\u0103ri frecvente \xB7 Fotograf nunt\u0103 \u0219i botez Bra\u0219ov",
+      "Cum lucrez, ce primi\u021Bi \u0219i cum se stabile\u0219te oferta pentru o nunt\u0103 sau un botez \xEEn Bra\u0219ov. R\u0103spunsuri scurte la ce m\u0103 \xEEntreab\u0103 cel mai des cuplurile."
     ],
     contact: [
       "Contact \xB7 Fotograf Bra\u0219ov pentru nun\u021Bi, botezuri \u0219i evenimente",
-      "Scrie\u021Bi-mi data \u0219i locul: fotograf de nunt\u0103, botez \u0219i evenimente \xEEn Bra\u0219ov. Ofert\u0103 personalizat\u0103 de pre\u021B, r\u0103spund de obicei \xEEn aceea\u0219i zi."
+      "Scrie\u021Bi-mi data \u0219i locul: fotograf de nunt\u0103, botez \u0219i evenimente \xEEn Bra\u0219ov. Ofert\u0103 personalizat\u0103; de obicei r\u0103spund \xEEn aceea\u0219i zi."
     ]
   },
   en: {
@@ -1921,8 +1948,8 @@ var SEO = {
       "Tips for couples and parents from a wedding and christening photographer in Bra\u0219ov: getting ready, photo sessions and how not to lose your photos."
     ],
     faq: [
-      "FAQ \xB7 Wedding photographer prices in Bra\u0219ov",
-      "What a wedding or christening photographer in Bra\u0219ov costs, how I work and what you get. Short answers to what couples ask me most."
+      "FAQ \xB7 Wedding and christening photographer in Bra\u0219ov",
+      "How I work, what you get and how the quote is worked out for a wedding or christening in Bra\u0219ov. Short answers to what couples ask me most."
     ],
     contact: [
       "Contact \xB7 Photographer in Bra\u0219ov for weddings and events",
@@ -2063,7 +2090,6 @@ function businessSchema(c, lang) {
     image: SITE.url + (c.hero && c.hero.desktop[0] || "/assets/img/hero-1.jpg"),
     telephone: c.contact.phone,
     email: c.contact.email,
-    priceRange: "\u20AC\u20AC",
     areaServed: [{ "@type": "City", name: "Bra\u0219ov" }, "Romania"],
     knowsAbout: lang === "ro" ? ["fotografie de nunt\u0103", "fotograf botez", "fotograf cununie civil\u0103", "fotograf evenimente", "\u0219edin\u021B\u0103 foto familie"] : ["wedding photography", "christening photography", "civil ceremony photography", "event photography", "family photo sessions"],
     address: { "@type": "PostalAddress", addressLocality: "Bra\u0219ov", addressCountry: "RO" },
@@ -2323,22 +2349,22 @@ var LANDING = {
     cats: ["nunta", "cununie", "after"],
     ro: {
       h1: "Fotograf nunt\u0103 Bra\u0219ov",
-      title: "Fotograf nunt\u0103 Bra\u0219ov: pre\u021Buri \u0219i portofoliu \xB7 Dan C\u0103pitan de Plai",
-      desc: "Fotograf de nunt\u0103 \xEEn Bra\u0219ov: fotografie de nunt\u0103 documentar\u0103, momente reale, lumin\u0103 natural\u0103. Nun\u021Bi, cununii civile \u0219i after-wedding. Pre\u021Buri de la aprox. 1.000 EUR.",
-      lead: "Fotografie documentar\u0103 de nunt\u0103 \xEEn Bra\u0219ov. V\u0103 las s\u0103 v\u0103 tr\u0103i\u021Bi ziua, eu prind momentele reale.",
+      title: "Fotograf nunt\u0103 Bra\u0219ov: portofoliu \u0219i ofert\u0103 \xB7 Dan C\u0103pitan de Plai",
+      desc: "Fotograf de nunt\u0103 \xEEn Bra\u0219ov: fotografie de nunt\u0103 documentar\u0103, momente reale, lumin\u0103 natural\u0103. Nun\u021Bi, cununii civile \u0219i after-wedding, cu ofert\u0103 personalizat\u0103.",
+      lead: "Fotografie documentar\u0103 de nunt\u0103 \xEEn Bra\u0219ov. Voi v\u0103 tr\u0103i\u021Bi ziua, eu surprind momentele reale.",
       sections: [
         ["Cum lucrez la nunt\u0103", [
-          "Sunt cu voi toat\u0103 ziua, de la preg\u0103tiri p\xE2n\u0103 la petrecere. Nu v\u0103 cer s\u0103 poza\u021Bi \u0219i nu opresc ziua pentru poze. Stau aproape, discret, \u0219i fotografiez ce se \xEEnt\xE2mpl\u0103 de fapt: emo\u021Bia p\u0103rin\u021Bilor, glumele prietenilor, privirile dintre voi.",
-          "Lucrez cu lumin\u0103 natural\u0103. Dac\u0103 sunte\u021Bi timizi \xEEn fa\u021Ba aparatului, e perfect: majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute."
+          "Sunt al\u0103turi de voi toat\u0103 ziua, de la preg\u0103tiri p\xE2n\u0103 la petrecere. Nu v\u0103 cer s\u0103 poza\u021Bi \u0219i nu opresc nimic pentru fotografii. Stau aproape, discret, \u0219i fotografiez ce se \xEEnt\xE2mpl\u0103 cu adev\u0103rat: emo\u021Bia p\u0103rin\u021Bilor, glumele prietenilor, privirile dintre voi.",
+          "Lucrez cu lumin\u0103 natural\u0103. Dac\u0103 sunte\u021Bi timizi \xEEn fa\u021Ba aparatului, nu e nicio problem\u0103: majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute."
         ]],
         ["Unde fotografiez", [
-          "Sunt din Bra\u0219ov \u0219i fotografiez nun\u021Bi \xEEn ora\u0219 \u0219i \xEEn jur: Centrul Vechi, Poiana Bra\u0219ov, conace \u0219i restaurante din zon\u0103. Am lucrat, printre altele, la Conacul Albert \u0219i Naturalia Inn. Merg oriunde vre\u021Bi voi; \xEEn afara Bra\u0219ovului se adaug\u0103 transportul \u0219i cazarea."
+          "Sunt din Bra\u0219ov \u0219i fotografiez nun\u021Bi \xEEn ora\u0219 \u0219i \xEEn \xEEmprejurimi: \xEEn Centrul Vechi, \xEEn Poiana Bra\u0219ov, la conace \u0219i restaurante din zon\u0103. Am lucrat, printre altele, la Conacul Albert \u0219i la Naturalia Inn. Merg oriunde vre\u021Bi voi; \xEEn afara Bra\u0219ovului, transportul \u0219i cazarea se pl\u0103tesc separat."
         ]],
-        ["C\xE2t cost\u0103 un fotograf de nunt\u0103 \xEEn Bra\u0219ov", [
-          "Nu am pachete fixe. O nunt\u0103 complet\u0103 porne\u0219te \xEEn jur de 1.000 EUR, iar oferta final\u0103 depinde de durat\u0103, loca\u021Bie \u0219i ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103."
+        ["Ofert\u0103 personalizat\u0103 pentru nunta voastr\u0103", [
+          "Nu am pachete fixe. Oferta depinde de durat\u0103, de loca\u021Bie \u0219i de ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul, iar eu v\u0103 trimit o ofert\u0103 personalizat\u0103."
         ]],
         ["\u0218i dup\u0103 nunt\u0103", [
-          "Pe l\xE2ng\u0103 nunta propriu-zis\u0103, fotografiez cununii civile la starea civil\u0103 din Bra\u0219ov, \u0219edin\u021Be after-wedding \u0219i Trash The Dress \xEEn mun\u021Bi, pentru o zi doar a voastr\u0103. Dac\u0103 v\u0103 trebuie un fotograf de cununie civil\u0103 \xEEn Bra\u0219ov, doar pentru c\xE2teva ore, scrie\u021Bi-mi."
+          "Pe l\xE2ng\u0103 nunta propriu-zis\u0103, fotografiez cununii civile la starea civil\u0103 din Bra\u0219ov, \u0219edin\u021Be after-wedding \u0219i Trash The Dress la munte, pentru o zi doar a voastr\u0103. Dac\u0103 ave\u021Bi nevoie de un fotograf de cununie civil\u0103 \xEEn Bra\u0219ov doar pentru c\xE2teva ore, scrie\u021Bi-mi."
         ]]
       ],
       work: "Nun\u021Bi fotografiate de mine",
@@ -2346,7 +2372,7 @@ var LANDING = {
     },
     en: {
       h1: "Wedding photographer in Bra\u0219ov",
-      title: "Wedding photographer in Bra\u0219ov: prices & portfolio \xB7 Dan C\u0103pitan de Plai",
+      title: "Wedding photographer in Bra\u0219ov: portfolio & quote \xB7 Dan C\u0103pitan de Plai",
       desc: "Wedding photographer in Bra\u0219ov, Romania: documentary photography, real moments, natural light. Weddings, civil ceremonies and after-wedding sessions in Bra\u0219ov and anywhere you like.",
       lead: "Documentary wedding photography in Bra\u0219ov. You enjoy your day, I catch the real moments.",
       sections: [
@@ -2355,10 +2381,10 @@ var LANDING = {
           "I work with natural light. If you're shy in front of the camera, that's perfect: most couples forget I'm there after the first few minutes."
         ]],
         ["Where I shoot", [
-          "I'm based in Bra\u0219ov and photograph weddings in the city and around it: the Old Town, Poiana Bra\u0219ov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Bra\u0219ov, travel and accommodation are added."
+          "I'm based in Bra\u0219ov and photograph weddings in the city and around it: the Old Town, Poiana Bra\u0219ov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Bra\u0219ov, travel and accommodation are charged separately."
         ]],
-        ["What a wedding photographer in Bra\u0219ov costs", [
-          "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote."
+        ["A quote made for your wedding", [
+          "I don't do fixed packages. The quote depends on hours, location and what you'd like. Send me your date and place and I'll send you a tailored quote."
         ]],
         ["After the wedding", [
           "Besides the wedding day, I photograph civil ceremonies, after-wedding sessions and Trash The Dress in the mountains: a day just for the two of you."
@@ -2372,22 +2398,22 @@ var LANDING = {
     cats: ["botez", "familie"],
     ro: {
       h1: "Fotograf botez Bra\u0219ov",
-      title: "Fotograf botez Bra\u0219ov: pre\u021Buri \u0219i portofoliu \xB7 Dan C\u0103pitan de Plai",
+      title: "Fotograf botez Bra\u0219ov: portofoliu \u0219i ofert\u0103 \xB7 Dan C\u0103pitan de Plai",
       desc: "Fotograf de botez \xEEn Bra\u0219ov: momente reale de la biseric\u0103 \u0219i de la petrecere, f\u0103r\u0103 agita\u021Bie, cu lumin\u0103 natural\u0103. Botezuri, \u0219edin\u021Be foto de familie \u0219i nou-n\u0103scu\u021Bi.",
       lead: "Fotografie de botez \xEEn Bra\u0219ov, f\u0103r\u0103 agita\u021Bie. Familia, na\u0219ii \u0219i cel mic, a\u0219a cum sunt.",
       sections: [
         ["Cum lucrez la botez", [
-          "Fotografiez de la preg\u0103tirile de acas\u0103, la slujba de la biseric\u0103 \u0219i p\xE2n\u0103 la petrecere. Nu opresc nimic pentru poze \u0219i nu stresez copilul: stau discret \u0219i prind momentele care conteaz\u0103, de la baia \xEEn cristelni\u021B\u0103 la z\xE2mbetele bunicilor.",
-          "Lucrez cu lumin\u0103 natural\u0103 \u0219i am r\u0103bdare cu cei mici. Copiii nu pozeaz\u0103, iar asta e exact ce iese cel mai frumos."
+          "Fotografiez totul, de la preg\u0103tirile de acas\u0103 \u0219i slujba de la biseric\u0103 p\xE2n\u0103 la petrecere. Nu opresc nimic pentru fotografii \u0219i nu stresez copilul: stau discret \u0219i surprind momentele care conteaz\u0103, de la cristelni\u021B\u0103 p\xE2n\u0103 la z\xE2mbetele bunicilor.",
+          "Lucrez cu lumin\u0103 natural\u0103 \u0219i am r\u0103bdare cu cei mici. Copiii nu pozeaz\u0103, \u0219i tocmai de aceea fotografiile lor ies cele mai frumoase."
         ]],
         ["Unde fotografiez", [
-          "Sunt din Bra\u0219ov \u0219i fotografiez botezuri \xEEn bisericile \u0219i restaurantele din ora\u0219 \u0219i din jur, inclusiv la Conacul Albert \u0219i Restaurant Adaggio. Merg \u0219i \xEEn afara Bra\u0219ovului; atunci se adaug\u0103 transportul \u0219i cazarea."
+          "Sunt din Bra\u0219ov \u0219i fotografiez botezuri \xEEn bisericile \u0219i restaurantele din ora\u0219 \u0219i din \xEEmprejurimi, inclusiv la Conacul Albert \u0219i la Restaurant Adaggio. Merg \u0219i \xEEn afara Bra\u0219ovului; \xEEn acest caz, transportul \u0219i cazarea se pl\u0103tesc separat."
         ]],
         ["\u0218edin\u021Be foto de familie \u0219i nou-n\u0103scu\u021Bi", [
-          "Dac\u0103 vre\u021Bi mai multe amintiri cu cel mic, fac \u0219i \u0219edin\u021Be foto de familie \xEEn Bra\u0219ov, acas\u0103 sau \xEEn natur\u0103, \u0219i \u0219edin\u021Be cu nou-n\u0103scu\u021Bi, cu bl\xE2nde\u021Be \u0219i r\u0103bdare."
+          "Dac\u0103 vre\u021Bi mai multe amintiri cu cel mic, fac \u0219i \u0219edin\u021Be foto de familie \xEEn Bra\u0219ov, acas\u0103 sau \xEEn natur\u0103, precum \u0219i \u0219edin\u021Be cu nou-n\u0103scu\u021Bi, cu bl\xE2nde\u021Be \u0219i r\u0103bdare."
         ]],
-        ["C\xE2t cost\u0103 un fotograf de botez \xEEn Bra\u0219ov", [
-          "Nu am pachete fixe. Scrie\u021Bi-mi data, biserica \u0219i locul petrecerii \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103."
+        ["Ofert\u0103 personalizat\u0103 pentru botez", [
+          "Nu am pachete fixe. Scrie\u021Bi-mi data, biserica \u0219i locul petrecerii, iar eu v\u0103 trimit o ofert\u0103 personalizat\u0103."
         ]]
       ],
       work: "Botezuri \u0219i familii fotografiate de mine",
@@ -2395,7 +2421,7 @@ var LANDING = {
     },
     en: {
       h1: "Christening photographer in Bra\u0219ov",
-      title: "Christening photographer in Bra\u0219ov: prices & portfolio \xB7 Dan C\u0103pitan de Plai",
+      title: "Christening photographer in Bra\u0219ov: portfolio & quote \xB7 Dan C\u0103pitan de Plai",
       desc: "Christening (baptism) photographer in Bra\u0219ov, Romania: real moments at church and at the party, no fuss, natural light. Christenings, family and newborn sessions.",
       lead: "Christening photography in Bra\u0219ov, without the fuss. Family, godparents and the little one, just as they are.",
       sections: [
@@ -2404,13 +2430,13 @@ var LANDING = {
           "I work with natural light and I'm patient with little ones. Kids don't pose, and that's exactly what turns out best."
         ]],
         ["Where I shoot", [
-          "I'm based in Bra\u0219ov and photograph christenings in churches and restaurants in and around the city, including Conacul Albert and Restaurant Adaggio. I also travel outside Bra\u0219ov; then travel and accommodation are added."
+          "I'm based in Bra\u0219ov and photograph christenings in churches and restaurants in and around the city, including Conacul Albert and Restaurant Adaggio. I also travel outside Bra\u0219ov; then travel and accommodation are charged separately."
         ]],
         ["Family and newborns", [
           "If you'd like more memories of your little one, I also do family sessions, at home or outdoors, and gentle, patient newborn sessions."
         ]],
-        ["What a christening photographer in Bra\u0219ov costs", [
-          "I don't do fixed packages. Send me the date, the church and the party venue and I'll send a tailored quote."
+        ["A quote made for your christening", [
+          "I don't do fixed packages. Send me the date, the church and the party venue and I'll send you a tailored quote."
         ]]
       ],
       work: "Christenings and families I've photographed",

@@ -22,6 +22,34 @@ const adminEmails = env => String(env.ADMIN_EMAILS || "lupudaniel.foto@gmail.com
 // other locations catch up within a minute.
 const CONTENT_URL = "https://cache.internal/site";
 let memo = { at: 0, data: null };
+// Text fixes for content already saved in KV (Ionut, 2026-11-02: no prices on the site,
+// natural Romanian). Applied on read, so the next admin save stores the fixed text.
+const TEXT_FIXES = [
+  ["Cât costă fotografia de nuntă?", "Cum se stabilește oferta?"],
+  ["Nu am pachete fixe. O nuntă completă pornește în jur de 1.000 EUR, iar oferta finală depinde de durată, locație și ce vă doriți. Scrieți-mi data și locul și vă trimit o ofertă personalizată.", "Nu am pachete fixe. Oferta depinde de durată, de locație și de ce vă doriți. Scrieți-mi data și locul, iar eu vă trimit o ofertă personalizată."],
+  ["Ce nu e inclus în preț?", "Ce nu este inclus în ofertă?"],
+  ["Albumul tipărit, ședințele suplimentare (after-wedding, Trash The Dress) și al doilea fotograf se adaugă separat.", "Albumul tipărit, ședințele suplimentare (after-wedding, Trash The Dress) și al doilea fotograf sunt opționale și se plătesc separat."],
+  ["Da, merg oriunde vreți voi. Pentru evenimentele din afara Brașovului se adaugă transportul și cazarea.", "Da, merg oriunde vreți voi. Pentru evenimentele din afara Brașovului, transportul și cazarea se plătesc separat."],
+  ["Deloc. Stilul meu e documentar: nu trebuie să pozați. Majoritatea cuplurilor uită de mine după primele minute.", "Deloc. Stilul meu este documentar, așa că nu trebuie să pozați. Majoritatea cuplurilor uită de mine după primele minute."],
+  ["Scrieți-mi pe WhatsApp sau pe email cu data și locul. Stabilim o discuție, apoi confirmăm data.", "Scrieți-mi pe WhatsApp sau pe email data și locul. Stabilim o discuție, apoi confirmăm data."],
+  ["How much does wedding photography cost?", "How is the quote worked out?"],
+  ["I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote.", "I don't do fixed packages. The quote depends on hours, location and what you'd like. Send me your date and place and I'll send you a tailored quote."],
+  ["What isn't included?", "What isn't included in the quote?"],
+  ["Printed albums, extra sessions (after-wedding, Trash The Dress) and a second photographer are added separately.", "Printed albums, extra sessions (after-wedding, Trash The Dress) and a second photographer are optional and charged separately."],
+  ["Yes, I'll go wherever you want. For events outside Brașov, travel and accommodation are added.", "Yes, I'll go wherever you want. For events outside Brașov, travel and accommodation are charged separately."],
+  ["Spune-mi data, locul și câteva cuvinte despre voi. Răspund de obicei în aceeași zi.", "Spuneți-mi data, locul și câteva cuvinte despre voi. De obicei răspund în aceeași zi."],
+  ["Oferta e personalizată, fără pachete fixe (în jur de 1.000 EUR pentru o nuntă).", "Fiecare ofertă este personalizată, fără pachete fixe."],
+  ["Deplasez oriunde; în afara Brașovului se adaugă transport și cazare.", "Merg oriunde; în afara Brașovului, transportul și cazarea se plătesc separat."],
+  ["Album, ședințe extra și al doilea fotograf se adaugă separat.", "Albumul, ședințele suplimentare și al doilea fotograf sunt opționale și se plătesc separat."],
+  ["Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).", "Every quote is tailored; no fixed packages."],
+  ["Happy to travel; outside Brașov, travel and accommodation are added.", "Happy to travel; outside Brașov, travel and accommodation are charged separately."],
+  ["Albums, extra sessions and a second photographer are extra.", "Albums, extra sessions and a second photographer are optional and charged separately."],
+];
+function fixText(saved) {
+  let s = JSON.stringify(saved);
+  for (const [a, b] of TEXT_FIXES) s = s.split(JSON.stringify(a).slice(1, -1)).join(JSON.stringify(b).slice(1, -1));
+  return JSON.parse(s);
+}
 export async function getContent(env, ctx) {
   if (memo.data && Date.now() - memo.at < 30_000) return memo.data;
   const cache = caches.default;
@@ -34,6 +62,7 @@ export async function getContent(env, ctx) {
     const put = cache.put(CONTENT_URL, res).catch(() => {});
     ctx ? ctx.waitUntil(put) : await put;
   }
+  if (saved) saved = fixText(saved);
   const data = saved ? { ...SEED, ...saved } : SEED;
   // Old saves still carry the sample reviews; show the real ones from the seed instead
   if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = SEED.testimonials;
