@@ -561,8 +561,6 @@
   }
   function ranked(title, rows, label, metric) {
     metric = metric || 'visits';
-    // The very first rows were counted before page/country/device were kept
-    var lbl = label; label = function (k) { return k === '(necunoscut)' ? 'Necunoscut (primele vizite)' : lbl(k); };
     var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r[metric]; }).concat([0])));
     return h('div', { class: 'panel' },
       h('div', { class: 'panel-head' }, h('h2', { text: title })),

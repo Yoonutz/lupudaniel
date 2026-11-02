@@ -1104,8 +1104,7 @@ async function ownStats(env, days, since) {
   await ensureViews(db);
   const now = Date.now(), d = (n) => roDay(new Date(now - n * 864e5));
   const from = d(days - 1), prevFrom = d(2 * days - 1), sinceMs = Date.parse(since) || 0;
-  const ALL = `(SELECT day, ts, vid, entry, en, path, ref, country, device FROM views WHERE ts >= ${sinceMs}
-    UNION ALL SELECT day, NULL, vid, entry, en, '(necunoscut)', '(necunoscut)', '(necunoscut)', '(necunoscut)' FROM hits)`;
+  const ALL = `(SELECT day, ts, vid, entry, en, path, ref, country, device FROM views WHERE ts >= ${sinceMs})`;
   const q = (sql, ...args) => db.prepare(sql.replace("ALL", ALL)).bind(...args);
   const by = (col, metric, limit) => q(`SELECT ${col} AS key, count(*) AS views, sum(entry) AS visits FROM ALL WHERE day >= ?1 GROUP BY ${col} HAVING ${metric} > 0 ORDER BY ${metric} DESC, views DESC LIMIT ${limit}`, from);
   const res = await db.batch([

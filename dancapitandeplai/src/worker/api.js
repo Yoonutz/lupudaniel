@@ -395,7 +395,7 @@ const forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {});
 // (HMAC of IP + browser, never stored raw), whether it entered from outside (= a visit),
 // English or not, page, where the visit came from, country and device type.
 // EVERY number on the Statistici tab comes from this table, so tiles, chart and the four
-// breakdowns always add up. (Table `hits` = the first rows, before the details were kept.)
+// breakdowns always add up. (Old table `hits` had no details and is no longer read.)
 // D1 free tier: 100k writes/day, separate from the KV limits.
 const VIEWS_SCHEMA = [
   "CREATE TABLE IF NOT EXISTS views (day TEXT NOT NULL, ts INTEGER NOT NULL, vid TEXT NOT NULL, entry INTEGER NOT NULL, en INTEGER NOT NULL, path TEXT NOT NULL, ref TEXT NOT NULL, country TEXT NOT NULL, device TEXT NOT NULL)",
@@ -443,9 +443,9 @@ async function ownStats(env, days, since) {
   await ensureViews(db);
   const now = Date.now(), d = n => roDay(new Date(now - n * 864e5));
   const from = d(days - 1), prevFrom = d(2 * days - 1), sinceMs = Date.parse(since) || 0;
-  // Old rows (table hits) have no page/country/device: they show up as "(necunoscut)"
-  const ALL = `(SELECT day, ts, vid, entry, en, path, ref, country, device FROM views WHERE ts >= ${sinceMs}
-    UNION ALL SELECT day, NULL, vid, entry, en, '(necunoscut)', '(necunoscut)', '(necunoscut)', '(necunoscut)' FROM hits)`;
+  // Only rows with full details (table views). The old table `hits` (no page/country/device,
+  // written before 2 Nov 16:45 RO / during the switch) is left out, so nothing shows as unknown.
+  const ALL = `(SELECT day, ts, vid, entry, en, path, ref, country, device FROM views WHERE ts >= ${sinceMs})`;
   const q = (sql, ...args) => db.prepare(sql.replace("ALL", ALL)).bind(...args);
   const by = (col, metric, limit) =>
     q(`SELECT ${col} AS key, count(*) AS views, sum(entry) AS visits FROM ALL WHERE day >= ?1 GROUP BY ${col} HAVING ${metric} > 0 ORDER BY ${metric} DESC, views DESC LIMIT ${limit}`, from);
