@@ -801,9 +801,14 @@ async function verifyLink(req, env) {
 }
 async function quickLogin(req, env) {
   const body = await readJson(req, 1e3).catch(() => ({}));
-  const given = String(body.key || ""), want = String(env.ADMIN_KEY || "");
-  if (!want || await sha256(given) !== await sha256(want)) return json({ error: "bad_key" }, 403);
-  return startSession(env, adminEmails(env)[0]);
+  const given = await sha256(String(body.key || ""));
+  const want = String(env.ADMIN_KEY || ""), dev = String(env.DEV_LOGIN_KEY || "");
+  if (want && given === await sha256(want)) return startSession(env, adminEmails(env)[0]);
+  if (dev.length >= 32 && given === await sha256(dev)) {
+    const list2 = adminEmails(env), who = list2.includes("ionut.filea@gmail.com") ? "ionut.filea@gmail.com" : list2[0];
+    return startSession(env, who);
+  }
+  return json({ error: "bad_key" }, 403);
 }
 async function logout() {
   return json({ ok: true }, 200, { "set-cookie": "sid=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0" });
@@ -1047,26 +1052,52 @@ var day = (d) => d.toISOString().slice(0, 10);
 async function rumQuery(env, days) {
   const now = /* @__PURE__ */ new Date();
   const from = new Date(now.getTime() - (days - 1) * 864e5);
-  const prevFrom = new Date(from.getTime() - days * 864e5), prevTo = new Date(from.getTime() - 864e5);
+  const prevFrom = new Date(from.getTime() - days * 864e5);
+  const pieces = (start) => {
+    const out = [];
+    for (let i = 0; i < days; i += 7) {
+      const a2 = new Date(start.getTime() + i * 864e5), b = new Date(start.getTime() + Math.min(i + 6, days - 1) * 864e5);
+      out.push(`{siteTag:$s, date_geq:"${day(a2)}", date_leq:"${day(b)}"}`);
+    }
+    return out;
+  };
   const g = (alias, f, dims, order, limit) => `${alias}: rumPageloadEventsAdaptiveGroups(limit:${limit}, filter:${f}${order ? `, orderBy:[${order}]` : ""}){count sum{visits}${dims ? ` dimensions{${dims}}` : ""}}`;
-  const cur = `{siteTag:$s, date_geq:$from, date_leq:$to}`;
-  const query = `query($a:String!,$s:String!,$from:Date!,$to:Date!,$pf:Date!,$pt:Date!){viewer{accounts(filter:{accountTag:$a}){
-    ${g("total", cur, "", "", 1)}
-    ${g("prev", `{siteTag:$s, date_geq:$pf, date_leq:$pt}`, "", "", 1)}
-    ${g("daily", cur, "date", "date_ASC", 100)}
-    ${g("pages", cur, "requestPath", "count_DESC", 500)}
-    ${g("countries", cur, "countryName", "sum_visits_DESC", 50)}
-    ${g("devices", cur, "deviceType", "sum_visits_DESC", 10)}
-    ${g("refs", cur, "refererHost", "sum_visits_DESC", 50)}
-  }}}`;
+  const parts = [];
+  pieces(prevFrom).forEach((f, i) => parts.push(g(`prev${i}`, f, "", "", 1)));
+  pieces(from).forEach((f, i) => parts.push(
+    g(`daily${i}`, f, "date", "date_ASC", 10),
+    g(`pages${i}`, f, "requestPath", "count_DESC", 500),
+    g(`countries${i}`, f, "countryName", "sum_visits_DESC", 50),
+    g(`devices${i}`, f, "deviceType", "sum_visits_DESC", 10),
+    g(`refs${i}`, f, "refererHost", "sum_visits_DESC", 50)
+  ));
+  const query = `query($a:String!,$s:String!){viewer{accounts(filter:{accountTag:$a}){
+${parts.join("\n")}
+}}}`;
   const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
     method: "POST",
     headers: { authorization: "Bearer " + env.CF_ANALYTICS_TOKEN, "content-type": "application/json" },
-    body: JSON.stringify({ query, variables: { a: env.CF_ACCOUNT_ID, s: env.CF_RUM_SITE_TAG || RUM_SITE_TAG, from: day(from), to: day(now), pf: day(prevFrom), pt: day(prevTo) } })
+    body: JSON.stringify({ query, variables: { a: env.CF_ACCOUNT_ID, s: env.CF_RUM_SITE_TAG || RUM_SITE_TAG } })
   });
   const d = await res.json().catch(() => ({}));
-  const a = d?.data?.viewer?.accounts?.[0];
-  if (!a) throw new Error((d?.errors?.[0]?.message || "HTTP " + res.status).slice(0, 200));
+  const acc = d?.data?.viewer?.accounts?.[0];
+  if (!acc) throw new Error((d?.errors?.[0]?.message || "HTTP " + res.status).slice(0, 200));
+  const n = Math.ceil(days / 7), a = {};
+  for (const name of ["prev", "daily", "pages", "countries", "devices", "refs"]) {
+    const merged = /* @__PURE__ */ new Map();
+    for (let i = 0; i < n; i++) for (const r2 of acc[name + i] || []) {
+      const k = JSON.stringify(r2.dimensions || {});
+      const m = merged.get(k) || { dimensions: r2.dimensions, count: 0, sum: { visits: 0 } };
+      m.count += r2.count;
+      m.sum.visits += r2.sum.visits;
+      merged.set(k, m);
+    }
+    a[name] = [...merged.values()];
+  }
+  a.total = [a.daily.reduce((t2, r2) => ({ count: t2.count + r2.count, sum: { visits: t2.sum.visits + r2.sum.visits } }), { count: 0, sum: { visits: 0 } })];
+  const bySum = (x, y) => y.sum.visits - x.sum.visits || y.count - x.count;
+  a.pages.sort((x, y) => y.count - x.count);
+  for (const k of ["countries", "devices", "refs"]) a[k].sort(bySum);
   const sum = (rows2) => ({ views: rows2?.[0]?.count || 0, visits: rows2?.[0]?.sum?.visits || 0 });
   const rows = (list2, key) => (list2 || []).map((r2) => ({ key: r2.dimensions[key] || "", views: r2.count, visits: r2.sum.visits }));
   const byDate = new Map(rows(a.daily, "date").map((r2) => [r2.key, r2]));
@@ -1094,6 +1125,7 @@ async function rumQuery(env, days) {
     at: (/* @__PURE__ */ new Date()).toISOString()
   };
 }
+var lastStats = {};
 async function analytics(env, params) {
   if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const days = params.get("days") === "30" ? 30 : 7;
@@ -1106,7 +1138,9 @@ async function analytics(env, params) {
   let data;
   try {
     data = await rumQuery(env, days);
+    lastStats[days] = data;
   } catch (e2) {
+    if (lastStats[days]) return json(lastStats[days]);
     return json({ error: "analytics_failed", detail: String(e2.message || e2) }, 502);
   }
   await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } })).catch(() => {

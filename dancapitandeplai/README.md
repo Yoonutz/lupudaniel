@@ -21,6 +21,7 @@ Romanian at `/`, English at `/en/`. Hosted on Cloudflare Pages (project `dancapi
 - `CONTENT` KV namespace
 - `ADMIN_EMAILS`: who may log in (comma separated)
 - `ADMIN_KEY` (secret): key in the private admin link. Change it to lock everyone out.
+- `DEV_LOGIN_KEY` (secret, 32+ chars): developer login for checking changes live (`POST /api/auth/login {key}`), signs in as Ionut without sending emails. Rotate or delete any time
 - `CF_ANALYTICS_TOKEN` (secret, Account Analytics: Read) + `CF_ACCOUNT_ID`: visitor stats in admin tab Statistici. Without them the tab says stats aren't on yet
 - Optional `CF_API_TOKEN` (secret, Account Analytics: Read) + `CF_ACCOUNT_ID`: turns on the "uploads today" counter (KV writes/deletes/lists used of 1,000)
 
