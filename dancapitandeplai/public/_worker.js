@@ -1439,7 +1439,7 @@ body, .site-header, .service, .note, .section--tint { transition: background-col
 var SITE = {
   name: "Dan C\u0103pitan de Plai",
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
-  url: "https://dancapitandeplai.pages.dev"
+  url: "https://dancapitandeplai.ro"
 };
 var ASSET_V = "16";
 var ROUTES = {
@@ -1904,11 +1904,16 @@ var SEC_HEADERS = {
   "referrer-policy": "strict-origin-when-cross-origin",
   "permissions-policy": "camera=(), microphone=(), geolocation=()"
 };
+var PREVIEW_HOST = "dancapitandeplai.pages.dev";
+var CANONICAL_ORIGIN = "https://dancapitandeplai.ro";
 var html = (body, status = 200) => new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC_HEADERS } });
 var worker_default = {
   async fetch(req, env, ctx) {
     const url2 = new URL(req.url);
     const p = url2.pathname;
+    if (url2.hostname === PREVIEW_HOST && !/^\/(api|admin|assets|media)(\/|$)/.test(p)) {
+      return Response.redirect(CANONICAL_ORIGIN + p + url2.search, 301);
+    }
     try {
       if (p.startsWith("/api/")) return await handleApi(req, env, url2);
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });

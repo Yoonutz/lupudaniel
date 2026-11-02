@@ -4,7 +4,7 @@
 SITE = {
     "name": "Dan Căpitan de Plai",
     "tagline": {"ro": "Fotograf de nuntă · Brașov", "en": "Wedding photographer · Brașov"},
-    "url": "https://dancapitandeplai.pages.dev",
+    "url": "https://dancapitandeplai.ro",
     "phone": "+40 743 199 121",
     "phone_raw": "40743199121",
     "email": "lupudaniel.foto@gmail.com",

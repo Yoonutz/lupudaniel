@@ -10,6 +10,9 @@ const SEC_HEADERS = {
   "permissions-policy": "camera=(), microphone=(), geolocation=()",
 };
 
+const PREVIEW_HOST = "dancapitandeplai.pages.dev";
+const CANONICAL_ORIGIN = "https://dancapitandeplai.ro";
+
 const html = (body, status = 200) =>
   new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC_HEADERS } });
 
@@ -17,6 +20,10 @@ export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const p = url.pathname;
+    // Public pages on the old preview host move to the real domain (admin, API, media stay)
+    if (url.hostname === PREVIEW_HOST && !/^\/(api|admin|assets|media)(\/|$)/.test(p)) {
+      return Response.redirect(CANONICAL_ORIGIN + p + url.search, 301);
+    }
     try {
       if (p.startsWith("/api/")) return await handleApi(req, env, url);
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });

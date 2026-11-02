@@ -6,7 +6,7 @@ Nothing is shared between them: each folder has its own code, build, content and
 | Folder | Site | Cloudflare Pages project |
 | --- | --- | --- |
 | [`resume/`](resume/) | Daniel's resume / CV site | `lupudaniel` → https://lupudaniel.pages.dev |
-| [`dancapitandeplai/`](dancapitandeplai/) | Dan Căpitan de Plai photography portfolio + admin | `dancapitandeplai` → https://dancapitandeplai.pages.dev |
+| [`dancapitandeplai/`](dancapitandeplai/) | Dan Căpitan de Plai photography portfolio + admin | `dancapitandeplai` → https://dancapitandeplai.ro (preview https://dancapitandeplai.pages.dev) |
 
 ## How deploys work
 

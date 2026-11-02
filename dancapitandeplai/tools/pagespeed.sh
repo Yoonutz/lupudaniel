@@ -3,7 +3,7 @@
 # The anonymous PSI API is often out of quota (429), so this runs Lighthouse locally.
 # Needs: npm i lighthouse@12 (any dir) and Chromium. Usage: tools/pagespeed.sh [base-url]
 # Rule: every score must stay above 90.
-B=${1:-https://dancapitandeplai.pages.dev}
+B=${1:-https://dancapitandeplai.ro}
 CHROME=${CHROME_PATH:-$(node -e "console.log(require('playwright').chromium.executablePath())" 2>/dev/null)}
 OUT=$(mktemp -d); fail=0
 for p in / /en/ /portofoliu/ /en/portfolio/ /portofoliu/felicia-calin/ /blog/ /blog/pregatirile-de-dimineata/ /intrebari-frecvente/ /contact/; do
