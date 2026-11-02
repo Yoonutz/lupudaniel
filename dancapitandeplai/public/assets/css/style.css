@@ -228,7 +228,7 @@ p { margin: 0 0 1em; }
 
 /* Page header (inner pages): photo banner in the home hero style */
 .page-hero { position: relative; display: flex; align-items: flex-end; min-height: 480px; height: 72vh; height: 72svh; max-height: 780px; color: #fff; background: var(--dark); overflow: hidden; text-align: center; }
-.page-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.page-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 .page-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 40%, rgba(0,0,0,.65) 100%); }
 .page-hero .wrap { position: relative; z-index: 1; width: 100%; padding-bottom: clamp(48px, 8vh, 88px); }
 .page-hero h1 { color: #fff; margin: 0 0 .3em; text-shadow: 0 2px 24px rgba(0,0,0,.3); }
