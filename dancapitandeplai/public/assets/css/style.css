@@ -275,6 +275,9 @@ p { margin: 0 0 1em; }
 .footer-nav { display: flex; flex-wrap: wrap; gap: 8px 24px; list-style: none; margin: 0; padding: 0; }
 .footer-nav a, .socials a { text-decoration: none; }
 .footer-nav a:hover { color: #fff; }
+.footer-seo { font-size: 13px; opacity: .8; }
+.landing h2 { margin: 48px 0 16px; }
+.landing h2:first-child { margin-top: 0; }
 .socials { display: flex; gap: 16px; }
 .socials a { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; transition: border-color .2s, color .2s; }
 .socials a:hover { border-color: #fff; color: #fff; }
@@ -319,7 +322,7 @@ p { margin: 0 0 1em; }
 .event-card:hover img { opacity: .88; }
 .event-meta { padding-top: 18px; }
 .event-meta .eyebrow { margin-bottom: 8px; font-size: 11px; }
-.event-meta h2 { font-size: 22px; margin-bottom: 8px; }
+.event-meta h2, .event-meta h3 { font-size: 22px; margin-bottom: 8px; }
 .event-count { display: inline-flex; align-items: center; gap: 8px; font: 500 13px/1 var(--head); color: var(--muted); }
 .event-count svg { width: 16px; height: 16px; transition: transform .2s; }
 .event-card:hover .event-count svg { transform: translateX(4px); }

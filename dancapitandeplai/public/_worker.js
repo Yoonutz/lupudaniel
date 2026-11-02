@@ -1560,6 +1560,9 @@ p { margin: 0 0 1em; }
 .footer-nav { display: flex; flex-wrap: wrap; gap: 8px 24px; list-style: none; margin: 0; padding: 0; }
 .footer-nav a, .socials a { text-decoration: none; }
 .footer-nav a:hover { color: #fff; }
+.footer-seo { font-size: 13px; opacity: .8; }
+.landing h2 { margin: 48px 0 16px; }
+.landing h2:first-child { margin-top: 0; }
 .socials { display: flex; gap: 16px; }
 .socials a { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; transition: border-color .2s, color .2s; }
 .socials a:hover { border-color: #fff; color: #fff; }
@@ -1604,7 +1607,7 @@ p { margin: 0 0 1em; }
 .event-card:hover img { opacity: .88; }
 .event-meta { padding-top: 18px; }
 .event-meta .eyebrow { margin-bottom: 8px; font-size: 11px; }
-.event-meta h2 { font-size: 22px; margin-bottom: 8px; }
+.event-meta h2, .event-meta h3 { font-size: 22px; margin-bottom: 8px; }
 .event-count { display: inline-flex; align-items: center; gap: 8px; font: 500 13px/1 var(--head); color: var(--muted); }
 .event-count svg { width: 16px; height: 16px; transition: transform .2s; }
 .event-card:hover .event-count svg { transform: translateX(4px); }
@@ -1662,8 +1665,24 @@ var SITE = {
 var ASSET_V = "16";
 var BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'><\/script>`;
 var ROUTES = {
-  ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
-  en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
+  ro: {
+    home: "/",
+    portfolio: "/portofoliu/",
+    blog: "/blog/",
+    faq: "/intrebari-frecvente/",
+    contact: "/contact/",
+    wedding: "/fotograf-nunta-brasov/",
+    christening: "/fotograf-botez-brasov/"
+  },
+  en: {
+    home: "/en/",
+    portfolio: "/en/portfolio/",
+    blog: "/en/blog/",
+    faq: "/en/faq/",
+    contact: "/en/contact/",
+    wedding: "/en/wedding-photographer-brasov/",
+    christening: "/en/christening-photographer-brasov/"
+  }
 };
 var NAV = {
   ro: [["home", "Acas\u0103"], ["portfolio", "Portofoliu"], ["blog", "Blog"], ["faq", "\xCEntreb\u0103ri"], ["contact", "Contact"]],
@@ -1761,6 +1780,7 @@ function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage
   const ui = UI[lang];
   const navItems = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}"${k === key ? ' aria-current="page"' : ""}>${e(label)}</a></li>`).join("");
   const footerNav = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}">${e(label)}</a></li>`).join("");
+  const footerSeo = ["wedding", "christening"].map((k) => `<li><a href="${r(lang, k)}">${e(LANDING[k][lang].h1)}</a></li>`).join("");
   const canonical = SITE.url + alt[lang];
   const alternates = ["ro", "en"].map((l) => `<link rel="alternate" hreflang="${l}" href="${SITE.url}${alt[l]}">`).join("") + `<link rel="alternate" hreflang="x-default" href="${SITE.url}${alt.ro}">`;
   const og = ogImage ? ogImage.startsWith("http") ? ogImage : SITE.url + ogImage : SITE.url + (c.hero && c.hero.desktop[0] || "/assets/img/hero-1.jpg");
@@ -1821,6 +1841,7 @@ ${body}
         <a href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp">${ICON.wa}</a>
       </div>
     </div>
+    <ul class="footer-nav footer-seo">${footerSeo}</ul>
     <div class="footer-bottom">
       <span>\xA9 <span id="year">2026</span> ${e(SITE.name)} \xB7 ${e(ui.rights)}</span>
       <a href="#main">${e(ui.top)} \u2191</a>
@@ -2082,6 +2103,141 @@ function contact(c, lang) {
 </div></section>`;
   return layout(c, lang, "contact", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang) });
 }
+var LANDING = {
+  wedding: {
+    cats: ["nunta", "cununie", "after"],
+    ro: {
+      h1: "Fotograf nunt\u0103 Bra\u0219ov",
+      title: "Fotograf nunt\u0103 Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      desc: "Fotograf de nunt\u0103 \xEEn Bra\u0219ov: fotografie documentar\u0103, momente reale, lumin\u0103 natural\u0103. Nun\u021Bi, cununii civile \u0219i after-wedding \xEEn Bra\u0219ov \u0219i oriunde vre\u021Bi voi.",
+      lead: "Fotografie documentar\u0103 de nunt\u0103 \xEEn Bra\u0219ov. V\u0103 las s\u0103 v\u0103 tr\u0103i\u021Bi ziua, eu prind momentele reale.",
+      sections: [
+        ["Cum lucrez la nunt\u0103", [
+          "Sunt cu voi toat\u0103 ziua, de la preg\u0103tiri p\xE2n\u0103 la petrecere. Nu v\u0103 cer s\u0103 poza\u021Bi \u0219i nu opresc ziua pentru poze. Stau aproape, discret, \u0219i fotografiez ce se \xEEnt\xE2mpl\u0103 de fapt: emo\u021Bia p\u0103rin\u021Bilor, glumele prietenilor, privirile dintre voi.",
+          "Lucrez cu lumin\u0103 natural\u0103. Dac\u0103 sunte\u021Bi timizi \xEEn fa\u021Ba aparatului, e perfect: majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute."
+        ]],
+        ["Unde fotografiez", [
+          "Sunt din Bra\u0219ov \u0219i fotografiez nun\u021Bi \xEEn ora\u0219 \u0219i \xEEn jur: Centrul Vechi, Poiana Bra\u0219ov, conace \u0219i restaurante din zon\u0103. Am lucrat, printre altele, la Conacul Albert, Naturalia Inn \u0219i Restaurant Adaggio. Merg oriunde vre\u021Bi voi; \xEEn afara Bra\u0219ovului se adaug\u0103 transportul \u0219i cazarea."
+        ]],
+        ["C\xE2t cost\u0103", [
+          "Nu am pachete fixe. O nunt\u0103 complet\u0103 porne\u0219te \xEEn jur de 1.000 EUR, iar oferta final\u0103 depinde de durat\u0103, loca\u021Bie \u0219i ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103."
+        ]],
+        ["\u0218i dup\u0103 nunt\u0103", [
+          "Pe l\xE2ng\u0103 nunta propriu-zis\u0103, fotografiez cununii civile, \u0219edin\u021Be after-wedding \u0219i Trash The Dress \xEEn mun\u021Bi, pentru o zi doar a voastr\u0103."
+        ]]
+      ],
+      work: "Nun\u021Bi fotografiate de mine",
+      cta: "Spune\u021Bi-mi data \u0219i locul nun\u021Bii"
+    },
+    en: {
+      h1: "Wedding photographer in Bra\u0219ov",
+      title: "Wedding photographer in Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      desc: "Wedding photographer in Bra\u0219ov, Romania: documentary photography, real moments, natural light. Weddings, civil ceremonies and after-wedding sessions in Bra\u0219ov and anywhere you like.",
+      lead: "Documentary wedding photography in Bra\u0219ov. You enjoy your day, I catch the real moments.",
+      sections: [
+        ["How I work on the day", [
+          "I'm with you the whole day, from getting ready to the party. I don't ask you to pose and I don't stop the day for photos. I stay close and quiet and photograph what really happens: your parents' emotion, your friends' jokes, the looks between you two.",
+          "I work with natural light. If you're shy in front of the camera, that's perfect: most couples forget I'm there after the first few minutes."
+        ]],
+        ["Where I shoot", [
+          "I'm based in Bra\u0219ov and photograph weddings in the city and around it: the Old Town, Poiana Bra\u0219ov, manors and restaurants nearby. Among others, I've worked at Conacul Albert, Naturalia Inn and Restaurant Adaggio. I travel anywhere you like; outside Bra\u0219ov, travel and accommodation are added."
+        ]],
+        ["What it costs", [
+          "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote."
+        ]],
+        ["After the wedding", [
+          "Besides the wedding day, I photograph civil ceremonies, after-wedding sessions and Trash The Dress in the mountains: a day just for the two of you."
+        ]]
+      ],
+      work: "Weddings I've photographed",
+      cta: "Tell me your wedding date and place"
+    }
+  },
+  christening: {
+    cats: ["botez", "familie"],
+    ro: {
+      h1: "Fotograf botez Bra\u0219ov",
+      title: "Fotograf botez Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      desc: "Fotograf de botez \xEEn Bra\u0219ov: momente reale de la biseric\u0103 \u0219i de la petrecere, f\u0103r\u0103 agita\u021Bie, cu lumin\u0103 natural\u0103. Botezuri, familie \u0219i nou-n\u0103scu\u021Bi.",
+      lead: "Fotografie de botez \xEEn Bra\u0219ov, f\u0103r\u0103 agita\u021Bie. Familia, na\u0219ii \u0219i cel mic, a\u0219a cum sunt.",
+      sections: [
+        ["Cum lucrez la botez", [
+          "Fotografiez de la preg\u0103tirile de acas\u0103, la slujba de la biseric\u0103 \u0219i p\xE2n\u0103 la petrecere. Nu opresc nimic pentru poze \u0219i nu stresez copilul: stau discret \u0219i prind momentele care conteaz\u0103, de la baia \xEEn cristelni\u021B\u0103 la z\xE2mbetele bunicilor.",
+          "Lucrez cu lumin\u0103 natural\u0103 \u0219i am r\u0103bdare cu cei mici. Copiii nu pozeaz\u0103, iar asta e exact ce iese cel mai frumos."
+        ]],
+        ["Unde fotografiez", [
+          "Sunt din Bra\u0219ov \u0219i fotografiez botezuri \xEEn bisericile \u0219i restaurantele din ora\u0219 \u0219i din jur, inclusiv la Restaurant Adaggio. Merg \u0219i \xEEn afara Bra\u0219ovului; atunci se adaug\u0103 transportul \u0219i cazarea."
+        ]],
+        ["Familie \u0219i nou-n\u0103scu\u021Bi", [
+          "Dac\u0103 vre\u021Bi mai multe amintiri cu cel mic, fac \u0219i \u0219edin\u021Be de familie, acas\u0103 sau \xEEn natur\u0103, \u0219i \u0219edin\u021Be cu nou-n\u0103scu\u021Bi, cu bl\xE2nde\u021Be \u0219i r\u0103bdare."
+        ]],
+        ["C\xE2t cost\u0103", [
+          "Nu am pachete fixe. Scrie\u021Bi-mi data, biserica \u0219i locul petrecerii \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103."
+        ]]
+      ],
+      work: "Botezuri \u0219i familii fotografiate de mine",
+      cta: "Spune\u021Bi-mi data botezului"
+    },
+    en: {
+      h1: "Christening photographer in Bra\u0219ov",
+      title: "Christening photographer in Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      desc: "Christening (baptism) photographer in Bra\u0219ov, Romania: real moments at church and at the party, no fuss, natural light. Christenings, family and newborn sessions.",
+      lead: "Christening photography in Bra\u0219ov, without the fuss. Family, godparents and the little one, just as they are.",
+      sections: [
+        ["How I work at a christening", [
+          "I photograph from getting ready at home, through the church service, to the party. I don't stop anything for photos and I don't stress the baby: I stay in the background and catch the moments that matter, from the font to the grandparents' smiles.",
+          "I work with natural light and I'm patient with little ones. Kids don't pose, and that's exactly what turns out best."
+        ]],
+        ["Where I shoot", [
+          "I'm based in Bra\u0219ov and photograph christenings in churches and restaurants in and around the city, including Restaurant Adaggio. I also travel outside Bra\u0219ov; then travel and accommodation are added."
+        ]],
+        ["Family and newborns", [
+          "If you'd like more memories of your little one, I also do family sessions, at home or outdoors, and gentle, patient newborn sessions."
+        ]],
+        ["What it costs", [
+          "I don't do fixed packages. Send me the date, the church and the party venue and I'll send a tailored quote."
+        ]]
+      ],
+      work: "Christenings and families I've photographed",
+      cta: "Tell me your christening date"
+    }
+  }
+};
+function landing(c, lang, key) {
+  const L = LANDING[key], T = L[lang], ui = UI[lang], cats = c.categories[lang];
+  const evs = c.events.filter((ev) => L.cats.includes(ev.cat)).slice(0, 6);
+  const cards = evs.map((ev, n) => `<a class="event-card${n < 2 ? "" : " reveal"}" href="${eventUrl(lang, ev)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0 })}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")}${ev.venue ? ` \xB7 ${e(ev.venue)}` : ""}</span><h3>${e(t(ev.title, lang))}</h3><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
+  const text = T.sections.map(([h, ps]) => `<h2 class="h-lg">${e(h)}</h2>${ps.map((x) => `<p>${e(x)}</p>`).join("")}`).join("");
+  const wa = waLink(c, lang);
+  const body = `${pageHead(T.h1, T.lead)}
+<section class="section" style="padding-top:0"><div class="wrap narrow prose landing">
+  ${text}
+  <p class="center" style="margin-top:40px"><a class="btn btn--solid" href="${wa}" target="_blank" rel="noopener">${ICON.wa} ${e(T.cta)}</a></p>
+</div></section>
+${cards ? `<section class="section section--tint"><div class="wrap">
+  <h2 class="h-lg center reveal">${e(T.work)}</h2>
+  <div class="events" style="margin-top:40px">${cards}</div>
+  <p class="center" style="margin-top:40px"><a class="btn" href="${r(lang, "portfolio")}">${e(ui.view_work)} ${ICON.arrow}</a></p>
+</div></section>` : ""}`;
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: T.h1,
+    serviceType: T.h1,
+    description: T.desc,
+    url: SITE.url + r(lang, key),
+    areaServed: { "@type": "City", name: "Bra\u0219ov" },
+    provider: businessSchema(c, lang)
+  };
+  return layout(c, lang, key, {
+    title: T.title,
+    desc: T.desc,
+    body,
+    alt: { ro: r("ro", key), en: r("en", key) },
+    ogImage: evs[0] ? evs[0].cover || evs[0].photos[0] : void 0,
+    schema
+  });
+}
 function notFound(c) {
   const body = `<section class="page-head" style="min-height:70vh;display:grid;place-content:center"><div class="wrap">
 <h1 class="h-xl">404</h1><p class="lead">Pagina nu exist\u0103. \xB7 This page doesn't exist.</p>
@@ -2096,6 +2252,8 @@ function route(c, path) {
     if (path === R.blog) return blog(c, lang);
     if (path === R.faq) return faq(c, lang);
     if (path === R.contact) return contact(c, lang);
+    if (path === R.wedding) return landing(c, lang, "wedding");
+    if (path === R.christening) return landing(c, lang, "christening");
     if (path.startsWith(R.portfolio)) {
       const i = c.events.findIndex((ev) => path === eventUrl(lang, ev));
       if (i >= 0) return event(c, lang, i);
