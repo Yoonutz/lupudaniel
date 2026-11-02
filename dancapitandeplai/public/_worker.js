@@ -1551,6 +1551,7 @@ var SITE = {
   url: "https://dancapitandeplai.ro"
 };
 var ASSET_V = "16";
+var BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'><\/script>`;
 var ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/" }
@@ -1719,7 +1720,7 @@ ${body}
 </footer>
 <a class="wa-float" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp">${ICON.wa}</a>
 <script src="/assets/js/main.js?v=${ASSET_V}" defer><\/script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'><\/script>
+${BEACON}
 </body>
 </html>`;
 }
@@ -2044,7 +2045,7 @@ var worker_default = {
       if (p === "/sitemap.xml") return new Response(sitemap(c), { headers: { "content-type": "application/xml" } });
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url2.origin + p + "/" + url2.search, 301);
       const page = route(c, p);
-      const strip = (s) => isInternal(req) ? s.replace(/<script[^>]*static\.cloudflareinsights\.com\/beacon[^>]*><\/script>/, "") : s;
+      const strip = (s) => isInternal(req) ? s.split(BEACON).join("") : s;
       return page ? html(strip(page)) : html(strip(notFound(c)), 404);
     } catch (err) {
       if (p.startsWith("/api/")) return json({ error: "server_error" }, 500);

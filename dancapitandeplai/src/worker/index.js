@@ -1,7 +1,7 @@
 // Cloudflare Pages advanced-mode worker for Dan's site.
 // Public pages are rendered from KV content; /api is the admin REST API;
 // everything else (CSS, JS, placeholder images, /admin) is a static asset.
-import { route, sitemap, notFound } from "./render.js";
+import { route, sitemap, notFound, BEACON } from "./render.js";
 import { handleApi, getContent, serveMedia, json, isInternal } from "./api.js";
 
 const SEC_HEADERS = {
@@ -46,7 +46,7 @@ export default {
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url.origin + p + "/" + url.search, 301);
       const page = route(c, p);
       // Admin devices and test browsers get the page without the analytics beacon
-      const strip = s => (isInternal(req) ? s.replace(/<script[^>]*static\.cloudflareinsights\.com\/beacon[^>]*><\/script>/, "") : s);
+      const strip = s => (isInternal(req) ? s.split(BEACON).join("") : s);
       return page ? html(strip(page)) : html(strip(notFound(c)), 404);
     } catch (err) {
       if (p.startsWith("/api/")) return json({ error: "server_error" }, 500);
