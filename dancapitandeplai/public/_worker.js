@@ -2409,7 +2409,7 @@ var index_default = {
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
       const media = await serveMedia(env, p, ctx, req);
       if (media) return media;
-      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico") {
+      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico" || /^\/google[0-9a-f]+\.html$/.test(p)) {
         if (p === "/admin") return Response.redirect(url2.origin + "/admin/", 301);
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);

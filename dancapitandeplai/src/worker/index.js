@@ -37,7 +37,8 @@ export default {
       const media = await serveMedia(env, p, ctx, req);
       if (media) return media;
 
-      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico") {
+      // /google<id>.html = Search Console ownership file (keep it)
+      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico" || /^\/google[0-9a-f]+\.html$/.test(p)) {
         if (p === "/admin") return Response.redirect(url.origin + "/admin/", 301);
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);
