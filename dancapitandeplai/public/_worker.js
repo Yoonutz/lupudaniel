@@ -1511,7 +1511,17 @@ p { margin: 0 0 1em; }
 .ig-grid a:hover img { transform: scale(1.06); opacity: .85; }
 @media (max-width: 700px) { .ig-grid { grid-template-columns: repeat(3, 1fr); } }
 
-/* Page header (inner pages) */
+/* Page header (inner pages): photo banner in the home hero style */
+.page-hero { position: relative; display: flex; align-items: flex-end; min-height: 480px; height: 72vh; height: 72svh; max-height: 780px; color: #fff; background: var(--dark); overflow: hidden; text-align: center; }
+.page-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.page-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 40%, rgba(0,0,0,.65) 100%); }
+.page-hero .wrap { position: relative; z-index: 1; width: 100%; padding-bottom: clamp(48px, 8vh, 88px); }
+.page-hero h1 { color: #fff; margin: 0 0 .3em; text-shadow: 0 2px 24px rgba(0,0,0,.3); }
+.page-hero .eyebrow { color: var(--accent); }
+.page-hero .eyebrow time { color: inherit; }
+.page-hero .lead { color: rgba(255,255,255,.9); max-width: 680px; margin: 0 auto; text-shadow: 0 1px 12px rgba(0,0,0,.35); }
+.page-hero .event-venue { color: rgba(255,255,255,.85); justify-content: center; margin-top: 16px; }
+@media (max-width: 700px) { .page-hero { min-height: 420px; height: 64svh; } }
 .page-head { padding: 160px 0 56px; text-align: center; }
 .page-head p { max-width: 640px; margin: 0 auto; }
 
@@ -1776,7 +1786,8 @@ function fmtDate(iso, lang) {
   const month = MONTHS[lang][parseInt(m, 10) - 1] || "";
   return lang === "ro" ? `${parseInt(d, 10)} ${month} ${y}` : `${month} ${parseInt(d, 10)}, ${y}`;
 }
-function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage, schema, noindex = false }) {
+function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage, schema, noindex = false, cta = false }) {
+  if (cta) body += ctaBand(c, lang);
   const ui = UI[lang];
   const navItems = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}"${k === key ? ' aria-current="page"' : ""}>${e(label)}</a></li>`).join("");
   const footerNav = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}">${e(label)}</a></li>`).join("");
@@ -1872,7 +1883,25 @@ function businessSchema(c, lang) {
     founder: { "@type": "Person", name: "Daniel Lupu" }
   };
 }
-var pageHead = (title, intro) => `<section class="page-head"><div class="wrap"><h1 class="h-xl">${e(title)}</h1><p class="lead">${e(intro)}</p></div></section>`;
+function banner({ src, mobileSrc, eyebrow, title, intro, extra = "" }) {
+  const pic = src ? `<picture>${mobileSrc && mobileSrc !== src ? `<source media="(orientation: portrait)" srcset="${e(small(mobileSrc))}">` : ""}${img(src, "", { eager: true, sizes: "100vw" })}</picture>` : "";
+  return `<section class="page-hero">${pic}<div class="wrap">${eyebrow ? `<span class="eyebrow">${eyebrow}</span>` : ""}<h1 class="h-xl">${e(title)}</h1>${intro ? `<p class="lead">${e(intro)}</p>` : ""}${extra}</div></section>`;
+}
+var heroPick = (c, n) => {
+  const d = c.hero && c.hero.desktop || [], m = c.hero && c.hero.mobile || [];
+  return { src: d.length ? d[n % d.length] : "/assets/img/hero-1.jpg", mobileSrc: m.length ? m[n % m.length] : void 0 };
+};
+function ctaBand(c, lang) {
+  const h = c.home[lang];
+  return `<section class="section cta">
+  ${img(c.cta_img, "", { w: 1600, h: 900 })}
+  <div class="wrap narrow reveal">
+    <h2 class="h-xl">${e(h.cta_title)}</h2>
+    <p class="lead" style="color:inherit">${e(h.cta_p)}</p>
+    <a class="btn btn--light" href="${waLink(c, lang)}" target="_blank" rel="noopener">${ICON.wa} ${e(UI[lang].book)}</a>
+  </div>
+</section>`;
+}
 function home(c, lang) {
   const h = c.home[lang], ui = UI[lang];
   const desktop = c.hero.desktop.length ? c.hero.desktop : ["/assets/img/hero-1.jpg"];
@@ -1977,14 +2006,14 @@ function portfolio(c, lang) {
   const used = Object.keys(cats).filter((k) => c.events.some((ev) => ev.cat === k));
   const filters = `<button data-filter="all" aria-pressed="true">${e(ui.all)}</button>` + used.map((k) => `<button data-filter="${e(k)}" aria-pressed="false">${e(cats[k])}</button>`).join("");
   const cards = c.events.map((ev, n) => `<a class="event-card${n < 4 ? "" : " reveal"}" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0 })}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} \xB7 ${e(t(ev.date, lang))}</span><h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
-  const body = `${pageHead(title, intro)}<section class="section" style="padding-top:0"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
-  return layout(c, lang, "portfolio", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") } });
+  const body = `${banner({ ...heroPick(c, 1), title, intro })}<section class="section"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
+  return layout(c, lang, "portfolio", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") }, hasHero: true, cta: true });
 }
 function event(c, lang, i) {
   const ev = c.events[i], ui = UI[lang], cats = c.categories[lang];
   const nxt = c.events[(i + 1) % c.events.length];
   const title = t(ev.title, lang);
-  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} \xB7 ${n + 1}`, { eager: n === 0, above: n < 3 })}</figure></a>`).join("");
+  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} \xB7 ${n + 1}`, { above: n < 3 })}</figure></a>`).join("");
   const vid = videoEmbed(ev.video);
   const video = vid ? `<div class="video" data-kind="${vid.kind}" data-id="${e(vid.id)}"${vid.hash ? ` data-h="${e(vid.hash)}"` : ""}>
       ${vid.kind === "youtube" ? `<img src="https://i.ytimg.com/vi/${e(vid.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360">` : ""}
@@ -1992,15 +2021,14 @@ function event(c, lang, i) {
     </div>` : "";
   const nextBtn = c.events.length > 1 ? `<a class="btn btn--solid" href="${eventUrl(lang, nxt)}">${e(ui.next_event)}: ${e(t(nxt.title, lang))} ${ICON.arrow}</a>` : "";
   const body = `
-<section class="page-head">
-  <div class="wrap">
-    <span class="eyebrow">${e(cats[ev.cat] || "")} \xB7 ${e(t(ev.date, lang))}</span>
-    <h1 class="h-xl">${e(title)}</h1>
-    <p class="lead">${e(t(ev.intro, lang))}</p>
-    ${ev.venue ? `<p class="event-venue">${ICON.pin} ${e(ev.venue)}</p>` : ""}
-  </div>
-</section>
-<section class="section" style="padding-top:0">
+${banner({
+    src: ev.cover || ev.photos[0],
+    eyebrow: `${e(cats[ev.cat] || "")} \xB7 ${e(t(ev.date, lang))}`,
+    title,
+    intro: t(ev.intro, lang),
+    extra: ev.venue ? `<p class="event-venue">${ICON.pin} ${e(ev.venue)}</p>` : ""
+  })}
+<section class="section">
   <div class="wrap">
     ${video}
     <div class="gallery">${photos}</div>
@@ -2022,7 +2050,9 @@ function event(c, lang, i) {
     desc: t(ev.intro, lang),
     body,
     alt: { ro: eventUrl("ro", ev), en: eventUrl("en", ev) },
-    ogImage: ev.cover || ev.photos[0]
+    ogImage: ev.cover || ev.photos[0],
+    hasHero: true,
+    cta: true
   });
 }
 function blog(c, lang) {
@@ -2030,20 +2060,15 @@ function blog(c, lang) {
   const ui = UI[lang];
   const posts = [...c.posts].sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const cards = posts.map((p) => `<a class="post-card reveal" href="${postUrl(lang, p)}">${img(small(p.cover), t(p.title, lang), { w: 1600, h: 1e3 })}<div><time datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time><h2>${e(t(p.title, lang))}</h2><p>${e(t(p.excerpt, lang))}</p><span class="more">${e(ui.read_more)} ${ICON.arrow}</span></div></a>`).join("");
-  const body = `${pageHead(title, intro)}<section class="section" style="padding-top:0"><div class="wrap"><div class="posts">${cards}</div></div></section>`;
-  return layout(c, lang, "blog", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "blog"), en: r("en", "blog") } });
+  const body = `${banner({ ...heroPick(c, 2), title, intro })}<section class="section"><div class="wrap"><div class="posts">${cards}</div></div></section>`;
+  return layout(c, lang, "blog", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "blog"), en: r("en", "blog") }, hasHero: true, cta: true });
 }
 function post(c, lang, i) {
   const p = c.posts[i], ui = UI[lang];
   const paras = (t(p.body, lang) || []).map((x) => `<p>${e(x)}</p>`).join("");
   const body = `
 <article>
-  <section class="page-head"><div class="wrap narrow">
-    <time class="eyebrow" datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time>
-    <h1 class="h-xl">${e(t(p.title, lang))}</h1>
-    <p class="lead">${e(t(p.excerpt, lang))}</p>
-  </div></section>
-  ${p.cover ? `<div class="wrap narrow">${img(p.cover, t(p.title, lang), { w: 1600, h: 1e3, sizes: "(min-width: 900px) 800px, 100vw" })}</div>` : ""}
+  ${banner({ ...p.cover ? { src: p.cover } : heroPick(c, 2), eyebrow: `<time datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time>`, title: t(p.title, lang), intro: t(p.excerpt, lang) })}
   <section class="section"><div class="wrap narrow prose">${paras}
     <p style="margin-top:48px"><a class="btn" href="${r(lang, "blog")}">\u2190 ${e(ui.back_blog)}</a></p>
   </div></section>
@@ -2062,19 +2087,21 @@ function post(c, lang, i) {
     body,
     alt: { ro: postUrl("ro", p), en: postUrl("en", p) },
     ogImage: p.cover,
-    schema
+    schema,
+    hasHero: true,
+    cta: true
   });
 }
 function faq(c, lang) {
   const [title, intro] = c.pages[lang].faq;
   const items = c.faq.map((f) => `<details class="faq-item"><summary>${e(t(f.q, lang))}</summary><p>${e(t(f.a, lang))}</p></details>`).join("");
-  const body = `${pageHead(title, intro)}
-<section class="section" style="padding-top:0"><div class="wrap narrow">
+  const body = `${banner({ ...heroPick(c, 3), title, intro })}
+<section class="section"><div class="wrap narrow">
   <div class="faq">${items}</div>
   <p class="center" style="margin-top:48px"><a class="btn btn--solid" href="${waLink(c, lang)}" target="_blank" rel="noopener">${ICON.wa} ${e(UI[lang].book)}</a></p>
 </div></section>`;
   const schema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map((f) => ({ "@type": "Question", name: t(f.q, lang), acceptedAnswer: { "@type": "Answer", text: t(f.a, lang) } })) };
-  return layout(c, lang, "faq", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema });
+  return layout(c, lang, "faq", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema, hasHero: true, cta: true });
 }
 function contact(c, lang) {
   const P = c.pages[lang], ui = UI[lang], k = c.contact;
@@ -2083,8 +2110,8 @@ function contact(c, lang) {
   const wa = waLink(c, lang);
   const side = (t(k.notes, lang) || []).map((x) => `<li>${e(x)}</li>`).join("");
   const fbName = (String(k.facebook || "").match(/facebook\.com\/([^/?#]+)/) || [])[1] || "Facebook";
-  const body = `${pageHead(title, intro)}
-<section class="section" style="padding-top:0"><div class="wrap contact-grid">
+  const body = `${banner({ ...heroPick(c, 4), title, intro })}
+<section class="section"><div class="wrap contact-grid">
   <div>
     <a class="btn btn--solid" href="${wa}" target="_blank" rel="noopener">${ICON.wa} ${e(ui.book)}</a>
     <ul class="contact-list">
@@ -2101,7 +2128,7 @@ function contact(c, lang) {
     <div class="note"><h2 class="h-lg" style="font-size:20px">${e(P.contact_side_title)}</h2><ul>${side}</ul></div>
   </div>
 </div></section>`;
-  return layout(c, lang, "contact", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang) });
+  return layout(c, lang, "contact", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang), hasHero: true });
 }
 var LANDING = {
   wedding: {
@@ -2206,11 +2233,12 @@ var LANDING = {
 function landing(c, lang, key) {
   const L = LANDING[key], T = L[lang], ui = UI[lang], cats = c.categories[lang];
   const evs = c.events.filter((ev) => L.cats.includes(ev.cat)).slice(0, 6);
-  const cards = evs.map((ev, n) => `<a class="event-card${n < 2 ? "" : " reveal"}" href="${eventUrl(lang, ev)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0 })}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")}${ev.venue ? ` \xB7 ${e(ev.venue)}` : ""}</span><h3>${e(t(ev.title, lang))}</h3><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
+  const cards = evs.map((ev, n) => `<a class="event-card${n < 2 ? "" : " reveal"}" href="${eventUrl(lang, ev)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), {})}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")}${ev.venue ? ` \xB7 ${e(ev.venue)}` : ""}</span><h3>${e(t(ev.title, lang))}</h3><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
   const text = T.sections.map(([h, ps]) => `<h2 class="h-lg">${e(h)}</h2>${ps.map((x) => `<p>${e(x)}</p>`).join("")}`).join("");
   const wa = waLink(c, lang);
-  const body = `${pageHead(T.h1, T.lead)}
-<section class="section" style="padding-top:0"><div class="wrap narrow prose landing">
+  const top = evs[0] ? { src: evs[0].cover || evs[0].photos[0] } : heroPick(c, 0);
+  const body = `${banner({ ...top, title: T.h1, intro: T.lead })}
+<section class="section"><div class="wrap narrow prose landing">
   ${text}
   <p class="center" style="margin-top:40px"><a class="btn btn--solid" href="${wa}" target="_blank" rel="noopener">${ICON.wa} ${e(T.cta)}</a></p>
 </div></section>
@@ -2235,7 +2263,9 @@ ${cards ? `<section class="section section--tint"><div class="wrap">
     body,
     alt: { ro: r("ro", key), en: r("en", key) },
     ogImage: evs[0] ? evs[0].cover || evs[0].photos[0] : void 0,
-    schema
+    schema,
+    hasHero: true,
+    cta: true
   });
 }
 function notFound(c) {

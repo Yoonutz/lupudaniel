@@ -94,7 +94,8 @@ function fmtDate(iso, lang) {
   return lang === "ro" ? `${parseInt(d, 10)} ${month} ${y}` : `${month} ${parseInt(d, 10)}, ${y}`;
 }
 
-function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage, schema, noindex = false }) {
+function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage, schema, noindex = false, cta = false }) {
+  if (cta) body += ctaBand(c, lang);
   const ui = UI[lang];
   const navItems = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}"${k === key ? ' aria-current="page"' : ""}>${e(label)}</a></li>`).join("");
   const footerNav = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}">${e(label)}</a></li>`).join("");
@@ -184,7 +185,32 @@ function businessSchema(c, lang) {
   };
 }
 
-const pageHead = (title, intro) => `<section class="page-head"><div class="wrap"><h1 class="h-xl">${e(title)}</h1><p class="lead">${e(intro)}</p></div></section>`;
+// Inner pages open with a photo banner in the same style as the home hero
+// (white header over the photo, dark gradient, white title). mobileSrc: portrait crop for phones.
+function banner({ src, mobileSrc, eyebrow, title, intro, extra = "" }) {
+  const pic = src ? `<picture>${mobileSrc && mobileSrc !== src ? `<source media="(orientation: portrait)" srcset="${e(small(mobileSrc))}">` : ""}` +
+    `${img(src, "", { eager: true, sizes: "100vw" })}</picture>` : "";
+  return `<section class="page-hero">${pic}<div class="wrap">` +
+    `${eyebrow ? `<span class="eyebrow">${eyebrow}</span>` : ""}<h1 class="h-xl">${e(title)}</h1>` +
+    `${intro ? `<p class="lead">${e(intro)}</p>` : ""}${extra}</div></section>`;
+}
+// Hero photo n for a page (desktop + matching portrait for phones)
+const heroPick = (c, n) => {
+  const d = (c.hero && c.hero.desktop) || [], m = (c.hero && c.hero.mobile) || [];
+  return { src: d.length ? d[n % d.length] : "/assets/img/hero-1.jpg", mobileSrc: m.length ? m[n % m.length] : undefined };
+};
+// Same closing call-to-action band as the home page
+function ctaBand(c, lang) {
+  const h = c.home[lang];
+  return `<section class="section cta">
+  ${img(c.cta_img, "", { w: 1600, h: 900 })}
+  <div class="wrap narrow reveal">
+    <h2 class="h-xl">${e(h.cta_title)}</h2>
+    <p class="lead" style="color:inherit">${e(h.cta_p)}</p>
+    <a class="btn btn--light" href="${waLink(c, lang)}" target="_blank" rel="noopener">${ICON.wa} ${e(UI[lang].book)}</a>
+  </div>
+</section>`;
+}
 
 export function home(c, lang) {
   const h = c.home[lang], ui = UI[lang];
@@ -300,15 +326,15 @@ export function portfolio(c, lang) {
     `${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0 })}` +
     `<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} · ${e(t(ev.date, lang))}</span>` +
     `<h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
-  const body = `${pageHead(title, intro)}<section class="section" style="padding-top:0"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
-  return layout(c, lang, "portfolio", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") } });
+  const body = `${banner({ ...heroPick(c, 1), title, intro })}<section class="section"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
+  return layout(c, lang, "portfolio", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") }, hasHero: true, cta: true });
 }
 
 export function event(c, lang, i) {
   const ev = c.events[i], ui = UI[lang], cats = c.categories[lang];
   const nxt = c.events[(i + 1) % c.events.length];
   const title = t(ev.title, lang);
-  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} · ${n + 1}`, { eager: n === 0, above: n < 3 })}</figure></a>`).join("");
+  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} · ${n + 1}`, { above: n < 3 })}</figure></a>`).join("");
   const vid = videoEmbed(ev.video);
   const video = vid ? `<div class="video" data-kind="${vid.kind}" data-id="${e(vid.id)}"${vid.hash ? ` data-h="${e(vid.hash)}"` : ""}>
       ${vid.kind === "youtube" ? `<img src="https://i.ytimg.com/vi/${e(vid.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360">` : ""}
@@ -316,15 +342,9 @@ export function event(c, lang, i) {
     </div>` : "";
   const nextBtn = c.events.length > 1 ? `<a class="btn btn--solid" href="${eventUrl(lang, nxt)}">${e(ui.next_event)}: ${e(t(nxt.title, lang))} ${ICON.arrow}</a>` : "";
   const body = `
-<section class="page-head">
-  <div class="wrap">
-    <span class="eyebrow">${e(cats[ev.cat] || "")} · ${e(t(ev.date, lang))}</span>
-    <h1 class="h-xl">${e(title)}</h1>
-    <p class="lead">${e(t(ev.intro, lang))}</p>
-    ${ev.venue ? `<p class="event-venue">${ICON.pin} ${e(ev.venue)}</p>` : ""}
-  </div>
-</section>
-<section class="section" style="padding-top:0">
+${banner({ src: ev.cover || ev.photos[0], eyebrow: `${e(cats[ev.cat] || "")} · ${e(t(ev.date, lang))}`, title, intro: t(ev.intro, lang),
+  extra: ev.venue ? `<p class="event-venue">${ICON.pin} ${e(ev.venue)}</p>` : "" })}
+<section class="section">
   <div class="wrap">
     ${video}
     <div class="gallery">${photos}</div>
@@ -342,7 +362,7 @@ export function event(c, lang, i) {
   <span class="lb-count"></span>
 </div>`;
   return layout(c, lang, "portfolio", { title: `${title} · ${SITE.name}`, desc: t(ev.intro, lang), body,
-    alt: { ro: eventUrl("ro", ev), en: eventUrl("en", ev) }, ogImage: ev.cover || ev.photos[0] });
+    alt: { ro: eventUrl("ro", ev), en: eventUrl("en", ev) }, ogImage: ev.cover || ev.photos[0], hasHero: true, cta: true });
 }
 
 export function blog(c, lang) {
@@ -352,8 +372,8 @@ export function blog(c, lang) {
   const cards = posts.map(p => `<a class="post-card reveal" href="${postUrl(lang, p)}">${img(small(p.cover), t(p.title, lang), { w: 1600, h: 1000 })}` +
     `<div><time datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time><h2>${e(t(p.title, lang))}</h2>` +
     `<p>${e(t(p.excerpt, lang))}</p><span class="more">${e(ui.read_more)} ${ICON.arrow}</span></div></a>`).join("");
-  const body = `${pageHead(title, intro)}<section class="section" style="padding-top:0"><div class="wrap"><div class="posts">${cards}</div></div></section>`;
-  return layout(c, lang, "blog", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "blog"), en: r("en", "blog") } });
+  const body = `${banner({ ...heroPick(c, 2), title, intro })}<section class="section"><div class="wrap"><div class="posts">${cards}</div></div></section>`;
+  return layout(c, lang, "blog", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "blog"), en: r("en", "blog") }, hasHero: true, cta: true });
 }
 
 export function post(c, lang, i) {
@@ -361,12 +381,7 @@ export function post(c, lang, i) {
   const paras = (t(p.body, lang) || []).map(x => `<p>${e(x)}</p>`).join("");
   const body = `
 <article>
-  <section class="page-head"><div class="wrap narrow">
-    <time class="eyebrow" datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time>
-    <h1 class="h-xl">${e(t(p.title, lang))}</h1>
-    <p class="lead">${e(t(p.excerpt, lang))}</p>
-  </div></section>
-  ${p.cover ? `<div class="wrap narrow">${img(p.cover, t(p.title, lang), { w: 1600, h: 1000, sizes: "(min-width: 900px) 800px, 100vw" })}</div>` : ""}
+  ${banner({ ...(p.cover ? { src: p.cover } : heroPick(c, 2)), eyebrow: `<time datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time>`, title: t(p.title, lang), intro: t(p.excerpt, lang) })}
   <section class="section"><div class="wrap narrow prose">${paras}
     <p style="margin-top:48px"><a class="btn" href="${r(lang, "blog")}">← ${e(ui.back_blog)}</a></p>
   </div></section>
@@ -374,19 +389,19 @@ export function post(c, lang, i) {
   const schema = { "@context": "https://schema.org", "@type": "BlogPosting", headline: t(p.title, lang), datePublished: p.date,
     author: { "@type": "Person", name: "Daniel Lupu" }, image: p.cover ? SITE.url + p.cover : undefined };
   return layout(c, lang, "blog", { title: `${t(p.title, lang)} · ${SITE.name}`, desc: t(p.excerpt, lang), body,
-    alt: { ro: postUrl("ro", p), en: postUrl("en", p) }, ogImage: p.cover, schema });
+    alt: { ro: postUrl("ro", p), en: postUrl("en", p) }, ogImage: p.cover, schema, hasHero: true, cta: true });
 }
 
 export function faq(c, lang) {
   const [title, intro] = c.pages[lang].faq;
   const items = c.faq.map(f => `<details class="faq-item"><summary>${e(t(f.q, lang))}</summary><p>${e(t(f.a, lang))}</p></details>`).join("");
-  const body = `${pageHead(title, intro)}
-<section class="section" style="padding-top:0"><div class="wrap narrow">
+  const body = `${banner({ ...heroPick(c, 3), title, intro })}
+<section class="section"><div class="wrap narrow">
   <div class="faq">${items}</div>
   <p class="center" style="margin-top:48px"><a class="btn btn--solid" href="${waLink(c, lang)}" target="_blank" rel="noopener">${ICON.wa} ${e(UI[lang].book)}</a></p>
 </div></section>`;
   const schema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map(f => ({ "@type": "Question", name: t(f.q, lang), acceptedAnswer: { "@type": "Answer", text: t(f.a, lang) } })) };
-  return layout(c, lang, "faq", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema });
+  return layout(c, lang, "faq", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema, hasHero: true, cta: true });
 }
 
 export function contact(c, lang) {
@@ -396,8 +411,8 @@ export function contact(c, lang) {
   const wa = waLink(c, lang);
   const side = (t(k.notes, lang) || []).map(x => `<li>${e(x)}</li>`).join("");
   const fbName = (String(k.facebook || "").match(/facebook\.com\/([^/?#]+)/) || [])[1] || "Facebook";
-  const body = `${pageHead(title, intro)}
-<section class="section" style="padding-top:0"><div class="wrap contact-grid">
+  const body = `${banner({ ...heroPick(c, 4), title, intro })}
+<section class="section"><div class="wrap contact-grid">
   <div>
     <a class="btn btn--solid" href="${wa}" target="_blank" rel="noopener">${ICON.wa} ${e(ui.book)}</a>
     <ul class="contact-list">
@@ -414,7 +429,7 @@ export function contact(c, lang) {
     <div class="note"><h2 class="h-lg" style="font-size:20px">${e(P.contact_side_title)}</h2><ul>${side}</ul></div>
   </div>
 </div></section>`;
-  return layout(c, lang, "contact", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang) });
+  return layout(c, lang, "contact", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang), hasHero: true });
 }
 
 // SEO landing pages ("fotograf nuntă Brașov", "fotograf botez Brașov").
@@ -524,13 +539,14 @@ export function landing(c, lang, key) {
   const L = LANDING[key], T = L[lang], ui = UI[lang], cats = c.categories[lang];
   const evs = c.events.filter(ev => L.cats.includes(ev.cat)).slice(0, 6);
   const cards = evs.map((ev, n) => `<a class="event-card${n < 2 ? "" : " reveal"}" href="${eventUrl(lang, ev)}">` +
-    `${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0 })}` +
+    `${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), {})}` +
     `<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")}${ev.venue ? ` · ${e(ev.venue)}` : ""}</span>` +
     `<h3>${e(t(ev.title, lang))}</h3><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
   const text = T.sections.map(([h, ps]) => `<h2 class="h-lg">${e(h)}</h2>${ps.map(x => `<p>${e(x)}</p>`).join("")}`).join("");
   const wa = waLink(c, lang);
-  const body = `${pageHead(T.h1, T.lead)}
-<section class="section" style="padding-top:0"><div class="wrap narrow prose landing">
+  const top = evs[0] ? { src: evs[0].cover || evs[0].photos[0] } : heroPick(c, 0);
+  const body = `${banner({ ...top, title: T.h1, intro: T.lead })}
+<section class="section"><div class="wrap narrow prose landing">
   ${text}
   <p class="center" style="margin-top:40px"><a class="btn btn--solid" href="${wa}" target="_blank" rel="noopener">${ICON.wa} ${e(T.cta)}</a></p>
 </div></section>
@@ -542,7 +558,7 @@ ${cards ? `<section class="section section--tint"><div class="wrap">
   const schema = { "@context": "https://schema.org", "@type": "Service", name: T.h1, serviceType: T.h1, description: T.desc,
     url: SITE.url + r(lang, key), areaServed: { "@type": "City", name: "Brașov" }, provider: businessSchema(c, lang) };
   return layout(c, lang, key, { title: T.title, desc: T.desc, body, alt: { ro: r("ro", key), en: r("en", key) },
-    ogImage: evs[0] ? (evs[0].cover || evs[0].photos[0]) : undefined, schema });
+    ogImage: evs[0] ? (evs[0].cover || evs[0].photos[0]) : undefined, schema, hasHero: true, cta: true });
 }
 
 export function notFound(c) {

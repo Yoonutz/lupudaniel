@@ -226,7 +226,17 @@ p { margin: 0 0 1em; }
 .ig-grid a:hover img { transform: scale(1.06); opacity: .85; }
 @media (max-width: 700px) { .ig-grid { grid-template-columns: repeat(3, 1fr); } }
 
-/* Page header (inner pages) */
+/* Page header (inner pages): photo banner in the home hero style */
+.page-hero { position: relative; display: flex; align-items: flex-end; min-height: 480px; height: 72vh; height: 72svh; max-height: 780px; color: #fff; background: var(--dark); overflow: hidden; text-align: center; }
+.page-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.page-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 40%, rgba(0,0,0,.65) 100%); }
+.page-hero .wrap { position: relative; z-index: 1; width: 100%; padding-bottom: clamp(48px, 8vh, 88px); }
+.page-hero h1 { color: #fff; margin: 0 0 .3em; text-shadow: 0 2px 24px rgba(0,0,0,.3); }
+.page-hero .eyebrow { color: var(--accent); }
+.page-hero .eyebrow time { color: inherit; }
+.page-hero .lead { color: rgba(255,255,255,.9); max-width: 680px; margin: 0 auto; text-shadow: 0 1px 12px rgba(0,0,0,.35); }
+.page-hero .event-venue { color: rgba(255,255,255,.85); justify-content: center; margin-top: 16px; }
+@media (max-width: 700px) { .page-hero { min-height: 420px; height: 64svh; } }
 .page-head { padding: 160px 0 56px; text-align: center; }
 .page-head p { max-width: 640px; margin: 0 auto; }
 
