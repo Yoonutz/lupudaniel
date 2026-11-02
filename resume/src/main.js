@@ -77,7 +77,7 @@ function renderNav(){
   const n=STATE.nav;
   return `<header class="nav"><div class="wrap">
     <a class="brand" href="#top"><span class="mark">DL</span>${escT(STATE.brand)}</a>
-    <nav aria-label="Sections"><a href="#services">${n.services[lang]}</a><a href="#experience">${n.experience[lang]}</a><a href="#about">${n.about[lang]}</a><a href="#contact">${n.contact[lang]}</a></nav>
+    <nav aria-label="Sections"><a href="#services">${rt(n.services[lang])}</a><a href="#experience">${rt(n.experience[lang])}</a><a href="#about">${rt(n.about[lang])}</a><a href="#contact">${rt(n.contact[lang])}</a></nav>
     <button class="icon-btn lang-btn" id="lang" type="button" aria-label="${lang==="ro"?"Switch to English":"Schimbă în română"}">${lang==="ro"?"EN":"RO"}</button>
     <button class="icon-btn" id="theme" type="button" aria-label="Toggle light or dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
   </div></header>`+(admin?`<div class="admin-bar"><div class="wrap"><b>${u("admin")}</b><span class="hint">${u("hint")}</span><span class="status" id="status">${dirty?u("unsaved"):""}</span><button class="save" type="button" id="save"${dirty&&!readOnly?"":" disabled"}>${u("save")}</button><button type="button" id="exit">${u("exit")}</button></div></div>`:"");
@@ -115,9 +115,9 @@ function renderExp(){return sec("experience",()=>{const x=STATE.exp,editingNow=e
   const list=(key)=>`<ul>${x[key].items.map((it,i)=>`<li>${E("b",`exp.${key}.items.${i}.b`)}${E("span",`exp.${key}.items.${i}.s`)}${X(`exp.${key}.items.${i}`)}</li>`).join("")}</ul>${ADD(`exp.${key}.items`)}`;
   return `<section id="experience" style="background:var(--surface-2);border-block:1px solid var(--border)"><div class="wrap sec-wrap">${EDITBTN("experience")}
   <div class="sec-head"><div>${E("p","exp.eyebrow","eyebrow")}${E("h2","exp.title")}</div>${E("p","exp.intro")}</div>
-  <div class="tabs" role="tablist" aria-label="Experience field">${["all","p","d"].map(k=>`<button class="tab" role="tab" data-lens="${k}" aria-selected="${lens===k}">${x.tabs[k][lang]}</button>`).join("")}</div>
-  <p class="lens-note">${x.notes[lens][lang]}</p>
-  ${editingNow?`<div class="hl-help"><span>${lang==="ro"?"Selectează cuvinte dintr-o realizare ca să le marchezi pentru un filtru:":"Select words in a bullet to mark them for a filter:"}</span><mark data-f="p">${x.tabs.p[lang]}</mark><mark data-f="d">${x.tabs.d[lang]}</mark><mark data-f="pd">${lang==="ro"?"Ambele":"Both"}</mark></div><div style="margin-bottom:14px">${ADD("exp.jobs")}</div>`:""}
+  <div class="tabs" role="tablist" aria-label="Experience field">${["all","p","d"].map(k=>`<button class="tab" role="tab" data-lens="${k}" aria-selected="${lens===k}">${rt(x.tabs[k][lang])}</button>`).join("")}</div>
+  <p class="lens-note">${rt(x.notes[lens][lang])}</p>
+  ${editingNow?`<div class="hl-help"><span>${lang==="ro"?"Selectează cuvinte dintr-o realizare ca să le marchezi pentru un filtru:":"Select words in a bullet to mark them for a filter:"}</span><mark data-f="p">${rt(x.tabs.p[lang])}</mark><mark data-f="d">${rt(x.tabs.d[lang])}</mark><mark data-f="pd">${lang==="ro"?"Ambele":"Both"}</mark></div><div style="margin-bottom:14px">${ADD("exp.jobs")}</div>`:""}
   <div class="jobs"${editingNow?"":` data-lens="${lens}"`}>${jobs}</div>
   <div class="edu-grid">
     <div class="card">${E("h3","exp.edu.title")}${list("edu")}</div>
