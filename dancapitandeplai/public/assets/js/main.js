@@ -314,11 +314,11 @@
     if (!cfg || typeof window.gtag !== 'function') return;
     var en = document.documentElement.lang === 'en';
     var T = en ? {
-      text: 'We use cookies from Google Analytics to see which pages people find useful. Nothing is loaded unless you accept.',
-      yes: 'Accept', no: 'Refuse', label: 'Cookies', settings: 'Cookie settings'
+      text: 'I use Google Analytics to see which pages you find most helpful. Its cookies are only set if you agree.',
+      yes: 'I agree', no: 'No, thanks', label: 'Cookies', settings: 'Cookie settings'
     } : {
-      text: 'Folosim cookie-uri Google Analytics ca să vedem ce pagini vă sunt utile. Nu se încarcă nimic fără acordul tău.',
-      yes: 'Accept', no: 'Refuz', label: 'Cookie-uri', settings: 'Setări cookie-uri'
+      text: 'Folosesc Google Analytics ca să văd ce pagini vă sunt cele mai utile. Cookie-urile se activează doar dacă sunteți de acord.',
+      yes: 'Sunt de acord', no: 'Nu, mulțumesc', label: 'Cookie-uri', settings: 'Setări cookie-uri'
     };
     var KEY = 'consent';
     function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }

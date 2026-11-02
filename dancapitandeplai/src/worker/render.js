@@ -6,7 +6,7 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.ro",
 };
-const ASSET_V = "17";
+const ASSET_V = "18";
 // Cloudflare Web Analytics; left out for admin devices and test browsers (see index.js)
 export const BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'></script>`;
 // Google Analytics 4 + Tag Manager: loaded only after the visitor accepts cookies

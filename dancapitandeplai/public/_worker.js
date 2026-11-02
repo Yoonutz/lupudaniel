@@ -1797,7 +1797,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.ro"
 };
-var ASSET_V = "17";
+var ASSET_V = "18";
 var BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'><\/script>`;
 var GA4_ID = "G-L42LWHDQLX";
 var GTM_ID = "GTM-TF68724C";
