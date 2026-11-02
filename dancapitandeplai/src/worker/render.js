@@ -433,7 +433,7 @@ const LANDING = {
           "Lucrez cu lumină naturală. Dacă sunteți timizi în fața aparatului, e perfect: majoritatea cuplurilor uită de mine după primele minute.",
         ]],
         ["Unde fotografiez", [
-          "Sunt din Brașov și fotografiez nunți în oraș și în jur: Centrul Vechi, Poiana Brașov, conace și restaurante din zonă. Am lucrat, printre altele, la Conacul Albert, Naturalia Inn și Restaurant Adaggio. Merg oriunde vreți voi; în afara Brașovului se adaugă transportul și cazarea.",
+          "Sunt din Brașov și fotografiez nunți în oraș și în jur: Centrul Vechi, Poiana Brașov, conace și restaurante din zonă. Am lucrat, printre altele, la Conacul Albert și Naturalia Inn. Merg oriunde vreți voi; în afara Brașovului se adaugă transportul și cazarea.",
         ]],
         ["Cât costă", [
           "Nu am pachete fixe. O nuntă completă pornește în jur de 1.000 EUR, iar oferta finală depinde de durată, locație și ce vă doriți. Scrieți-mi data și locul și vă trimit o ofertă personalizată.",
@@ -456,7 +456,7 @@ const LANDING = {
           "I work with natural light. If you're shy in front of the camera, that's perfect: most couples forget I'm there after the first few minutes.",
         ]],
         ["Where I shoot", [
-          "I'm based in Brașov and photograph weddings in the city and around it: the Old Town, Poiana Brașov, manors and restaurants nearby. Among others, I've worked at Conacul Albert, Naturalia Inn and Restaurant Adaggio. I travel anywhere you like; outside Brașov, travel and accommodation are added.",
+          "I'm based in Brașov and photograph weddings in the city and around it: the Old Town, Poiana Brașov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Brașov, travel and accommodation are added.",
         ]],
         ["What it costs", [
           "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote.",
@@ -482,7 +482,7 @@ const LANDING = {
           "Lucrez cu lumină naturală și am răbdare cu cei mici. Copiii nu pozează, iar asta e exact ce iese cel mai frumos.",
         ]],
         ["Unde fotografiez", [
-          "Sunt din Brașov și fotografiez botezuri în bisericile și restaurantele din oraș și din jur, inclusiv la Restaurant Adaggio. Merg și în afara Brașovului; atunci se adaugă transportul și cazarea.",
+          "Sunt din Brașov și fotografiez botezuri în bisericile și restaurantele din oraș și din jur, inclusiv la Conacul Albert și Restaurant Adaggio. Merg și în afara Brașovului; atunci se adaugă transportul și cazarea.",
         ]],
         ["Familie și nou-născuți", [
           "Dacă vreți mai multe amintiri cu cel mic, fac și ședințe de familie, acasă sau în natură, și ședințe cu nou-născuți, cu blândețe și răbdare.",
@@ -505,7 +505,7 @@ const LANDING = {
           "I work with natural light and I'm patient with little ones. Kids don't pose, and that's exactly what turns out best.",
         ]],
         ["Where I shoot", [
-          "I'm based in Brașov and photograph christenings in churches and restaurants in and around the city, including Restaurant Adaggio. I also travel outside Brașov; then travel and accommodation are added.",
+          "I'm based in Brașov and photograph christenings in churches and restaurants in and around the city, including Conacul Albert and Restaurant Adaggio. I also travel outside Brașov; then travel and accommodation are added.",
         ]],
         ["Family and newborns", [
           "If you'd like more memories of your little one, I also do family sessions, at home or outdoors, and gentle, patient newborn sessions.",

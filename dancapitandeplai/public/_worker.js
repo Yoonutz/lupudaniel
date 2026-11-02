@@ -2117,7 +2117,7 @@ var LANDING = {
           "Lucrez cu lumin\u0103 natural\u0103. Dac\u0103 sunte\u021Bi timizi \xEEn fa\u021Ba aparatului, e perfect: majoritatea cuplurilor uit\u0103 de mine dup\u0103 primele minute."
         ]],
         ["Unde fotografiez", [
-          "Sunt din Bra\u0219ov \u0219i fotografiez nun\u021Bi \xEEn ora\u0219 \u0219i \xEEn jur: Centrul Vechi, Poiana Bra\u0219ov, conace \u0219i restaurante din zon\u0103. Am lucrat, printre altele, la Conacul Albert, Naturalia Inn \u0219i Restaurant Adaggio. Merg oriunde vre\u021Bi voi; \xEEn afara Bra\u0219ovului se adaug\u0103 transportul \u0219i cazarea."
+          "Sunt din Bra\u0219ov \u0219i fotografiez nun\u021Bi \xEEn ora\u0219 \u0219i \xEEn jur: Centrul Vechi, Poiana Bra\u0219ov, conace \u0219i restaurante din zon\u0103. Am lucrat, printre altele, la Conacul Albert \u0219i Naturalia Inn. Merg oriunde vre\u021Bi voi; \xEEn afara Bra\u0219ovului se adaug\u0103 transportul \u0219i cazarea."
         ]],
         ["C\xE2t cost\u0103", [
           "Nu am pachete fixe. O nunt\u0103 complet\u0103 porne\u0219te \xEEn jur de 1.000 EUR, iar oferta final\u0103 depinde de durat\u0103, loca\u021Bie \u0219i ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103."
@@ -2140,7 +2140,7 @@ var LANDING = {
           "I work with natural light. If you're shy in front of the camera, that's perfect: most couples forget I'm there after the first few minutes."
         ]],
         ["Where I shoot", [
-          "I'm based in Bra\u0219ov and photograph weddings in the city and around it: the Old Town, Poiana Bra\u0219ov, manors and restaurants nearby. Among others, I've worked at Conacul Albert, Naturalia Inn and Restaurant Adaggio. I travel anywhere you like; outside Bra\u0219ov, travel and accommodation are added."
+          "I'm based in Bra\u0219ov and photograph weddings in the city and around it: the Old Town, Poiana Bra\u0219ov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Bra\u0219ov, travel and accommodation are added."
         ]],
         ["What it costs", [
           "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote."
@@ -2166,7 +2166,7 @@ var LANDING = {
           "Lucrez cu lumin\u0103 natural\u0103 \u0219i am r\u0103bdare cu cei mici. Copiii nu pozeaz\u0103, iar asta e exact ce iese cel mai frumos."
         ]],
         ["Unde fotografiez", [
-          "Sunt din Bra\u0219ov \u0219i fotografiez botezuri \xEEn bisericile \u0219i restaurantele din ora\u0219 \u0219i din jur, inclusiv la Restaurant Adaggio. Merg \u0219i \xEEn afara Bra\u0219ovului; atunci se adaug\u0103 transportul \u0219i cazarea."
+          "Sunt din Bra\u0219ov \u0219i fotografiez botezuri \xEEn bisericile \u0219i restaurantele din ora\u0219 \u0219i din jur, inclusiv la Conacul Albert \u0219i Restaurant Adaggio. Merg \u0219i \xEEn afara Bra\u0219ovului; atunci se adaug\u0103 transportul \u0219i cazarea."
         ]],
         ["Familie \u0219i nou-n\u0103scu\u021Bi", [
           "Dac\u0103 vre\u021Bi mai multe amintiri cu cel mic, fac \u0219i \u0219edin\u021Be de familie, acas\u0103 sau \xEEn natur\u0103, \u0219i \u0219edin\u021Be cu nou-n\u0103scu\u021Bi, cu bl\xE2nde\u021Be \u0219i r\u0103bdare."
@@ -2189,7 +2189,7 @@ var LANDING = {
           "I work with natural light and I'm patient with little ones. Kids don't pose, and that's exactly what turns out best."
         ]],
         ["Where I shoot", [
-          "I'm based in Bra\u0219ov and photograph christenings in churches and restaurants in and around the city, including Restaurant Adaggio. I also travel outside Bra\u0219ov; then travel and accommodation are added."
+          "I'm based in Bra\u0219ov and photograph christenings in churches and restaurants in and around the city, including Conacul Albert and Restaurant Adaggio. I also travel outside Bra\u0219ov; then travel and accommodation are added."
         ]],
         ["Family and newborns", [
           "If you'd like more memories of your little one, I also do family sessions, at home or outdoors, and gentle, patient newborn sessions."
