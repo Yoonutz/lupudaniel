@@ -470,7 +470,7 @@
     return out;
   }
 
-  // ---------- visitor stats (Cloudflare Web Analytics) ----------
+  // ---------- visitor stats (own counter, D1) ----------
   var AN = { days: 7, data: {}, loading: false, error: '' };
   function loadAnalytics(fresh) {
     if (AN.loading) return;
@@ -561,6 +561,8 @@
   }
   function ranked(title, rows, label, metric) {
     metric = metric || 'visits';
+    // The very first rows were counted before page/country/device were kept
+    var lbl = label; label = function (k) { return k === '(necunoscut)' ? 'Necunoscut (primele vizite)' : lbl(k); };
     var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r[metric]; }).concat([0])));
     return h('div', { class: 'panel' },
       h('div', { class: 'panel-head' }, h('h2', { text: title })),
@@ -601,7 +603,7 @@
         h('div', { class: 'chart-head' }, h('h3', { class: 'sub', text: 'Pe zile' }),
           h('div', { class: 'legend' }, h('span', null, h('i', { class: 'sw total' }), 'Vizite'), d.own ? h('span', null, h('i', { class: 'sw uniq' }), 'din care vizitatori unici') : null)),
         dailyChart(d.daily),
-        h('p', { class: 'hint', text: (d.since ? 'Numărăm doar vizitatori reali, de la ' + new Date(d.since).toLocaleString('ro-RO', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + ' (fără testele noastre și fără telefoanele/calculatoarele care au intrat în admin). ' : '') + 'O vizită = cineva intră pe site (venind din altă parte); paginile văzute numără fiecare pagină deschisă. Fără cookies, nu vedem cine e. Actualizat la ' + when + ' (se reîmprospătează singur la 5 minute). Vizitator unic = aceeași persoană (același telefon sau calculator) numărată o singură dată, oricâte vizite ar face.' })),
+        h('p', { class: 'hint', text: (d.since ? 'Numărăm doar vizitatori reali, de la ' + new Date(d.since).toLocaleString('ro-RO', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + ' (fără testele noastre și fără telefoanele/calculatoarele care au intrat în admin). ' : '') + 'O vizită = cineva intră pe site (venind din altă parte); paginile văzute numără fiecare pagină deschisă. Toate cifrele de aici (sus, pe zile și în cele 4 liste de mai jos) vin din același numărător, deci se potrivesc. Fără cookies, nu vedem cine e. Actualizat la ' + when + ' (apasă Reîmprospătează pentru ultimele vizite). Vizitator unic = aceeași persoană (același telefon sau calculator) numărată o singură dată, oricâte vizite ar face.' })),
       h('div', { class: 'grid2' },
         ranked('Cele mai văzute pagini (de câte ori)', d.pages, pageLabel, 'views'),
         ranked('De unde vin (vizite)', refs, refLabel),

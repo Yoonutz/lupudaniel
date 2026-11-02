@@ -1050,45 +1050,96 @@ async function storage(env, params) {
 }
 var forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {
 });
+var VIEWS_SCHEMA = [
+  "CREATE TABLE IF NOT EXISTS views (day TEXT NOT NULL, ts INTEGER NOT NULL, vid TEXT NOT NULL, entry INTEGER NOT NULL, en INTEGER NOT NULL, path TEXT NOT NULL, ref TEXT NOT NULL, country TEXT NOT NULL, device TEXT NOT NULL)",
+  "CREATE INDEX IF NOT EXISTS views_day ON views(day)"
+];
+var viewsReady = false;
+async function ensureViews(db) {
+  if (viewsReady) return;
+  await db.batch(VIEWS_SCHEMA.map((q) => db.prepare(q)));
+  viewsReady = true;
+}
+var roDay = (d) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Bucharest", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+var NOT_A_PERSON = /bot|crawl|spider|slurp|preview|facebookexternalhit|meta-externalagent|whatsapp|telegram|discord|skype|curl|wget|python|httpx|go-http|java\/|okhttp|node-fetch|axios|undici|headless|playwright|puppeteer|lighthouse|pagespeed/i;
+var deviceOf = (ua) => /iPad|Tablet|Kindle|Silk|PlayBook|Android(?!.*Mobile)/i.test(ua) ? "tablet" : /Mobi|iPhone|iPod|Android|Windows Phone/i.test(ua) ? "mobile" : "desktop";
 async function recordHit(env, req, url2) {
   if (!env.VISITORS) return;
   const purpose = req.headers.get("sec-purpose") || req.headers.get("purpose") || "";
   if (/prefetch|prerender/i.test(purpose)) return;
   const ip = req.headers.get("cf-connecting-ip") || "", ua = req.headers.get("user-agent") || "";
-  if (!ip || !ua) return;
+  if (!ip || !ua || NOT_A_PERSON.test(ua)) return;
+  if (!/text\/html/.test(req.headers.get("accept") || "")) return;
   const vid = (await hmac(env, "visitor:" + ip + "|" + ua)).slice(0, 20);
   let refHost = "";
   try {
-    refHost = new URL(req.headers.get("referer") || "").hostname;
+    refHost = new URL(req.headers.get("referer") || "").hostname.toLowerCase();
   } catch {
   }
-  const entry = /(^|\.)dancapitandeplai\.(ro|pages\.dev)$/.test(refHost) ? 0 : 1;
+  const inside = /(^|\.)dancapitandeplai\.(ro|pages\.dev)$/.test(refHost);
+  const entry = inside ? 0 : 1;
   const en = /^\/en(\/|$)/.test(url2.pathname) ? 1 : 0;
-  await env.VISITORS.prepare("INSERT INTO hits (day, vid, entry, en) VALUES (?1, ?2, ?3, ?4)").bind((/* @__PURE__ */ new Date()).toISOString().slice(0, 10), vid, entry, en).run().catch(() => {
-  });
-}
-async function ownStats(env, days) {
-  if (!env.VISITORS) return null;
-  const now = Date.now(), d = (n) => day(new Date(now - n * 864e5));
-  const from = d(days - 1), prevFrom = d(2 * days - 1);
+  const now = /* @__PURE__ */ new Date();
   const db = env.VISITORS;
-  const [byDay, tot, prev] = await db.batch([
-    db.prepare("SELECT day, count(*) AS views, sum(entry) AS visits, count(DISTINCT vid) AS uniques, sum(en) AS en FROM hits WHERE day >= ?1 GROUP BY day").bind(from),
-    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques, coalesce(sum(en),0) AS en FROM hits WHERE day >= ?1").bind(from),
-    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques FROM hits WHERE day >= ?1 AND day < ?2").bind(prevFrom, from)
+  try {
+    await ensureViews(db);
+    await db.prepare("INSERT INTO views (day, ts, vid, entry, en, path, ref, country, device) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)").bind(
+      roDay(now),
+      now.getTime(),
+      vid,
+      entry,
+      en,
+      url2.pathname.slice(0, 300),
+      inside ? "" : refHost.slice(0, 100),
+      String(req.cf?.country || "").slice(0, 2),
+      deviceOf(ua)
+    ).run();
+  } catch (e2) {
+    console.error("record_hit_failed", e2);
+  }
+}
+async function ownStats(env, days, since) {
+  if (!env.VISITORS) return null;
+  const db = env.VISITORS;
+  await ensureViews(db);
+  const now = Date.now(), d = (n) => roDay(new Date(now - n * 864e5));
+  const from = d(days - 1), prevFrom = d(2 * days - 1), sinceMs = Date.parse(since) || 0;
+  const ALL = `(SELECT day, ts, vid, entry, en, path, ref, country, device FROM views WHERE ts >= ${sinceMs}
+    UNION ALL SELECT day, NULL, vid, entry, en, '(necunoscut)', '(necunoscut)', '(necunoscut)', '(necunoscut)' FROM hits)`;
+  const q = (sql, ...args) => db.prepare(sql.replace("ALL", ALL)).bind(...args);
+  const by = (col, metric, limit) => q(`SELECT ${col} AS key, count(*) AS views, sum(entry) AS visits FROM ALL WHERE day >= ?1 GROUP BY ${col} HAVING ${metric} > 0 ORDER BY ${metric} DESC, views DESC LIMIT ${limit}`, from);
+  const res = await db.batch([
+    q("SELECT day, count(*) AS views, sum(entry) AS visits, count(DISTINCT vid) AS uniques FROM ALL WHERE day >= ?1 GROUP BY day", from),
+    q("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques, coalesce(sum(en),0) AS en FROM ALL WHERE day >= ?1", from),
+    q("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques FROM ALL WHERE day >= ?1 AND day < ?2", prevFrom, from),
+    by("path", "views", 10),
+    by("ref", "visits", 8),
+    by("country", "visits", 8),
+    by("device", "visits", 10)
   ]);
-  const map = new Map(byDay.results.map((r2) => [r2.day, r2]));
+  const [byDay, tot, prev, pages, refs, countries, devices] = res.map((r2) => r2.results);
+  const map = new Map(byDay.map((r2) => [r2.day, r2]));
   const daily = [];
   for (let i = days - 1; i >= 0; i--) {
     const k = d(i), r2 = map.get(k);
     daily.push({ key: k, views: r2 ? r2.views : 0, visits: r2 ? r2.visits : 0, uniques: r2 ? r2.uniques : 0 });
   }
-  const t2 = tot.results[0], p = prev.results[0];
+  const t2 = tot[0], p = prev[0];
   return {
+    days,
+    from,
+    to: d(0),
+    since,
+    own: true,
     daily,
     total: { views: t2.views, visits: t2.visits, uniques: t2.uniques },
     prev: { views: p.views, visits: p.visits, uniques: p.uniques },
-    lang: { ro: t2.views - t2.en, en: t2.en }
+    lang: { ro: t2.views - t2.en, en: t2.en },
+    pages,
+    refs,
+    countries,
+    devices,
+    at: (/* @__PURE__ */ new Date()).toISOString()
   };
 }
 var RUM_SITE_TAG = "82c2176da79d4d8189e726ad2152c15d";
@@ -1179,8 +1230,17 @@ ${parts.join("\n")}
 }
 var lastStats = {};
 async function analytics(env, params) {
-  if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const days = params.get("days") === "30" ? 30 : 7;
+  const since = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(env.STATS_SINCE || "") ? env.STATS_SINCE : DEFAULT_SINCE;
+  if (env.VISITORS) {
+    try {
+      return json(await ownStats(env, days, since));
+    } catch (e2) {
+      console.error("own_stats_failed", e2);
+      return json({ error: "analytics_failed" }, 502);
+    }
+  }
+  if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const key = `https://cache.internal/analytics-v2-${days}`;
   const cache = caches.default;
   if (params.get("fresh") !== "1") {
@@ -1190,8 +1250,6 @@ async function analytics(env, params) {
   let data;
   try {
     data = await rumQuery(env, days);
-    const own = await ownStats(env, days).catch(() => null);
-    if (own) Object.assign(data, own, { own: true });
     lastStats[days] = data;
   } catch (e2) {
     if (lastStats[days]) return json(lastStats[days]);

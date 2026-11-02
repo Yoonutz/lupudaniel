@@ -391,47 +391,89 @@ async function storage(env, params) {
 const forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {});
 
 // ---------- own visitor counter (D1, binding VISITORS) ----------
-// Cloudflare Web Analytics has no "unique visitors", so the worker keeps one row per real
-// page view: day (UTC), an anonymous visitor id (HMAC of IP + browser, never stored raw),
-// whether it entered from outside (= a visit) and whether it was the English site.
+// One row per real page view in table `views`: Romanian day, time, an anonymous visitor id
+// (HMAC of IP + browser, never stored raw), whether it entered from outside (= a visit),
+// English or not, page, where the visit came from, country and device type.
+// EVERY number on the Statistici tab comes from this table, so tiles, chart and the four
+// breakdowns always add up. (Table `hits` = the first rows, before the details were kept.)
 // D1 free tier: 100k writes/day, separate from the KV limits.
+const VIEWS_SCHEMA = [
+  "CREATE TABLE IF NOT EXISTS views (day TEXT NOT NULL, ts INTEGER NOT NULL, vid TEXT NOT NULL, entry INTEGER NOT NULL, en INTEGER NOT NULL, path TEXT NOT NULL, ref TEXT NOT NULL, country TEXT NOT NULL, device TEXT NOT NULL)",
+  "CREATE INDEX IF NOT EXISTS views_day ON views(day)",
+];
+let viewsReady = false;
+async function ensureViews(db) {
+  if (viewsReady) return;
+  await db.batch(VIEWS_SCHEMA.map(q => db.prepare(q)));
+  viewsReady = true;
+}
+const roDay = d => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Bucharest", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+// Link previews and scripts fetch pages too, but they aren't people
+const NOT_A_PERSON = /bot|crawl|spider|slurp|preview|facebookexternalhit|meta-externalagent|whatsapp|telegram|discord|skype|curl|wget|python|httpx|go-http|java\/|okhttp|node-fetch|axios|undici|headless|playwright|puppeteer|lighthouse|pagespeed/i;
+const deviceOf = ua =>
+  /iPad|Tablet|Kindle|Silk|PlayBook|Android(?!.*Mobile)/i.test(ua) ? "tablet" : /Mobi|iPhone|iPod|Android|Windows Phone/i.test(ua) ? "mobile" : "desktop";
+
 export async function recordHit(env, req, url) {
   if (!env.VISITORS) return;
   const purpose = req.headers.get("sec-purpose") || req.headers.get("purpose") || "";
   if (/prefetch|prerender/i.test(purpose)) return;
   const ip = req.headers.get("cf-connecting-ip") || "", ua = req.headers.get("user-agent") || "";
-  if (!ip || !ua) return;
+  if (!ip || !ua || NOT_A_PERSON.test(ua)) return;
+  // Real browsers ask for a web page; scripts usually ask for "anything"
+  if (!/text\/html/.test(req.headers.get("accept") || "")) return;
   const vid = (await hmac(env, "visitor:" + ip + "|" + ua)).slice(0, 20);
   let refHost = "";
-  try { refHost = new URL(req.headers.get("referer") || "").hostname; } catch {}
-  const entry = /(^|\.)dancapitandeplai\.(ro|pages\.dev)$/.test(refHost) ? 0 : 1;
+  try { refHost = new URL(req.headers.get("referer") || "").hostname.toLowerCase(); } catch {}
+  const inside = /(^|\.)dancapitandeplai\.(ro|pages\.dev)$/.test(refHost);
+  const entry = inside ? 0 : 1;
   const en = /^\/en(\/|$)/.test(url.pathname) ? 1 : 0;
-  await env.VISITORS.prepare("INSERT INTO hits (day, vid, entry, en) VALUES (?1, ?2, ?3, ?4)")
-    .bind(new Date().toISOString().slice(0, 10), vid, entry, en).run().catch(() => {});
+  const now = new Date();
+  const db = env.VISITORS;
+  try {
+    await ensureViews(db);
+    await db.prepare("INSERT INTO views (day, ts, vid, entry, en, path, ref, country, device) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)")
+      .bind(roDay(now), now.getTime(), vid, entry, en, url.pathname.slice(0, 300), inside ? "" : refHost.slice(0, 100),
+        String(req.cf?.country || "").slice(0, 2), deviceOf(ua)).run();
+  } catch (e) { console.error("record_hit_failed", e); }
 }
 
-async function ownStats(env, days) {
+async function ownStats(env, days, since) {
   if (!env.VISITORS) return null;
-  const now = Date.now(), d = n => day(new Date(now - n * 864e5));
-  const from = d(days - 1), prevFrom = d(2 * days - 1);
   const db = env.VISITORS;
-  const [byDay, tot, prev] = await db.batch([
-    db.prepare("SELECT day, count(*) AS views, sum(entry) AS visits, count(DISTINCT vid) AS uniques, sum(en) AS en FROM hits WHERE day >= ?1 GROUP BY day").bind(from),
-    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques, coalesce(sum(en),0) AS en FROM hits WHERE day >= ?1").bind(from),
-    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques FROM hits WHERE day >= ?1 AND day < ?2").bind(prevFrom, from),
+  await ensureViews(db);
+  const now = Date.now(), d = n => roDay(new Date(now - n * 864e5));
+  const from = d(days - 1), prevFrom = d(2 * days - 1), sinceMs = Date.parse(since) || 0;
+  // Old rows (table hits) have no page/country/device: they show up as "(necunoscut)"
+  const ALL = `(SELECT day, ts, vid, entry, en, path, ref, country, device FROM views WHERE ts >= ${sinceMs}
+    UNION ALL SELECT day, NULL, vid, entry, en, '(necunoscut)', '(necunoscut)', '(necunoscut)', '(necunoscut)' FROM hits)`;
+  const q = (sql, ...args) => db.prepare(sql.replace("ALL", ALL)).bind(...args);
+  const by = (col, metric, limit) =>
+    q(`SELECT ${col} AS key, count(*) AS views, sum(entry) AS visits FROM ALL WHERE day >= ?1 GROUP BY ${col} HAVING ${metric} > 0 ORDER BY ${metric} DESC, views DESC LIMIT ${limit}`, from);
+  const res = await db.batch([
+    q("SELECT day, count(*) AS views, sum(entry) AS visits, count(DISTINCT vid) AS uniques FROM ALL WHERE day >= ?1 GROUP BY day", from),
+    q("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques, coalesce(sum(en),0) AS en FROM ALL WHERE day >= ?1", from),
+    q("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques FROM ALL WHERE day >= ?1 AND day < ?2", prevFrom, from),
+    by("path", "views", 10),
+    by("ref", "visits", 8),
+    by("country", "visits", 8),
+    by("device", "visits", 10),
   ]);
-  const map = new Map(byDay.results.map(r => [r.day, r]));
+  const [byDay, tot, prev, pages, refs, countries, devices] = res.map(r => r.results);
+  const map = new Map(byDay.map(r => [r.day, r]));
   const daily = [];
   for (let i = days - 1; i >= 0; i--) {
     const k = d(i), r = map.get(k);
     daily.push({ key: k, views: r ? r.views : 0, visits: r ? r.visits : 0, uniques: r ? r.uniques : 0 });
   }
-  const t = tot.results[0], p = prev.results[0];
+  const t = tot[0], p = prev[0];
   return {
+    days, from, to: d(0), since, own: true,
     daily,
     total: { views: t.views, visits: t.visits, uniques: t.uniques },
     prev: { views: p.views, visits: p.visits, uniques: p.uniques },
     lang: { ro: t.views - t.en, en: t.en },
+    pages, refs, countries, devices,
+    at: new Date().toISOString(),
   };
 }
 
@@ -525,8 +567,15 @@ async function rumQuery(env, days) {
 
 const lastStats = {};
 async function analytics(env, params) {
-  if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const days = params.get("days") === "30" ? 30 : 7;
+  const since = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(env.STATS_SINCE || "") ? env.STATS_SINCE : DEFAULT_SINCE;
+  // Own counter (D1) is the one source for every number. Cloudflare Web Analytics is
+  // only the fallback when the D1 binding is missing.
+  if (env.VISITORS) {
+    try { return json(await ownStats(env, days, since)); }
+    catch (e) { console.error("own_stats_failed", e); return json({ error: "analytics_failed" }, 502); }
+  }
+  if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const key = `https://cache.internal/analytics-v2-${days}`;
   const cache = caches.default;
   if (params.get("fresh") !== "1") {
@@ -536,9 +585,6 @@ async function analytics(env, params) {
   let data;
   try {
     data = await rumQuery(env, days);
-    // Our own counter (with unique visitors) drives the totals and the chart when it's there
-    const own = await ownStats(env, days).catch(() => null);
-    if (own) Object.assign(data, own, { own: true });
     lastStats[days] = data;
   }
   catch (e) {
