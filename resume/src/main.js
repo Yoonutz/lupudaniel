@@ -225,7 +225,7 @@ app.addEventListener("click",e=>{
   if(b.id==="lang"){lang=lang==="ro"?"en":"ro";try{localStorage.setItem("dl-lang",lang)}catch(_){}render();return}
   if(b.id==="theme"){const cur=root.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");root.dataset.theme=cur==="dark"?"light":"dark";try{localStorage.setItem("dl-theme",root.dataset.theme)}catch(_){}return}
   if(b.id==="totop"){scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});return}
-  if(b.dataset.lens){lens=b.dataset.lens;try{localStorage.setItem("dl-lens",lens)}catch(_){}render();return}
+  if(b.dataset.lens){lens={all:"all",p:"p",d:"d"}[b.dataset.lens]||lens;try{localStorage.setItem("dl-lens",lens)}catch(_){}render();return}
   if(b.dataset.copy){const v=document.querySelector(`[data-p="${b.dataset.copy}"]`);const done=()=>{b.textContent=u("copied");setTimeout(()=>b.textContent=u("copy"),1600)};const sel=()=>{const r=document.createRange();r.selectNodeContents(v);const s=getSelection();s.removeAllRanges();s.addRange(r)};if(navigator.clipboard)navigator.clipboard.writeText(v.textContent).then(done).catch(sel);else sel();return}
   if(b.dataset.editSec){const id=b.dataset.editSec;editing.has(id)?editing.delete(id):editing.add(id);render();return}
   if(b.dataset.add){const p=b.dataset.add,key=p.replace(/\.\d+\./g,".*.");const arr=get(p);const item=NEW[key]?NEW[key](p):L("New","Nou");PREPEND.has(key)?arr.unshift(item):arr.push(item);markDirty();render();return}
