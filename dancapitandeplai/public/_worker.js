@@ -1690,7 +1690,7 @@ var SITE = {
 var ASSET_V = "17";
 var BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'><\/script>`;
 var GA4_ID = "G-L42LWHDQLX";
-var GTM_ID = "";
+var GTM_ID = "GTM-TF68724C";
 var GSC_TOKEN = "";
 var GTAG_START = "<!--gtag-->";
 var GTAG_END = "<!--/gtag-->";

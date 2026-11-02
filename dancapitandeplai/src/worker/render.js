@@ -12,7 +12,7 @@ export const BEACON = `<script defer src="https://static.cloudflareinsights.com/
 // Google Analytics 4 + Tag Manager: loaded only after the visitor accepts cookies
 // (Consent Mode v2, banner in main.js). Empty id = that tag is off.
 const GA4_ID = "G-L42LWHDQLX";
-const GTM_ID = "";
+const GTM_ID = "GTM-TF68724C";
 // Search Console HTML-tag verification. Outside the strip block on purpose: Googlebot
 // counts as "internal" (see isInternal) and must still see it.
 const GSC_TOKEN = "";
