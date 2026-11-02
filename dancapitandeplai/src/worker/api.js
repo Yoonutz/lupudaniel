@@ -133,9 +133,16 @@ async function verifyLink(req, env) {
 // secret exists. Delete ADMIN_KEY in Cloudflare to turn it off.
 async function quickLogin(req, env) {
   const body = await readJson(req, 1000).catch(() => ({}));
-  const given = String(body.key || ""), want = String(env.ADMIN_KEY || "");
-  if (!want || await sha256(given) !== await sha256(want)) return json({ error: "bad_key" }, 403);
-  return startSession(env, adminEmails(env)[0]);
+  const given = await sha256(String(body.key || ""));
+  const want = String(env.ADMIN_KEY || ""), dev = String(env.DEV_LOGIN_KEY || "");
+  if (want && given === await sha256(want)) return startSession(env, adminEmails(env)[0]);
+  // Developer login (Claude checking changes live) without emailing anyone. DEV_LOGIN_KEY is a
+  // Pages secret, rotated whenever needed; delete it in Cloudflare to turn this off.
+  if (dev.length >= 32 && given === await sha256(dev)) {
+    const list = adminEmails(env), who = list.includes("ionut.filea@gmail.com") ? "ionut.filea@gmail.com" : list[0];
+    return startSession(env, who);
+  }
+  return json({ error: "bad_key" }, 403);
 }
 
 async function logout() {
@@ -385,27 +392,53 @@ const day = d => d.toISOString().slice(0, 10);
 async function rumQuery(env, days) {
   const now = new Date();
   const from = new Date(now.getTime() - (days - 1) * 864e5);
-  const prevFrom = new Date(from.getTime() - days * 864e5), prevTo = new Date(from.getTime() - 864e5);
+  const prevFrom = new Date(from.getTime() - days * 864e5);
+  // Cloudflare samples long ranges more coarsely (30 days came back lower than 7),
+  // so ask in 7-day pieces and add them up. All pieces go in one request
+  // (30 days = 30 sub-queries; the API allows ~300 per 5 min, and results are cached 15 min).
+  const pieces = start => {
+    const out = [];
+    for (let i = 0; i < days; i += 7) {
+      const a = new Date(start.getTime() + i * 864e5), b = new Date(start.getTime() + Math.min(i + 6, days - 1) * 864e5);
+      out.push(`{siteTag:$s, date_geq:"${day(a)}", date_leq:"${day(b)}"}`);
+    }
+    return out;
+  };
   const g = (alias, f, dims, order, limit) =>
     `${alias}: rumPageloadEventsAdaptiveGroups(limit:${limit}, filter:${f}${order ? `, orderBy:[${order}]` : ""}){count sum{visits}${dims ? ` dimensions{${dims}}` : ""}}`;
-  const cur = `{siteTag:$s, date_geq:$from, date_leq:$to}`;
-  const query = `query($a:String!,$s:String!,$from:Date!,$to:Date!,$pf:Date!,$pt:Date!){viewer{accounts(filter:{accountTag:$a}){
-    ${g("total", cur, "", "", 1)}
-    ${g("prev", `{siteTag:$s, date_geq:$pf, date_leq:$pt}`, "", "", 1)}
-    ${g("daily", cur, "date", "date_ASC", 100)}
-    ${g("pages", cur, "requestPath", "count_DESC", 500)}
-    ${g("countries", cur, "countryName", "sum_visits_DESC", 50)}
-    ${g("devices", cur, "deviceType", "sum_visits_DESC", 10)}
-    ${g("refs", cur, "refererHost", "sum_visits_DESC", 50)}
-  }}}`;
+  const parts = [];
+  pieces(prevFrom).forEach((f, i) => parts.push(g(`prev${i}`, f, "", "", 1)));
+  pieces(from).forEach((f, i) => parts.push(
+    g(`daily${i}`, f, "date", "date_ASC", 10),
+    g(`pages${i}`, f, "requestPath", "count_DESC", 500),
+    g(`countries${i}`, f, "countryName", "sum_visits_DESC", 50),
+    g(`devices${i}`, f, "deviceType", "sum_visits_DESC", 10),
+    g(`refs${i}`, f, "refererHost", "sum_visits_DESC", 50)));
+  const query = `query($a:String!,$s:String!){viewer{accounts(filter:{accountTag:$a}){\n${parts.join("\n")}\n}}}`;
   const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
     method: "POST",
     headers: { authorization: "Bearer " + env.CF_ANALYTICS_TOKEN, "content-type": "application/json" },
-    body: JSON.stringify({ query, variables: { a: env.CF_ACCOUNT_ID, s: env.CF_RUM_SITE_TAG || RUM_SITE_TAG, from: day(from), to: day(now), pf: day(prevFrom), pt: day(prevTo) } }),
+    body: JSON.stringify({ query, variables: { a: env.CF_ACCOUNT_ID, s: env.CF_RUM_SITE_TAG || RUM_SITE_TAG } }),
   });
   const d = await res.json().catch(() => ({}));
-  const a = d?.data?.viewer?.accounts?.[0];
-  if (!a) throw new Error((d?.errors?.[0]?.message || "HTTP " + res.status).slice(0, 200));
+  const acc = d?.data?.viewer?.accounts?.[0];
+  if (!acc) throw new Error((d?.errors?.[0]?.message || "HTTP " + res.status).slice(0, 200));
+  // Glue the pieces back together: rows with the same key (date, page, country…) are added up
+  const n = Math.ceil(days / 7), a = {};
+  for (const name of ["prev", "daily", "pages", "countries", "devices", "refs"]) {
+    const merged = new Map();
+    for (let i = 0; i < n; i++) for (const r of acc[name + i] || []) {
+      const k = JSON.stringify(r.dimensions || {});
+      const m = merged.get(k) || { dimensions: r.dimensions, count: 0, sum: { visits: 0 } };
+      m.count += r.count; m.sum.visits += r.sum.visits; merged.set(k, m);
+    }
+    a[name] = [...merged.values()];
+  }
+  // Total = sum of the days, so the chart and the big number always agree
+  a.total = [a.daily.reduce((t, r) => ({ count: t.count + r.count, sum: { visits: t.sum.visits + r.sum.visits } }), { count: 0, sum: { visits: 0 } })];
+  const bySum = (x, y) => y.sum.visits - x.sum.visits || y.count - x.count;
+  a.pages.sort((x, y) => y.count - x.count);
+  for (const k of ["countries", "devices", "refs"]) a[k].sort(bySum);
   const sum = rows => ({ views: rows?.[0]?.count || 0, visits: rows?.[0]?.sum?.visits || 0 });
   const rows = (list, key) => (list || []).map(r => ({ key: r.dimensions[key] || "", views: r.count, visits: r.sum.visits }));
   // Every day in the range, zero when nobody came
@@ -430,6 +463,7 @@ async function rumQuery(env, days) {
   };
 }
 
+const lastStats = {};
 async function analytics(env, params) {
   if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const days = params.get("days") === "30" ? 30 : 7;
@@ -440,7 +474,12 @@ async function analytics(env, params) {
     if (hit) return json(await hit.json());
   }
   let data;
-  try { data = await rumQuery(env, days); } catch (e) { return json({ error: "analytics_failed", detail: String(e.message || e) }, 502); }
+  try { data = await rumQuery(env, days); lastStats[days] = data; }
+  catch (e) {
+    // e.g. Cloudflare's rate limit: show the last numbers this worker had rather than an error
+    if (lastStats[days]) return json(lastStats[days]);
+    return json({ error: "analytics_failed", detail: String(e.message || e) }, 502);
+  }
   await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } })).catch(() => {});
   return json(data);
 }
