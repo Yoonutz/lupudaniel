@@ -2,6 +2,7 @@ import { googleStats } from "./google.js";
 // REST API for the admin panel: email-link login, content, media.
 // Bindings: CONTENT (KV), MAILER (service -> dancapitandeplai-mailer); vars: ADMIN_EMAILS (comma separated).
 import SEED from "./seed.json";
+import POSTS_V2 from "./posts-v2.json";
 
 const SESSION_TTL = 24 * 3600; // Dan logs in once a day
 const MAX_IMAGE = 8 * 1024 * 1024;
@@ -48,6 +49,17 @@ const TEXT_FIXES = [
   ["Fiecare eveniment are povestea lui. Alege unul și intră în ziua respectivă.", "Fiecare eveniment are povestea lui. Alegeți unul și intrați în ziua respectivă."],
   ["Ce să întrebi înainte să semnezi, ca să nu ai surprize după nuntă.", "Ce să întrebați înainte să semnați, ca să nu aveți surprize după nuntă."],
 ];
+// Blog posts rewritten in Dan's own voice (2026-11-02). Swapped in on read only while the
+// saved post still has the old first paragraph, so anything Dan edits in the admin wins.
+function upgradePosts(saved) {
+  if (!Array.isArray(saved.posts)) return saved;
+  saved.posts = saved.posts.map(p => {
+    const v = POSTS_V2[p.slug];
+    const first = p.body && Array.isArray(p.body.ro) ? p.body.ro[0] : null;
+    return v && first === v.was ? { ...p, title: v.title, excerpt: v.excerpt, body: v.body } : p;
+  });
+  return saved;
+}
 function fixText(saved) {
   let s = JSON.stringify(saved);
   for (const [a, b] of TEXT_FIXES) s = s.split(JSON.stringify(a).slice(1, -1)).join(JSON.stringify(b).slice(1, -1));
@@ -65,7 +77,7 @@ export async function getContent(env, ctx) {
     const put = cache.put(CONTENT_URL, res).catch(() => {});
     ctx ? ctx.waitUntil(put) : await put;
   }
-  if (saved) saved = fixText(saved);
+  if (saved) saved = upgradePosts(fixText(saved));
   const data = saved ? { ...SEED, ...saved } : SEED;
   // Old saves still carry the sample reviews; show the real ones from the seed instead
   if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = SEED.testimonials;

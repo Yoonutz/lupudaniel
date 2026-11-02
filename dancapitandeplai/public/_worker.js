@@ -797,6 +797,220 @@ var seed_default = {
   }
 };
 
+// src/worker/posts-v2.json
+var posts_v2_default = {
+  "pregatirile-de-dimineata": {
+    was: "Sigur, ceremonia \u0219i petrecerea sunt miezul unei nun\u021Bi. Dar dac\u0103 m\u0103 \xEEntreba\u021Bi pe mine, cele mai sincere cadre se ascund diminea\u021Ba, acas\u0103, \xEEn orele de preg\u0103tiri. Acolo nimeni nu pozeaz\u0103. Toat\u0103 lumea doar simte.",
+    title: {
+      ro: "Partea mea preferat\u0103 din nunt\u0103? Preg\u0103tirile \u{1F605}",
+      en: "My favourite part of a wedding? Getting ready \u{1F605}"
+    },
+    excerpt: {
+      ro: "Dac\u0103 m\u0103 \xEEntreba\u021Bi pe mine, cele mai sincere cadre se ascund diminea\u021Ba, acas\u0103. Plus c\xE2teva trucuri mici ca s\u0103 le tr\u0103i\u021Bi lini\u0219ti\u021Bi.",
+      en: "If you ask me, the most honest frames hide in the morning, at home. Plus a few small tricks to enjoy it calmly."
+    },
+    body: {
+      ro: [
+        "Sigur, ceremonia \u0219i petrecerea sunt miezul unei nun\u021Bi. Dar dac\u0103 m\u0103 \xEEntreba\u021Bi pe mine, partea mea preferat\u0103 sunt preg\u0103tirile de acas\u0103. E momentul \u0103la de lini\u0219te (relativ\u0103 \u{1F605}) \xEEn care nimeni nu pozeaz\u0103. Toat\u0103 lumea doar simte.",
+        "\u201ENu m\u0103 poza acum, ar\u0103t groaznic!\u201D Aud asta aproape la fiecare nunt\u0103, pe jum\u0103tate \xEEn glum\u0103. Lini\u0219ti\u021Bi-v\u0103. Eu nu caut perfec\u021Biunea, caut oamenii. Machiajul care \xEEnt\xE2rzie, butoniera care nu vrea s\u0103 stea, telefonul care sun\u0103 \xEEntruna: toate fac parte din poveste.",
+        "Fotografia nu e un checklist de bifat. Nu v\u0103 opresc, nu v\u0103 cer s\u0103 z\xE2mbi\u021Bi la comand\u0103 \u0219i nici s\u0103 v\u0103 uita\u021Bi la aparat. Voi v\u0103 tr\u0103i\u021Bi diminea\u021Ba, eu stau pe aproape \u0219i o documentez. Asta e toat\u0103 \xEEn\u021Belegerea dintre noi. \u{1F90D}",
+        "C\xE2teva lucruri mici, adunate din multe dimine\u021Bi de nunt\u0103, care fac o diferen\u021B\u0103 mare:",
+        "Alege\u021Bi camera cu cea mai mare fereastr\u0103. Lumina natural\u0103 de la geam e cel mai frumos lucru care i se poate \xEEnt\xE2mpla unei poze de preg\u0103tiri.",
+        "Face\u021Bi ordine doar \xEEntr-un col\u021B. Nu toat\u0103 casa, doar locul unde v\u0103 \xEEmbr\u0103ca\u021Bi. Crede\u021Bi-m\u0103, pungile \u0219i sticlele de ap\u0103 apar \xEEn poze mai des dec\xE2t v-a\u021Bi imagina.",
+        "Pune\u021Bi deoparte detaliile: inelele, invita\u021Bia, parfumul, pantofii, buchetul. Le fotografiez \xEEn primele minute, c\xE2t voi \xEEnc\u0103 v\u0103 be\u021Bi cafeaua.",
+        "L\u0103sa\u021Bi-v\u0103 o jum\u0103tate de or\u0103 \xEEn plus \xEEn program. Nu pentru mine, pentru voi. \xCEnt\xE2rzierile de diminea\u021B\u0103 sunt aproape garantate \u0219i e mult mai fain s\u0103 le tr\u0103i\u021Bi r\xE2z\xE2nd dec\xE2t alerg\xE2nd.",
+        "La botez e la fel: bebelu\u0219ul \xEEn bra\u021Be, bunicii \xEEn jur, lumina de la fereastr\u0103. Peste ani, la pozele astea o s\u0103 v\u0103 \xEEntoarce\u021Bi cel mai des. Voi care e momentul preferat din ziua voastr\u0103? Scrie\u021Bi-mi \u0219i stabilim \xEEmpreun\u0103 cum arat\u0103 ziua."
+      ],
+      en: [
+        "Sure, the ceremony and the party are the heart of a wedding. But if you ask me, my favourite part is getting ready at home. It's that moment of (relative \u{1F605}) calm when nobody poses. Everybody just feels.",
+        `"Don't shoot me now, I look terrible!" I hear it at almost every wedding, half joking. Relax. I'm not looking for perfection, I'm looking for people. Make-up running late, a boutonniere that won't stay put, a phone that never stops ringing: it's all part of the story.`,
+        "Photography isn't a checklist to tick off. I won't stop you, ask you to smile on cue or look at the camera. You live your morning, I stay close and document it. That's the whole deal between us. \u{1F90D}",
+        "A few small things, collected over many wedding mornings, that make a big difference:",
+        "Pick the room with the biggest window. Natural window light is the best thing that can happen to getting-ready photos.",
+        "Tidy up just one corner. Not the whole house, only the spot where you get dressed. Trust me, bags and water bottles end up in photos more often than you'd think.",
+        "Set the details aside: rings, invitation, perfume, shoes, bouquet. I photograph them in the first few minutes while you're still drinking your coffee.",
+        "Add an extra half hour to the schedule. Not for me, for you. Morning delays are almost guaranteed, and it's much nicer to live them laughing than running.",
+        "Christenings are the same: the baby in someone's arms, grandparents around, light from the window. Years from now, these are the photos you'll come back to most. What's your favourite moment of the day? Write to me and we'll plan yours together."
+      ]
+    }
+  },
+  "primul-premiu-selectia-editorilor": {
+    was: "\xCEn iunie 2026 am primit primul meu premiu la Selec\u021Bia Editorilor, concursul de fotografie de nunt\u0103 organizat de fotografi-cameramani.ro. La o s\u0103pt\u0103m\xE2n\u0103 distan\u021B\u0103 a venit a doua imagine premiat\u0103, apoi \xEEnc\u0103 c\xE2teva men\u021Biuni. Recunosc, m-am bucurat ca un copil.",
+    title: {
+      ro: "Primul meu premiu: editorii au vorbit, eu n-am nimic de ad\u0103ugat \u{1F90D}",
+      en: "My first award: the editors have spoken, I have nothing to add \u{1F90D}"
+    },
+    excerpt: {
+      ro: "Selec\u021Bia Editorilor, dou\u0103 imagini premiate \u0219i c\xE2teva men\u021Biuni. Plus sfaturi sincere despre cum s\u0103 v\u0103 alege\u021Bi fotograful.",
+      en: "The Editors' Selection, two awarded images and a few mentions. Plus honest advice on choosing your photographer."
+    },
+    body: {
+      ro: [
+        "Mul\u021Bumesc, fotografi-cameramani.ro! \xCEn iunie 2026 am primit primul meu premiu la Selec\u021Bia Editorilor, concursul dedicat fotografiei de nunt\u0103. Editorii au vorbit, eu n-am nimic de ad\u0103ugat. \u{1F90D}",
+        "Apoi a venit a doua imagine premiat\u0103. Apoi \xEEnc\u0103 dou\u0103 men\u021Biuni. Cred c\u0103 sunt pe val! \u{1F30A} Dac\u0103 fac un mic bilan\u021B, prind \u0219i mai mult curaj. E un sentiment super fain s\u0103 \u0219tii c\u0103 ceea ce faci ajunge la oameni \u0219i chiar le atrage aten\u021Bia.",
+        "Partea de care sunt cel mai m\xE2ndru: niciuna dintre imaginile premiate nu e regizat\u0103. Sunt momente din nun\u021Bi reale, din Bra\u0219ov \u0219i din jur, prinse exact cum s-au \xEEnt\xE2mplat. Nimeni nu a stat la pozat pentru ele.",
+        "Pentru c\u0103 mul\u021Bi dintre voi sunte\u021Bi acum \xEEn plin proces de ales fotograful, v\u0103 las c\xE2teva sfaturi sincere, care conteaz\u0103 mai mult dec\xE2t orice diplom\u0103 (da, \u0219tiu, chiar eu zic asta \u{1F605}):",
+        "Cere\u021Bi o galerie complet\u0103, nu doar cele mai bune zece poze. Orice fotograf are c\xE2teva cadre spectaculoase. O nunt\u0103 \xEEntreag\u0103, de diminea\u021Ba p\xE2n\u0103 la ultimul dans, v\u0103 arat\u0103 cum lucreaz\u0103 cu adev\u0103rat.",
+        "Fi\u021Bi aten\u021Bi la cum comunic\u0103. V\u0103 \xEEntreab\u0103 despre voi sau doar despre dat\u0103? Felul \xEEn care vorbe\u0219te cu voi \xEEnainte de nunt\u0103 e felul \xEEn care se va purta \u0219i \xEEn ziua nun\u021Bii, cu voi \u0219i cu invita\u021Bii vo\u0219tri.",
+        "\xCEntreba\u021Bi ce se \xEEnt\xE2mpl\u0103 cu pozele dup\u0103 eveniment: cum le primi\u021Bi, \xEEn ce format \u0219i dac\u0103 p\u0103streaz\u0103 o copie de siguran\u021B\u0103. Un profesionist r\u0103spunde la toate astea f\u0103r\u0103 s\u0103 stea pe g\xE2nduri.",
+        "\u0218i, poate cel mai important, alege\u021Bi pe cineva cu care v\u0103 sim\u021Bi\u021Bi bine. O s\u0103-l ave\u021Bi l\xE2ng\u0103 voi o zi \xEEntreag\u0103, \xEEn cele mai emo\u021Bionante momente. Chimia conteaz\u0103.",
+        "Voiam doar s\u0103 \xEEmpart bucuria asta cu voi. Mul\u021Bumesc pentru sus\u021Binere \u0219i, mai ales, celor care au \xEEncredere \xEEn mine s\u0103 le documentez amintirile. Cheers! \u{1F942}\u{1F4F7}"
+      ],
+      en: [
+        "Thank you, fotografi-cameramani.ro! In June 2026 I got my first award at the Editors' Selection, the wedding photography contest. The editors have spoken, I have nothing to add. \u{1F90D}",
+        "Then came a second awarded image. Then two more mentions. I think I'm on a roll! \u{1F30A} Looking back, it gives me even more courage. It feels great to know that what you do reaches people and actually catches their eye.",
+        "The part I'm proudest of: none of the awarded images were staged. They're moments from real weddings in and around Bra\u0219ov, caught exactly as they happened. Nobody posed for them.",
+        "Since many of you are right in the middle of choosing a photographer, here's some honest advice that matters more than any certificate (yes, I know, coming from me \u{1F605}):",
+        "Ask for a full gallery, not just the best ten shots. Every photographer has a few spectacular frames. A whole wedding, from morning to the last dance, shows you how they really work.",
+        "Pay attention to how they communicate. Do they ask about you, or just your date? The way they talk to you before the wedding is the way they'll behave on the day, with you and your guests.",
+        "Ask what happens to the photos after the event: how you receive them, in what format and whether they keep a backup. A professional answers all of that without hesitating.",
+        "And maybe most importantly, choose someone you feel good around. They'll be next to you for a whole day, in your most emotional moments. Chemistry matters.",
+        "I just wanted to share this joy with you. Thank you for the support and, above all, to everyone who trusts me to document their memories. Cheers! \u{1F942}\u{1F4F7}"
+      ]
+    }
+  },
+  "nunta-felicia-calin-conacul-albert": {
+    was: "Felicia \u0219i C\u0103lin sunt un cuplu tare simpatic, mereu cu z\xE2mbetul pe buze \u0219i cu o energie care s-a sim\u021Bit din primele momente ale zilei. Am fost cu ei de la preg\u0103tiri p\xE2n\u0103 seara t\xE2rziu, iar z\xE2mbetul \u0103la nu a disp\u0103rut nicio clip\u0103.",
+    title: {
+      ro: "Felicia & C\u0103lin, o nunt\u0103 tr\u0103it\u0103 cu suflet la Conacul Albert \u{1F90D}",
+      en: "Felicia & C\u0103lin, a wedding lived with heart at Conacul Albert \u{1F90D}"
+    },
+    excerpt: {
+      ro: "Un cuplu tare simpatic, o zi \xEEntreag\u0103 al\u0103turi de ei \u0219i o sear\u0103 \xEEn care sala a prins via\u021B\u0103 exact cum \u0219i-au imaginat. Plus idei pentru un Trash The Dress.",
+      en: "A lovely couple, a whole day by their side and an evening when the venue came alive exactly as they pictured it. Plus Trash The Dress ideas."
+    },
+    body: {
+      ro: [
+        "Felicia & C\u0103lin \u{1F90D} Un cuplu tare simpatic, mereu cu z\xE2mbetul pe buze \u0219i cu o energie care s-a sim\u021Bit din primele momente ale zilei. Am fost cu ei de la preg\u0103tiri p\xE2n\u0103 seara t\xE2rziu, iar z\xE2mbetul \u0103la nu a disp\u0103rut nicio clip\u0103.",
+        "Preg\u0103tirile, first look-ul \u0219i emo\u021Biile dintre ei ne-au emo\u021Bionat \u0219i pe noi. Ce mi-a pl\u0103cut cel mai mult? Au uitat repede de aparat. Dup\u0103 primele minute eram doar \xEEnc\u0103 un om din \xEEnc\u0103pere, iar ei erau pur \u0219i simplu ei.",
+        "Seara, la Conacul Albert, printre z\xE2mbete, \xEEmbr\u0103\u021Bi\u0219\u0103ri \u0219i momente tr\u0103ite al\u0103turi de cei dragi, sala a prins via\u021B\u0103 exact a\u0219a cum \u0219i-au imaginat. Decorul elegant, lumina cald\u0103 \u0219i energia invita\u021Bilor au f\u0103cut restul.",
+        "\xCEnainte de petrecere, au furat c\xE2teva minute doar pentru ei. Asta e, de fapt, esen\u021Ba. Le recomand tuturor cuplurilor: zece minute departe de invita\u021Bi, f\u0103r\u0103 telefoane, doar voi doi. Pentru voi e o gur\u0103 de aer. Pentru mine sunt, de multe ori, cele mai frumoase cadre din toat\u0103 nunta.",
+        "De ce stau acolo toat\u0103 ziua? Pentru c\u0103 nunta nu se \xEEnt\xE2mpl\u0103 doar la ceremonie. Se \xEEnt\xE2mpl\u0103 \xEEn glumele de diminea\u021B\u0103, \xEEn privirea bunicii la biseric\u0103, \xEEn primul dans \u0219i \xEEn pantofii arunca\u021Bi sub mas\u0103 la dou\u0103 noaptea.",
+        "Mul\u021Bi miri \xEEmi spun dup\u0103 nunt\u0103 acela\u0219i lucru: \u201EA trecut at\xE2t de repede, nu mai \u021Bin minte aproape nimic.\u201D E normal. Tocmai de aceea sunt eu acolo: voi tr\u0103i\u021Bi ziua, iar amintirea r\u0103m\xE2ne \xEEn poze.",
+        "\u0218i dac\u0103, dup\u0103 nunt\u0103, rochia v\u0103 pare prea frumoas\u0103 ca s\u0103 stea \xEEntr-un dulap, hai la un Trash The Dress. F\u0103r\u0103 program, f\u0103r\u0103 invita\u021Bi, f\u0103r\u0103 grab\u0103. Alege\u021Bi un loc care v\u0103 spune ceva: o p\u0103dure de l\xE2ng\u0103 Bra\u0219ov, un lac, un c\xE2mp cu iarb\u0103 \xEEnalt\u0103. Lua\u021Bi \xEEnc\u0103l\u021B\u0103ri de schimb, un prosop \u0219i haine uscate, \u0219i l\u0103sa\u021Bi-v\u0103 du\u0219i de moment.",
+        "Ne-ar pl\u0103cea s\u0103 ar\u0103t\u0103m \u0219i mai multe imagini, dar sper\u0103m ca m\u0103car acestea s\u0103 transmit\u0103 pu\u021Bin din atmosfera zilei. Galeria complet\u0103 e \xEEn Portofoliu. Cas\u0103 de piatr\u0103, dragilor! \u{1F942}",
+        "Flori: Flor\u0103ria Kandila Design \xB7 Costum mire: Roca Bra\u0219ov \xB7 Rochie mireas\u0103: La Mode Toujours \xB7 Loca\u021Bie: Conacul Albert."
+      ],
+      en: [
+        "Felicia & C\u0103lin \u{1F90D} A lovely couple, always smiling, with an energy you could feel from the very first moments of the day. I was with them from getting ready until late at night, and that smile never left.",
+        "Getting ready, the first look and the emotion between them got to us too. What I loved most? They forgot about the camera quickly. After the first few minutes I was just another person in the room, and they were simply themselves.",
+        "In the evening at Conacul Albert, among smiles, hugs and moments with their loved ones, the venue came alive exactly as they had pictured it. Elegant decor, warm light and the guests' energy did the rest.",
+        "Before the party, they stole a few minutes just for themselves. That's what it's all about. I recommend it to every couple: ten minutes away from the guests, no phones, just the two of you. For you it's a breath of air. For me they're often the best frames of the whole wedding.",
+        "Why do I stay the whole day? Because a wedding doesn't only happen at the ceremony. It happens in the morning jokes, in grandma's look at church, in the first dance and in the shoes kicked under the table at 2 a.m.",
+        `Many couples tell me the same thing afterwards: "It went by so fast, I barely remember anything." That's normal. That's exactly why I'm there: you live the day, and the memory stays in the photos.`,
+        "And if after the wedding the dress feels too beautiful to sit in a wardrobe, let's do a Trash The Dress. No schedule, no guests, no rush. Pick a place that means something to you: a forest near Bra\u0219ov, a lake, a field of tall grass. Bring spare shoes, a towel and dry clothes, and let yourselves go.",
+        "We'd love to show even more images, but we hope these carry a little of the day's atmosphere. The full gallery is in the Portfolio. Cheers to a lifetime together! \u{1F942}",
+        "Flowers: Flor\u0103ria Kandila Design \xB7 Groom's suit: Roca Bra\u0219ov \xB7 Bridal gown: La Mode Toujours \xB7 Venue: Conacul Albert."
+      ]
+    }
+  },
+  "alb-negru": {
+    was: "De ce \xEEmi place at\xE2t de mult fotografia alb-negru? Poate pentru c\u0103 \xEEmi aminte\u0219te de eternitate, a\u0219a cum ar trebui s\u0103 fie orice poveste de dragoste.",
+    title: {
+      ro: "De ce iubesc alb-negrul (\u0219i cum s\u0103 nu v\u0103 pierde\u021Bi pozele)",
+      en: "Why I love black and white (and how not to lose your photos)"
+    },
+    excerpt: {
+      ro: "Alb-negrul \xEEmi aminte\u0219te de eternitate, a\u0219a cum ar trebui s\u0103 fie orice poveste de dragoste. Plus o re\u021Bet\u0103 simpl\u0103 ca pozele voastre s\u0103 reziste la fel de mult.",
+      en: "Black and white reminds me of eternity, as every love story should be. Plus a simple recipe so your photos last just as long."
+    },
+    body: {
+      ro: [
+        "De ce \xEEmi place at\xE2t de mult fotografia alb-negru? Poate pentru c\u0103 \xEEmi aminte\u0219te de eternitate, a\u0219a cum ar trebui s\u0103 fie orice poveste de dragoste. \u{1F90D}",
+        "F\u0103r\u0103 culoare r\u0103m\xE2n doar lucrurile care conteaz\u0103: o privire, o m\xE2n\u0103 str\xE2ns\u0103, un z\xE2mbet nea\u0219teptat. \u201EThe eyes, chico. They never lie.\u201D Da, e o replic\u0103 de film, dar la un botez sau la o nunt\u0103 e c\xE2t se poate de adev\u0103rat\u0103.",
+        "Omonimul meu literar, Dan Brown, scria c\u0103 nicio iubire nu e mai mare dec\xE2t cea a unui tat\u0103 pentru fiul lui. Sunt de acord, dar a\u0219 ad\u0103uga ceva: nimic nu bate frumuse\u021Bea unui moment autentic. \xCEntr-un z\xE2mbet nea\u0219teptat sau \xEEntr-o privire se ascunde toat\u0103 povestea.",
+        "Nu convertesc totul. Dar c\xE2nd un cadru are emo\u021Bie \u0219i lumin\u0103 bun\u0103, alb-negrul \xEEl cur\u0103\u021B\u0103 de tot ce e \xEEn plus. La fiecare eveniment primi\u021Bi \u0219i o selec\u021Bie alb-negru, pe l\xE2ng\u0103 pozele color.",
+        "Vorbind de eternitate, trebuie s\u0103 v\u0103 spun \u0219i ceva mai pu\u021Bin romantic. Am auzit prea multe pove\u0219ti cu laptopuri furate, telefoane c\u0103zute \xEEn ap\u0103 sau stick-uri care nu mai pornesc. Iar odat\u0103 cu ele, poze de nunt\u0103 pierdute pentru totdeauna. A\u0219a c\u0103, o re\u021Bet\u0103 simpl\u0103, pentru oameni normali:",
+        "P\u0103stra\u021Bi pozele \xEEn cel pu\u021Bin trei locuri: pe calculator, pe un hard disk extern care st\u0103 \xEEn sertar \u0219i \xEEn cloud (Google Photos, iCloud sau Dropbox). Dac\u0103 unul cedeaz\u0103, mai sunt dou\u0103.",
+        "Nu v\u0103 baza\u021Bi pe linkul de desc\u0103rcare. Multe galerii online expir\u0103. Desc\u0103rca\u021Bi pozele \xEEn prima s\u0103pt\u0103m\xE2n\u0103, la rezolu\u021Bie maxim\u0103, \u0219i nu doar pe telefon.",
+        "Hard diskul din sertar nu e ve\u0219nic. O dat\u0103 pe an, conecta\u021Bi-l \u0219i verifica\u021Bi c\u0103 merge. La c\xE2\u021Biva ani, copia\u021Bi totul pe unul nou.",
+        "\u0218i printa\u021Bi! Sincer, cel mai sigur backup e un album pe raft. Nu are nevoie de parol\u0103, de curent sau de abonament, iar copiii vo\u0219tri \xEEl vor r\u0103sfoi peste treizeci de ani. Ave\u021Bi \xEEntreb\u0103ri despre pozele voastre? Scrie\u021Bi-mi oric\xE2nd, chiar \u0219i la ani dup\u0103 eveniment. \u{1F4F8}"
+      ],
+      en: [
+        "Why do I love black and white photography so much? Maybe because it reminds me of eternity, as every love story should be. \u{1F90D}",
+        `Without colour, only what matters is left: a look, a held hand, an unexpected smile. "The eyes, chico. They never lie." Yes, it's a movie line, but at a christening or a wedding it's as true as it gets.`,
+        "My literary namesake, Dan Brown, wrote that no love is greater than a father's for his son. I agree, but I'd add something: nothing beats the beauty of an authentic moment. A whole life story can hide in an unexpected smile or a single look.",
+        "I don't convert everything. But when a frame has emotion and good light, black and white strips away everything extra. With every event you also get a black and white selection alongside the colour photos.",
+        "Speaking of eternity, I have to tell you something less romantic. I've heard too many stories of stolen laptops, phones dropped in water or USB sticks that won't start. And with them, wedding photos lost forever. So here's a simple recipe, for normal people:",
+        "Keep your photos in at least three places: on your computer, on an external hard drive in a drawer and in the cloud (Google Photos, iCloud or Dropbox). If one fails, there are two more.",
+        "Don't rely on the download link. Many online galleries expire. Download your photos in the first week, at full resolution, and not just to your phone.",
+        "The drive in the drawer isn't eternal. Once a year, plug it in and check it works. Every few years, copy everything to a new one.",
+        "And print! Honestly, the safest backup is an album on a shelf. No password, no power, no subscription, and your kids will flip through it in thirty years. Questions about your photos? Write to me anytime, even years after the event. \u{1F4F8}"
+      ]
+    }
+  },
+  "botez-fara-poze-regizate": {
+    was: "\xCEn Rom\xE2nia nu spunem \u201Efelicit\u0103ri pentru botez\u201D, spunem \u201Es\u0103-\u021Bi tr\u0103iasc\u0103!\u201D. \u0218i cam a\u0219a v\u0103d eu \u0219i pozele de botez: calde, simple, f\u0103r\u0103 artificii.",
+    title: {
+      ro: "Botez f\u0103r\u0103 poze regizate (\u0219i f\u0103r\u0103 stres pentru p\u0103rin\u021Bi) \u{1F33F}",
+      en: "A christening without staged photos (or stressed parents) \u{1F33F}"
+    },
+    excerpt: {
+      ro: "Copii care sunt copii, bunici care pl\xE2ng pe furi\u0219 \u0219i un bebelu\u0219 cu propria p\u0103rere despre cristelni\u021B\u0103. Plus sfaturi pentru o \u0219edin\u021B\u0103 cu nou-n\u0103scutul.",
+      en: "Kids being kids, grandparents crying on the sly and a baby with opinions about the font. Plus tips for a newborn session."
+    },
+    body: {
+      ro: [
+        "\xCEn Rom\xE2nia nu spunem \u201Efelicit\u0103ri pentru botez\u201D, spunem \u201Es\u0103-\u021Bi tr\u0103iasc\u0103!\u201D. Recunosc, mi se pare pu\u021Bin de mod\u0103 veche. \u{1F604} Dar pozele de botez nu trebuie s\u0103 fie a\u0219a: le vreau calde, moderne \u0219i naturale.",
+        "\u0218tiu ce v\u0103 trece prin cap \xEEnainte de botez. Dac\u0103 pl\xE2nge tot timpul? Dac\u0103 e prea \xEEntuneric \xEEn biseric\u0103? Dac\u0103 st\u0103m toat\u0103 ziua dup\u0103 poze \xEEn loc s\u0103 st\u0103m cu invita\u021Bii? R\u0103spunsul scurt: e \xEEn regul\u0103. Bebelu\u0219ii pl\xE2ng la botez, e aproape parte din tradi\u021Bie, iar lacrimile alea ies superb \xEEn poze.",
+        "Am auzit c\u0103 e greu s\u0103 fii bebelu\u0219 \xEEn ziua de azi. Colici, puseuri de cre\u0219tere, somn \u0219i mas\u0103 dup\u0103 program... parc\u0103 \xEEi preg\u0103tim de pe acum pentru via\u021Ba de adult. L\u0103sa\u021Bi rutina deoparte \xEEn ziua botezului \u0219i bucura\u021Bi-v\u0103 de cel mic. Eu sigur o fac. \u{1F90D}",
+        "Bisericile sunt de multe ori \xEEntunecate, iar bli\u021Bul \xEEn ochii unui bebelu\u0219 nu e o idee bun\u0103. A\u0219a c\u0103 lucrez cu lumina care exist\u0103: cea de la ferestre \u0219i de la lum\xE2n\u0103ri. Iese mai cald, mai intim \u0219i mult mai aproape de cum a fost de fapt.",
+        "Copiii sunt copii la o biseric\u0103. Alearg\u0103, se plictisesc, se uit\u0103 curio\u0219i la lum\xE2n\u0103ri. Nu-i opresc \u0219i nu-i aranjez. Momente sincere, f\u0103r\u0103 artificii.",
+        "Iar voi, p\u0103rin\u021Bii, ave\u021Bi o singur\u0103 treab\u0103: s\u0103 fi\u021Bi acolo. Nu trebuie s\u0103 m\u0103 c\u0103uta\u021Bi din priviri sau s\u0103 organiza\u021Bi grupuri. Stau cu voi de la preg\u0103tirile de acas\u0103 p\xE2n\u0103 la tort \u0219i \u0219tiu c\xE2nd s\u0103 m\u0103 apropii \u0219i c\xE2nd s\u0103 m\u0103 fac nev\u0103zut.",
+        "Mul\u021Bi p\u0103rin\u021Bi m\u0103 \xEEntreab\u0103 \u0219i de \u0219edin\u021Bele cu nou-n\u0103scutul. C\xE2teva lucruri \xEEnv\u0103\u021Bate de la cei mai mici clien\u021Bi ai mei: programa\u021Bi \u0219edin\u021Ba \xEEn primele dou\u0103-trei s\u0103pt\u0103m\xE2ni, c\xE2nd bebelu\u0219ul doarme mult. \xCEnc\u0103lzi\u021Bi bine camera \u0219i hr\u0103ni\u021Bi-l chiar \xEEnainte s\u0103 \xEEncepem. Un bebelu\u0219 s\u0103tul e un bebelu\u0219 somnoros. \u{1F634}",
+        "Pentru voi, haine simple, \xEEn culori neutre, f\u0103r\u0103 logo-uri mari. \u0218i nu ne gr\u0103bim: \u0219edin\u021Ba merge \xEEn ritmul bebelu\u0219ului, cu pauze de al\u0103ptat, de schimbat \u0219i de alinat. Siguran\u021Ba lui e mereu pe primul loc.",
+        "Ya gotta see the baby! \u{1F601} Dac\u0103 vre\u021Bi poze de botez sau cu nou-n\u0103scutul, moderne \u0219i naturale, scrie\u021Bi-mi. Sunt \xEEn Bra\u0219ov \u0219i merg oriunde m\u0103 cheam\u0103 familia."
+      ],
+      en: [
+        `In Romania we don't say "congratulations on the christening", we say "s\u0103-\u021Bi tr\u0103iasc\u0103!" (may they live long). I'll admit it sounds a bit old-fashioned to me. \u{1F604} But christening photos don't have to be: I want them warm, modern and natural.`,
+        "I know what goes through your head before the christening. What if the baby cries the whole time? What if the church is too dark? What if we spend the day on photos instead of with our guests? Short answer: it's fine. Babies cry at christenings, it's almost part of the tradition, and those tears look beautiful in photos.",
+        "I've heard it's hard being a baby these days. Colic, growth spurts, sleeping and eating on schedule... it's like we're preparing them for adulthood already. Drop the routine on christening day and enjoy your little one. I sure do. \u{1F90D}",
+        "Churches are often dark, and a flash in a baby's eyes is not a good idea. So I work with the light that's there: from the windows and the candles. It comes out warmer, more intimate and much closer to how it really felt.",
+        "Kids are kids at church. They run around, get bored, stare at the candles. I don't stop them and I don't arrange them. Honest moments, no frills.",
+        "And you, the parents, have just one job: to be there. You don't need to look for me or organise group shots. I'm with you from getting ready at home to the cake, and I know when to come close and when to disappear.",
+        "Many parents also ask me about newborn sessions. A few things I've learned from my youngest clients: book the session in the first two or three weeks, when the baby sleeps a lot. Warm the room well and feed the baby right before we start. A full baby is a sleepy baby. \u{1F634}",
+        "For you: simple clothes in neutral colours, no big logos. And we don't rush: the session goes at the baby's pace, with breaks for feeding, changing and soothing. The baby's safety always comes first.",
+        "Ya gotta see the baby! \u{1F601} If you'd like modern, natural christening or newborn photos, write to me. I'm based in Bra\u0219ov and go wherever the family calls me."
+      ]
+    }
+  },
+  "workshop-fotografie-de-nunta": {
+    was: "Recent am avut ocazia s\u0103 particip la un workshop de fotografie de nunt\u0103 al\u0103turi de Vlad Solomon, o experien\u021B\u0103 pe care o recomand oricui face meseria asta.",
+    title: {
+      ro: "Ce am \xEEnv\u0103\u021Bat la un workshop de nunt\u0103 (\u0219i cum arat\u0103 o \u0219edin\u021B\u0103 la apus) \u{1F4F8}",
+      en: "What I learned at a wedding workshop (and what makes a great sunset session) \u{1F4F8}"
+    },
+    excerpt: {
+      ro: "Tehnici noi de lumin\u0103, feedback sincer \u0219i c\xE2teva sfaturi practice pentru o \u0219edin\u021B\u0103 foto la apus \xEEn jurul Bra\u0219ovului.",
+      en: "New lighting techniques, honest feedback and a few practical tips for a sunset photo session around Bra\u0219ov."
+    },
+    body: {
+      ro: [
+        "\u{1F4F8} Recent am participat la un workshop de fotografie de nunt\u0103 al\u0103turi de Vlad Solomon. O experien\u021B\u0103 intens\u0103 \u0219i inspira\u021Bional\u0103, pe care o recomand oricui face meseria asta.",
+        "Am explorat tehnici noi de lumin\u0103 \u0219i am \xEEnv\u0103\u021Bat cum s\u0103 construiesc pove\u0219ti vizuale autentice, nu doar cadre frumoase. Ideile schimbate cu al\u021Bi pasiona\u021Bi \u0219i feedback-ul primit m-au ajutat s\u0103-mi rafinez stilul.",
+        "Cel mai valoros lucru? S\u0103 privesc fotografia de nunt\u0103 cu ochi proaspe\u021Bi. Dup\u0103 multe evenimente, e u\u0219or s\u0103 intri pe pilot automat. Un workshop bun te scoate de acolo. \u0218i da, mereu accept o provocare bun\u0103 ca s\u0103 g\u0103sesc cadrul perfect pentru nunta voastr\u0103. Un fel de Frodo, dar mai pu\u021Bin obsedat. \u{1F9DD}",
+        "Mare parte din workshop a fost despre lumin\u0103, a\u0219a c\u0103 v\u0103 las c\xE2teva lucruri practice pentru una dintre \u0219edin\u021Bele mele preferate: cea la apus. \u2600\uFE0F",
+        "Ora de aur e scurt\u0103. Cea mai frumoas\u0103 lumin\u0103 apare cam cu o or\u0103 \xEEnainte de apus \u0219i mai \u021Bine pu\u021Bin dup\u0103. Veni\u021Bi cu 15-20 de minute mai devreme, ca s\u0103 nu ne gr\u0103bim tocmai c\xE2nd lumina e mai bun\u0103.",
+        "Alege\u021Bi locul cu grij\u0103. \xCEn jurul Bra\u0219ovului mun\u021Bii ascund soarele mai devreme dec\xE2t a\u021Bi crede, a\u0219a c\u0103 dealurile \u0219i poienile deschise spre vest sunt cele mai bune. Dealul Lempe\u0219, de exemplu, e unul dintre locurile mele dragi.",
+        "\xCEmbr\u0103ca\u021Bi-v\u0103 \xEEn culori calde sau neutre: crem, bej, teracot\u0103, albastru pr\u0103fuit. Evita\u021Bi imprimeurile mari \u0219i culorile neon. \u0218i lua\u021Bi o jachet\u0103, la munte se r\u0103ce\u0219te repede dup\u0103 apus.",
+        "Nu v\u0103 stresa\u021Bi c\u0103 nu \u0219ti\u021Bi s\u0103 poza\u021Bi. V\u0103 dau c\xE2teva repere la \xEEnceput, apoi v\u0103 las s\u0103 vorbi\u021Bi, s\u0103 v\u0103 plimba\u021Bi, s\u0103 v\u0103 prosti\u021Bi. Cele mai bune cadre vin c\xE2nd uita\u021Bi de mine \u0219i v\u0103 uita\u021Bi unul la altul.",
+        "Porumbei albi? P\u0103s\u0103ri \xEEndr\u0103gostite? Sincer, nu sunt genul care umbl\u0103 dup\u0103 cli\u0219ee. \u0218i nici pozele voastre nu ar trebui s\u0103 fie. C\xE2teva cadre de la workshop le g\u0103si\u021Bi pe Instagram. \u{1F33F}"
+      ],
+      en: [
+        "\u{1F4F8} I recently took part in a wedding photography workshop with Vlad Solomon. An intense, inspiring experience I'd recommend to anyone in this job.",
+        "We explored new lighting techniques and I learned how to build authentic visual stories, not just pretty frames. Swapping ideas with other photographers and getting honest feedback helped me refine my style.",
+        "The most valuable part? Seeing wedding photography with fresh eyes. After many events it's easy to slip into autopilot. A good workshop pulls you out of it. And yes, I always accept a good challenge to find the perfect shot for your wedding. A bit like Frodo, but less obsessed. \u{1F9DD}",
+        "A big part of the workshop was about light, so here are a few practical tips for one of my favourite sessions: the sunset one. \u2600\uFE0F",
+        "Golden hour is short. The best light shows up about an hour before sunset and lasts a little after. Arrive 15-20 minutes early so we don't rush right when the light is best.",
+        "Pick the place carefully. Around Bra\u0219ov the mountains hide the sun earlier than you'd think, so hills and meadows open to the west work best. Dealul Lempe\u0219, for example, is one of my favourite spots.",
+        "Wear warm or neutral colours: cream, beige, terracotta, dusty blue. Avoid big prints and neon. And bring a jacket, it gets cold quickly in the mountains after sunset.",
+        "Don't worry if you don't know how to pose. I'll give you a few pointers at the start, then let you talk, walk and goof around. The best frames come when you forget about me and look at each other.",
+        "Love birds? White doves? Honestly, I'm not a clich\xE9 guy. And your photos shouldn't be either. You'll find a few frames from the workshop on Instagram. \u{1F33F}"
+      ]
+    }
+  }
+};
+
 // src/worker/api.js
 var SESSION_TTL = 24 * 3600;
 var MAX_IMAGE = 8 * 1024 * 1024;
@@ -831,6 +1045,15 @@ var TEXT_FIXES = [
   ["Fiecare eveniment are povestea lui. Alege unul \u0219i intr\u0103 \xEEn ziua respectiv\u0103.", "Fiecare eveniment are povestea lui. Alege\u021Bi unul \u0219i intra\u021Bi \xEEn ziua respectiv\u0103."],
   ["Ce s\u0103 \xEEntrebi \xEEnainte s\u0103 semnezi, ca s\u0103 nu ai surprize dup\u0103 nunt\u0103.", "Ce s\u0103 \xEEntreba\u021Bi \xEEnainte s\u0103 semna\u021Bi, ca s\u0103 nu ave\u021Bi surprize dup\u0103 nunt\u0103."]
 ];
+function upgradePosts(saved) {
+  if (!Array.isArray(saved.posts)) return saved;
+  saved.posts = saved.posts.map((p) => {
+    const v = posts_v2_default[p.slug];
+    const first = p.body && Array.isArray(p.body.ro) ? p.body.ro[0] : null;
+    return v && first === v.was ? { ...p, title: v.title, excerpt: v.excerpt, body: v.body } : p;
+  });
+  return saved;
+}
 function fixText(saved) {
   let s = JSON.stringify(saved);
   for (const [a, b] of TEXT_FIXES) s = s.split(JSON.stringify(a).slice(1, -1)).join(JSON.stringify(b).slice(1, -1));
@@ -849,7 +1072,7 @@ async function getContent(env, ctx) {
     });
     ctx ? ctx.waitUntil(put) : await put;
   }
-  if (saved) saved = fixText(saved);
+  if (saved) saved = upgradePosts(fixText(saved));
   const data = saved ? { ...seed_default, ...saved } : seed_default;
   if (saved && /"(Exemplu|Sample) · /.test(JSON.stringify(saved.testimonials || ""))) data.testimonials = seed_default.testimonials;
   memo = { at: Date.now(), data };
