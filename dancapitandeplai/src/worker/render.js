@@ -60,6 +60,43 @@ const MONTHS = {
 };
 const OTHER = { ro: "en", en: "ro" };
 
+// Search keywords (Ionut, 2026-11-02). Top Brașov searches by Google autocomplete:
+// fotograf nuntă Brașov, fotograf Brașov, fotograf botez Brașov, fotograf nuntă Brașov preț,
+// fotograf Brașov prețuri, fotograf evenimente Brașov, fotograf cununie civilă Brașov,
+// ședință foto Brașov / familie, fotografie de nuntă, wedding photographer Brașov.
+// Used only in <title>/<meta description> so the page headings Dan edits in the admin stay his.
+const SEO = {
+  ro: {
+    home: ["Fotograf nuntă și botez Brașov · Dan Căpitan de Plai",
+      "Fotograf de nuntă și botez în Brașov: fotografie documentară, momente reale, lumină naturală. Cununii civile, evenimente și ședințe foto de familie. Cere o ofertă."],
+    portfolio: ["Portofoliu fotograf nuntă și botez Brașov · Dan Căpitan de Plai",
+      "Nunți, botezuri și cununii civile fotografiate în Brașov și împrejurimi. Fotografie de nuntă documentară: alege un eveniment și intră în ziua respectivă."],
+    blog: ["Blog · Sfaturi de la un fotograf de nuntă din Brașov",
+      "Sfaturi pentru miri și părinți de la un fotograf de nuntă și botez din Brașov: pregătiri, ședințe foto, cum să nu vă pierdeți pozele."],
+    faq: ["Întrebări frecvente · Prețuri fotograf nuntă și botez Brașov",
+      "Cât costă un fotograf de nuntă sau de botez în Brașov, cum lucrez și ce primiți. Răspunsuri scurte la ce mă întreabă cel mai des cuplurile."],
+    contact: ["Contact · Fotograf Brașov pentru nunți, botezuri și evenimente",
+      "Scrieți-mi data și locul: fotograf de nuntă, botez și evenimente în Brașov. Ofertă personalizată de preț, răspund de obicei în aceeași zi."],
+  },
+  en: {
+    home: ["Wedding & christening photographer in Brașov · Dan Căpitan de Plai",
+      "Wedding and christening photographer in Brașov, Romania: documentary photography, real moments, natural light. Civil ceremonies, events and family photo sessions."],
+    portfolio: ["Portfolio · Wedding photographer Brașov · Dan Căpitan de Plai",
+      "Weddings, christenings and civil ceremonies photographed in and around Brașov, Romania. Documentary wedding photography: pick an event and step into that day."],
+    blog: ["Blog · Tips from a Brașov wedding photographer",
+      "Tips for couples and parents from a wedding and christening photographer in Brașov: getting ready, photo sessions and how not to lose your photos."],
+    faq: ["FAQ · Wedding photographer prices in Brașov",
+      "What a wedding or christening photographer in Brașov costs, how I work and what you get. Short answers to what couples ask me most."],
+    contact: ["Contact · Photographer in Brașov for weddings and events",
+      "Send me your date and place: wedding, christening and event photographer in Brașov, Romania. Tailored quote, I usually reply the same day."],
+  },
+};
+// Event pages: the search phrase that fits the event type
+const CAT_KW = {
+  ro: { nunta: "fotograf nuntă Brașov", after: "fotograf nuntă Brașov", cununie: "fotograf cununie civilă Brașov", botez: "fotograf botez Brașov", familie: "ședință foto familie Brașov" },
+  en: { nunta: "wedding photographer Brașov", after: "wedding photographer Brașov", cununie: "civil ceremony photographer Brașov", botez: "christening photographer Brașov", familie: "family photo session Brașov" },
+};
+
 const ICON = {
   menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg>',
   wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zm8.4-18.2A11.8 11.8 0 0 0 1.7 17.8L0 24l6.3-1.7a11.8 11.8 0 0 0 5.7 1.4c6.5 0 11.8-5.3 11.8-11.8 0-3.2-1.2-6.1-3.4-8.3z"/></svg>',
@@ -196,7 +233,8 @@ function businessSchema(c, lang) {
   return {
     "@context": "https://schema.org", "@type": "ProfessionalService", name: SITE.name,
     description: t(c.home, lang).desc, url: SITE.url + r(lang, "home"), logo: SITE.url + "/assets/img/icon-512.png", image: SITE.url + ((c.hero && c.hero.desktop[0]) || "/assets/img/hero-1.jpg"),
-    telephone: c.contact.phone, email: c.contact.email, priceRange: "€€", areaServed: "Romania",
+    telephone: c.contact.phone, email: c.contact.email, priceRange: "€€", areaServed: [{ "@type": "City", name: "Brașov" }, "Romania"],
+    knowsAbout: lang === "ro" ? ["fotografie de nuntă", "fotograf botez", "fotograf cununie civilă", "fotograf evenimente", "ședință foto familie"] : ["wedding photography", "christening photography", "civil ceremony photography", "event photography", "family photo sessions"],
     address: { "@type": "PostalAddress", addressLocality: "Brașov", addressCountry: "RO" },
     sameAs: [c.contact.facebook, c.contact.instagram].filter(Boolean), founder: { "@type": "Person", name: "Daniel Lupu" },
   };
@@ -252,7 +290,7 @@ export function home(c, lang) {
   const n = Math.max(desktop.length, 1);
   const body = `
 <section class="hero${quotes ? " hero--quotes" : ""}" aria-label="${e(SITE.name)}" data-hero>
-  ${quotes ? `<h1 class="sr-only">${e(SITE.name)} · ${e(SITE.tagline[lang])}</h1>` : ""}
+  ${quotes ? `<h1 class="sr-only">${e(SITE.name)} · ${e(SEO[lang].home[0].split(" · ")[0])}</h1>` : ""}
   <div class="hero-slide is-active" aria-hidden="false">
     <picture><source media="(orientation: portrait)" srcset="${e(small(mobile[0]))}"><img src="${e(desktop[0])}" srcset="${e(small(desktop[0]))} 900w, ${e(desktop[0])} 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></picture>
     <div class="hero-caption">${quotes ? `<div class="hero-box"><p class="hero-quote">${e(first.title)}</p><p>${e(first.sub)}</p></div>` : `<h1>${e(first.title)}</h1><p>${e(first.sub)}</p>`}</div>
@@ -330,7 +368,7 @@ ${testi ? `<section class="section section--tint">
   <div class="ig-grid">${ig}</div>
 </section>`;
   const alt = { ro: r("ro", "home"), en: r("en", "home") };
-  return layout(c, lang, "home", { title: h.title, desc: h.desc, body, alt, hasHero: true, ogImage: desktop[0], schema: businessSchema(c, lang) });
+  return layout(c, lang, "home", { title: SEO[lang].home[0], desc: SEO[lang].home[1], body, alt, hasHero: true, ogImage: desktop[0], schema: businessSchema(c, lang) });
 }
 
 export function portfolio(c, lang) {
@@ -344,14 +382,14 @@ export function portfolio(c, lang) {
     `<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} · ${e(t(ev.date, lang))}</span>` +
     `<h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
   const body = `${banner({ ...heroPick(c, 1), title, intro })}<section class="section"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
-  return layout(c, lang, "portfolio", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") }, hasHero: true, cta: true });
+  return layout(c, lang, "portfolio", { title: SEO[lang].portfolio[0], desc: SEO[lang].portfolio[1], body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") }, hasHero: true, cta: true });
 }
 
 export function event(c, lang, i) {
   const ev = c.events[i], ui = UI[lang], cats = c.categories[lang];
   const nxt = c.events[(i + 1) % c.events.length];
-  const title = t(ev.title, lang);
-  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} · ${n + 1}`, { above: n < 3 })}</figure></a>`).join("");
+  const title = t(ev.title, lang), kw = CAT_KW[lang][ev.cat] || CAT_KW[lang].nunta;
+  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), n ? `${title} · ${n + 1}` : `${title} · ${kw}`, { above: n < 3 })}</figure></a>`).join("");
   const vid = videoEmbed(ev.video);
   const video = vid ? `<div class="video" data-kind="${vid.kind}" data-id="${e(vid.id)}"${vid.hash ? ` data-h="${e(vid.hash)}"` : ""}>
       ${vid.kind === "youtube" ? `<img src="https://i.ytimg.com/vi/${e(vid.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360">` : ""}
@@ -378,7 +416,7 @@ ${banner({ src: ev.cover || ev.photos[0], eyebrow: `${e(cats[ev.cat] || "")} · 
   <button class="lb-next" aria-label="${e(ui.next)}">${ICON.right}</button>
   <span class="lb-count"></span>
 </div>`;
-  return layout(c, lang, "portfolio", { title: `${title} · ${SITE.name}`, desc: t(ev.intro, lang), body,
+  return layout(c, lang, "portfolio", { title: `${title} · ${kw[0].toUpperCase()}${kw.slice(1)} · ${SITE.name}`, desc: t(ev.intro, lang), body,
     alt: { ro: eventUrl("ro", ev), en: eventUrl("en", ev) }, ogImage: ev.cover || ev.photos[0], hasHero: true, cta: true });
 }
 
@@ -390,7 +428,7 @@ export function blog(c, lang) {
     `<div><time datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time><h2>${e(t(p.title, lang))}</h2>` +
     `<p>${e(t(p.excerpt, lang))}</p><span class="more">${e(ui.read_more)} ${ICON.arrow}</span></div></a>`).join("");
   const body = `${banner({ ...heroPick(c, 2), title, intro })}<section class="section"><div class="wrap"><div class="posts">${cards}</div></div></section>`;
-  return layout(c, lang, "blog", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "blog"), en: r("en", "blog") }, hasHero: true, cta: true });
+  return layout(c, lang, "blog", { title: SEO[lang].blog[0], desc: SEO[lang].blog[1], body, alt: { ro: r("ro", "blog"), en: r("en", "blog") }, hasHero: true, cta: true });
 }
 
 export function post(c, lang, i) {
@@ -418,7 +456,7 @@ export function faq(c, lang) {
   <p class="center" style="margin-top:48px"><a class="btn btn--solid" href="${waLink(c, lang)}" target="_blank" rel="noopener">${ICON.wa} ${e(UI[lang].book)}</a></p>
 </div></section>`;
   const schema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map(f => ({ "@type": "Question", name: t(f.q, lang), acceptedAnswer: { "@type": "Answer", text: t(f.a, lang) } })) };
-  return layout(c, lang, "faq", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema, hasHero: true, cta: true });
+  return layout(c, lang, "faq", { title: SEO[lang].faq[0], desc: SEO[lang].faq[1], body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema, hasHero: true, cta: true });
 }
 
 export function contact(c, lang) {
@@ -446,7 +484,7 @@ export function contact(c, lang) {
     <div class="note"><h2 class="h-lg" style="font-size:20px">${e(P.contact_side_title)}</h2><ul>${side}</ul></div>
   </div>
 </div></section>`;
-  return layout(c, lang, "contact", { title: `${title} · ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang), hasHero: true });
+  return layout(c, lang, "contact", { title: SEO[lang].contact[0], desc: SEO[lang].contact[1], body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang), hasHero: true });
 }
 
 // SEO landing pages ("fotograf nuntă Brașov", "fotograf botez Brașov").
@@ -456,8 +494,8 @@ const LANDING = {
     cats: ["nunta", "cununie", "after"],
     ro: {
       h1: "Fotograf nuntă Brașov",
-      title: "Fotograf nuntă Brașov · Dan Căpitan de Plai",
-      desc: "Fotograf de nuntă în Brașov: fotografie documentară, momente reale, lumină naturală. Nunți, cununii civile și after-wedding în Brașov și oriunde vreți voi.",
+      title: "Fotograf nuntă Brașov: prețuri și portofoliu · Dan Căpitan de Plai",
+      desc: "Fotograf de nuntă în Brașov: fotografie de nuntă documentară, momente reale, lumină naturală. Nunți, cununii civile și after-wedding. Prețuri de la aprox. 1.000 EUR.",
       lead: "Fotografie documentară de nuntă în Brașov. Vă las să vă trăiți ziua, eu prind momentele reale.",
       sections: [
         ["Cum lucrez la nuntă", [
@@ -467,11 +505,11 @@ const LANDING = {
         ["Unde fotografiez", [
           "Sunt din Brașov și fotografiez nunți în oraș și în jur: Centrul Vechi, Poiana Brașov, conace și restaurante din zonă. Am lucrat, printre altele, la Conacul Albert și Naturalia Inn. Merg oriunde vreți voi; în afara Brașovului se adaugă transportul și cazarea.",
         ]],
-        ["Cât costă", [
+        ["Cât costă un fotograf de nuntă în Brașov", [
           "Nu am pachete fixe. O nuntă completă pornește în jur de 1.000 EUR, iar oferta finală depinde de durată, locație și ce vă doriți. Scrieți-mi data și locul și vă trimit o ofertă personalizată.",
         ]],
         ["Și după nuntă", [
-          "Pe lângă nunta propriu-zisă, fotografiez cununii civile, ședințe after-wedding și Trash The Dress în munți, pentru o zi doar a voastră.",
+          "Pe lângă nunta propriu-zisă, fotografiez cununii civile la starea civilă din Brașov, ședințe after-wedding și Trash The Dress în munți, pentru o zi doar a voastră. Dacă vă trebuie un fotograf de cununie civilă în Brașov, doar pentru câteva ore, scrieți-mi.",
         ]],
       ],
       work: "Nunți fotografiate de mine",
@@ -479,7 +517,7 @@ const LANDING = {
     },
     en: {
       h1: "Wedding photographer in Brașov",
-      title: "Wedding photographer in Brașov · Dan Căpitan de Plai",
+      title: "Wedding photographer in Brașov: prices & portfolio · Dan Căpitan de Plai",
       desc: "Wedding photographer in Brașov, Romania: documentary photography, real moments, natural light. Weddings, civil ceremonies and after-wedding sessions in Brașov and anywhere you like.",
       lead: "Documentary wedding photography in Brașov. You enjoy your day, I catch the real moments.",
       sections: [
@@ -490,7 +528,7 @@ const LANDING = {
         ["Where I shoot", [
           "I'm based in Brașov and photograph weddings in the city and around it: the Old Town, Poiana Brașov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Brașov, travel and accommodation are added.",
         ]],
-        ["What it costs", [
+        ["What a wedding photographer in Brașov costs", [
           "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote.",
         ]],
         ["After the wedding", [
@@ -505,8 +543,8 @@ const LANDING = {
     cats: ["botez", "familie"],
     ro: {
       h1: "Fotograf botez Brașov",
-      title: "Fotograf botez Brașov · Dan Căpitan de Plai",
-      desc: "Fotograf de botez în Brașov: momente reale de la biserică și de la petrecere, fără agitație, cu lumină naturală. Botezuri, familie și nou-născuți.",
+      title: "Fotograf botez Brașov: prețuri și portofoliu · Dan Căpitan de Plai",
+      desc: "Fotograf de botez în Brașov: momente reale de la biserică și de la petrecere, fără agitație, cu lumină naturală. Botezuri, ședințe foto de familie și nou-născuți.",
       lead: "Fotografie de botez în Brașov, fără agitație. Familia, nașii și cel mic, așa cum sunt.",
       sections: [
         ["Cum lucrez la botez", [
@@ -516,10 +554,10 @@ const LANDING = {
         ["Unde fotografiez", [
           "Sunt din Brașov și fotografiez botezuri în bisericile și restaurantele din oraș și din jur, inclusiv la Conacul Albert și Restaurant Adaggio. Merg și în afara Brașovului; atunci se adaugă transportul și cazarea.",
         ]],
-        ["Familie și nou-născuți", [
-          "Dacă vreți mai multe amintiri cu cel mic, fac și ședințe de familie, acasă sau în natură, și ședințe cu nou-născuți, cu blândețe și răbdare.",
+        ["Ședințe foto de familie și nou-născuți", [
+          "Dacă vreți mai multe amintiri cu cel mic, fac și ședințe foto de familie în Brașov, acasă sau în natură, și ședințe cu nou-născuți, cu blândețe și răbdare.",
         ]],
-        ["Cât costă", [
+        ["Cât costă un fotograf de botez în Brașov", [
           "Nu am pachete fixe. Scrieți-mi data, biserica și locul petrecerii și vă trimit o ofertă personalizată.",
         ]],
       ],
@@ -528,7 +566,7 @@ const LANDING = {
     },
     en: {
       h1: "Christening photographer in Brașov",
-      title: "Christening photographer in Brașov · Dan Căpitan de Plai",
+      title: "Christening photographer in Brașov: prices & portfolio · Dan Căpitan de Plai",
       desc: "Christening (baptism) photographer in Brașov, Romania: real moments at church and at the party, no fuss, natural light. Christenings, family and newborn sessions.",
       lead: "Christening photography in Brașov, without the fuss. Family, godparents and the little one, just as they are.",
       sections: [
@@ -542,7 +580,7 @@ const LANDING = {
         ["Family and newborns", [
           "If you'd like more memories of your little one, I also do family sessions, at home or outdoors, and gentle, patient newborn sessions.",
         ]],
-        ["What it costs", [
+        ["What a christening photographer in Brașov costs", [
           "I don't do fixed packages. Send me the date, the church and the party venue and I'll send a tailored quote.",
         ]],
       ],

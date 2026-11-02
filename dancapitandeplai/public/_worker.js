@@ -1774,6 +1774,56 @@ var MONTHS = {
   en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 };
 var OTHER = { ro: "en", en: "ro" };
+var SEO = {
+  ro: {
+    home: [
+      "Fotograf nunt\u0103 \u0219i botez Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      "Fotograf de nunt\u0103 \u0219i botez \xEEn Bra\u0219ov: fotografie documentar\u0103, momente reale, lumin\u0103 natural\u0103. Cununii civile, evenimente \u0219i \u0219edin\u021Be foto de familie. Cere o ofert\u0103."
+    ],
+    portfolio: [
+      "Portofoliu fotograf nunt\u0103 \u0219i botez Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      "Nun\u021Bi, botezuri \u0219i cununii civile fotografiate \xEEn Bra\u0219ov \u0219i \xEEmprejurimi. Fotografie de nunt\u0103 documentar\u0103: alege un eveniment \u0219i intr\u0103 \xEEn ziua respectiv\u0103."
+    ],
+    blog: [
+      "Blog \xB7 Sfaturi de la un fotograf de nunt\u0103 din Bra\u0219ov",
+      "Sfaturi pentru miri \u0219i p\u0103rin\u021Bi de la un fotograf de nunt\u0103 \u0219i botez din Bra\u0219ov: preg\u0103tiri, \u0219edin\u021Be foto, cum s\u0103 nu v\u0103 pierde\u021Bi pozele."
+    ],
+    faq: [
+      "\xCEntreb\u0103ri frecvente \xB7 Pre\u021Buri fotograf nunt\u0103 \u0219i botez Bra\u0219ov",
+      "C\xE2t cost\u0103 un fotograf de nunt\u0103 sau de botez \xEEn Bra\u0219ov, cum lucrez \u0219i ce primi\u021Bi. R\u0103spunsuri scurte la ce m\u0103 \xEEntreab\u0103 cel mai des cuplurile."
+    ],
+    contact: [
+      "Contact \xB7 Fotograf Bra\u0219ov pentru nun\u021Bi, botezuri \u0219i evenimente",
+      "Scrie\u021Bi-mi data \u0219i locul: fotograf de nunt\u0103, botez \u0219i evenimente \xEEn Bra\u0219ov. Ofert\u0103 personalizat\u0103 de pre\u021B, r\u0103spund de obicei \xEEn aceea\u0219i zi."
+    ]
+  },
+  en: {
+    home: [
+      "Wedding & christening photographer in Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      "Wedding and christening photographer in Bra\u0219ov, Romania: documentary photography, real moments, natural light. Civil ceremonies, events and family photo sessions."
+    ],
+    portfolio: [
+      "Portfolio \xB7 Wedding photographer Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      "Weddings, christenings and civil ceremonies photographed in and around Bra\u0219ov, Romania. Documentary wedding photography: pick an event and step into that day."
+    ],
+    blog: [
+      "Blog \xB7 Tips from a Bra\u0219ov wedding photographer",
+      "Tips for couples and parents from a wedding and christening photographer in Bra\u0219ov: getting ready, photo sessions and how not to lose your photos."
+    ],
+    faq: [
+      "FAQ \xB7 Wedding photographer prices in Bra\u0219ov",
+      "What a wedding or christening photographer in Bra\u0219ov costs, how I work and what you get. Short answers to what couples ask me most."
+    ],
+    contact: [
+      "Contact \xB7 Photographer in Bra\u0219ov for weddings and events",
+      "Send me your date and place: wedding, christening and event photographer in Bra\u0219ov, Romania. Tailored quote, I usually reply the same day."
+    ]
+  }
+};
+var CAT_KW = {
+  ro: { nunta: "fotograf nunt\u0103 Bra\u0219ov", after: "fotograf nunt\u0103 Bra\u0219ov", cununie: "fotograf cununie civil\u0103 Bra\u0219ov", botez: "fotograf botez Bra\u0219ov", familie: "\u0219edin\u021B\u0103 foto familie Bra\u0219ov" },
+  en: { nunta: "wedding photographer Bra\u0219ov", after: "wedding photographer Bra\u0219ov", cununie: "civil ceremony photographer Bra\u0219ov", botez: "christening photographer Bra\u0219ov", familie: "family photo session Bra\u0219ov" }
+};
 var ICON = {
   menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg>',
   wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.4-1.5-.9-.8-1.5-1.8-1.6-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.8 9.8 0 1 1 12 21.8zm8.4-18.2A11.8 11.8 0 0 0 1.7 17.8L0 24l6.3-1.7a11.8 11.8 0 0 0 5.7 1.4c6.5 0 11.8-5.3 11.8-11.8 0-3.2-1.2-6.1-3.4-8.3z"/></svg>',
@@ -1904,7 +1954,8 @@ function businessSchema(c, lang) {
     telephone: c.contact.phone,
     email: c.contact.email,
     priceRange: "\u20AC\u20AC",
-    areaServed: "Romania",
+    areaServed: [{ "@type": "City", name: "Bra\u0219ov" }, "Romania"],
+    knowsAbout: lang === "ro" ? ["fotografie de nunt\u0103", "fotograf botez", "fotograf cununie civil\u0103", "fotograf evenimente", "\u0219edin\u021B\u0103 foto familie"] : ["wedding photography", "christening photography", "civil ceremony photography", "event photography", "family photo sessions"],
     address: { "@type": "PostalAddress", addressLocality: "Bra\u0219ov", addressCountry: "RO" },
     sameAs: [c.contact.facebook, c.contact.instagram].filter(Boolean),
     founder: { "@type": "Person", name: "Daniel Lupu" }
@@ -1947,7 +1998,7 @@ function home(c, lang) {
   const n = Math.max(desktop.length, 1);
   const body = `
 <section class="hero${quotes ? " hero--quotes" : ""}" aria-label="${e(SITE.name)}" data-hero>
-  ${quotes ? `<h1 class="sr-only">${e(SITE.name)} \xB7 ${e(SITE.tagline[lang])}</h1>` : ""}
+  ${quotes ? `<h1 class="sr-only">${e(SITE.name)} \xB7 ${e(SEO[lang].home[0].split(" \xB7 ")[0])}</h1>` : ""}
   <div class="hero-slide is-active" aria-hidden="false">
     <picture><source media="(orientation: portrait)" srcset="${e(small(mobile[0]))}"><img src="${e(desktop[0])}" srcset="${e(small(desktop[0]))} 900w, ${e(desktop[0])} 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async"></picture>
     <div class="hero-caption">${quotes ? `<div class="hero-box"><p class="hero-quote">${e(first.title)}</p><p>${e(first.sub)}</p></div>` : `<h1>${e(first.title)}</h1><p>${e(first.sub)}</p>`}</div>
@@ -2025,7 +2076,7 @@ ${testi ? `<section class="section section--tint">
   <div class="ig-grid">${ig}</div>
 </section>`;
   const alt = { ro: r("ro", "home"), en: r("en", "home") };
-  return layout(c, lang, "home", { title: h.title, desc: h.desc, body, alt, hasHero: true, ogImage: desktop[0], schema: businessSchema(c, lang) });
+  return layout(c, lang, "home", { title: SEO[lang].home[0], desc: SEO[lang].home[1], body, alt, hasHero: true, ogImage: desktop[0], schema: businessSchema(c, lang) });
 }
 function portfolio(c, lang) {
   const [title, intro] = c.pages[lang].portfolio;
@@ -2034,13 +2085,13 @@ function portfolio(c, lang) {
   const filters = `<button data-filter="all" aria-pressed="true">${e(ui.all)}</button>` + used.map((k) => `<button data-filter="${e(k)}" aria-pressed="false">${e(cats[k])}</button>`).join("");
   const cards = c.events.map((ev, n) => `<a class="event-card${n < 4 ? "" : " reveal"}" href="${eventUrl(lang, ev)}" data-cat="${e(ev.cat)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), { eager: n === 0 })}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")} \xB7 ${e(t(ev.date, lang))}</span><h2>${e(t(ev.title, lang))}</h2><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
   const body = `${banner({ ...heroPick(c, 1), title, intro })}<section class="section"><div class="wrap"><div class="filters" role="group">${filters}</div><div class="events">${cards}</div></div></section>`;
-  return layout(c, lang, "portfolio", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") }, hasHero: true, cta: true });
+  return layout(c, lang, "portfolio", { title: SEO[lang].portfolio[0], desc: SEO[lang].portfolio[1], body, alt: { ro: r("ro", "portfolio"), en: r("en", "portfolio") }, hasHero: true, cta: true });
 }
 function event(c, lang, i) {
   const ev = c.events[i], ui = UI[lang], cats = c.categories[lang];
   const nxt = c.events[(i + 1) % c.events.length];
-  const title = t(ev.title, lang);
-  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), `${title} \xB7 ${n + 1}`, { above: n < 3 })}</figure></a>`).join("");
+  const title = t(ev.title, lang), kw = CAT_KW[lang][ev.cat] || CAT_KW[lang].nunta;
+  const photos = ev.photos.map((p, n) => `<a href="${e(p)}"><figure style="margin:0">${img(small(p), n ? `${title} \xB7 ${n + 1}` : `${title} \xB7 ${kw}`, { above: n < 3 })}</figure></a>`).join("");
   const vid = videoEmbed(ev.video);
   const video = vid ? `<div class="video" data-kind="${vid.kind}" data-id="${e(vid.id)}"${vid.hash ? ` data-h="${e(vid.hash)}"` : ""}>
       ${vid.kind === "youtube" ? `<img src="https://i.ytimg.com/vi/${e(vid.id)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360">` : ""}
@@ -2073,7 +2124,7 @@ ${banner({
   <span class="lb-count"></span>
 </div>`;
   return layout(c, lang, "portfolio", {
-    title: `${title} \xB7 ${SITE.name}`,
+    title: `${title} \xB7 ${kw[0].toUpperCase()}${kw.slice(1)} \xB7 ${SITE.name}`,
     desc: t(ev.intro, lang),
     body,
     alt: { ro: eventUrl("ro", ev), en: eventUrl("en", ev) },
@@ -2088,7 +2139,7 @@ function blog(c, lang) {
   const posts = [...c.posts].sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const cards = posts.map((p) => `<a class="post-card reveal" href="${postUrl(lang, p)}">${img(small(p.cover), t(p.title, lang), { w: 1600, h: 1e3 })}<div><time datetime="${e(p.date)}">${fmtDate(p.date, lang)}</time><h2>${e(t(p.title, lang))}</h2><p>${e(t(p.excerpt, lang))}</p><span class="more">${e(ui.read_more)} ${ICON.arrow}</span></div></a>`).join("");
   const body = `${banner({ ...heroPick(c, 2), title, intro })}<section class="section"><div class="wrap"><div class="posts">${cards}</div></div></section>`;
-  return layout(c, lang, "blog", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "blog"), en: r("en", "blog") }, hasHero: true, cta: true });
+  return layout(c, lang, "blog", { title: SEO[lang].blog[0], desc: SEO[lang].blog[1], body, alt: { ro: r("ro", "blog"), en: r("en", "blog") }, hasHero: true, cta: true });
 }
 function post(c, lang, i) {
   const p = c.posts[i], ui = UI[lang];
@@ -2128,7 +2179,7 @@ function faq(c, lang) {
   <p class="center" style="margin-top:48px"><a class="btn btn--solid" href="${waLink(c, lang)}" target="_blank" rel="noopener">${ICON.wa} ${e(UI[lang].book)}</a></p>
 </div></section>`;
   const schema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: c.faq.map((f) => ({ "@type": "Question", name: t(f.q, lang), acceptedAnswer: { "@type": "Answer", text: t(f.a, lang) } })) };
-  return layout(c, lang, "faq", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema, hasHero: true, cta: true });
+  return layout(c, lang, "faq", { title: SEO[lang].faq[0], desc: SEO[lang].faq[1], body, alt: { ro: r("ro", "faq"), en: r("en", "faq") }, schema, hasHero: true, cta: true });
 }
 function contact(c, lang) {
   const P = c.pages[lang], ui = UI[lang], k = c.contact;
@@ -2155,15 +2206,15 @@ function contact(c, lang) {
     <div class="note"><h2 class="h-lg" style="font-size:20px">${e(P.contact_side_title)}</h2><ul>${side}</ul></div>
   </div>
 </div></section>`;
-  return layout(c, lang, "contact", { title: `${title} \xB7 ${SITE.name}`, desc: intro, body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang), hasHero: true });
+  return layout(c, lang, "contact", { title: SEO[lang].contact[0], desc: SEO[lang].contact[1], body, alt: { ro: r("ro", "contact"), en: r("en", "contact") }, schema: businessSchema(c, lang), hasHero: true });
 }
 var LANDING = {
   wedding: {
     cats: ["nunta", "cununie", "after"],
     ro: {
       h1: "Fotograf nunt\u0103 Bra\u0219ov",
-      title: "Fotograf nunt\u0103 Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
-      desc: "Fotograf de nunt\u0103 \xEEn Bra\u0219ov: fotografie documentar\u0103, momente reale, lumin\u0103 natural\u0103. Nun\u021Bi, cununii civile \u0219i after-wedding \xEEn Bra\u0219ov \u0219i oriunde vre\u021Bi voi.",
+      title: "Fotograf nunt\u0103 Bra\u0219ov: pre\u021Buri \u0219i portofoliu \xB7 Dan C\u0103pitan de Plai",
+      desc: "Fotograf de nunt\u0103 \xEEn Bra\u0219ov: fotografie de nunt\u0103 documentar\u0103, momente reale, lumin\u0103 natural\u0103. Nun\u021Bi, cununii civile \u0219i after-wedding. Pre\u021Buri de la aprox. 1.000 EUR.",
       lead: "Fotografie documentar\u0103 de nunt\u0103 \xEEn Bra\u0219ov. V\u0103 las s\u0103 v\u0103 tr\u0103i\u021Bi ziua, eu prind momentele reale.",
       sections: [
         ["Cum lucrez la nunt\u0103", [
@@ -2173,11 +2224,11 @@ var LANDING = {
         ["Unde fotografiez", [
           "Sunt din Bra\u0219ov \u0219i fotografiez nun\u021Bi \xEEn ora\u0219 \u0219i \xEEn jur: Centrul Vechi, Poiana Bra\u0219ov, conace \u0219i restaurante din zon\u0103. Am lucrat, printre altele, la Conacul Albert \u0219i Naturalia Inn. Merg oriunde vre\u021Bi voi; \xEEn afara Bra\u0219ovului se adaug\u0103 transportul \u0219i cazarea."
         ]],
-        ["C\xE2t cost\u0103", [
+        ["C\xE2t cost\u0103 un fotograf de nunt\u0103 \xEEn Bra\u0219ov", [
           "Nu am pachete fixe. O nunt\u0103 complet\u0103 porne\u0219te \xEEn jur de 1.000 EUR, iar oferta final\u0103 depinde de durat\u0103, loca\u021Bie \u0219i ce v\u0103 dori\u021Bi. Scrie\u021Bi-mi data \u0219i locul \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103."
         ]],
         ["\u0218i dup\u0103 nunt\u0103", [
-          "Pe l\xE2ng\u0103 nunta propriu-zis\u0103, fotografiez cununii civile, \u0219edin\u021Be after-wedding \u0219i Trash The Dress \xEEn mun\u021Bi, pentru o zi doar a voastr\u0103."
+          "Pe l\xE2ng\u0103 nunta propriu-zis\u0103, fotografiez cununii civile la starea civil\u0103 din Bra\u0219ov, \u0219edin\u021Be after-wedding \u0219i Trash The Dress \xEEn mun\u021Bi, pentru o zi doar a voastr\u0103. Dac\u0103 v\u0103 trebuie un fotograf de cununie civil\u0103 \xEEn Bra\u0219ov, doar pentru c\xE2teva ore, scrie\u021Bi-mi."
         ]]
       ],
       work: "Nun\u021Bi fotografiate de mine",
@@ -2185,7 +2236,7 @@ var LANDING = {
     },
     en: {
       h1: "Wedding photographer in Bra\u0219ov",
-      title: "Wedding photographer in Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      title: "Wedding photographer in Bra\u0219ov: prices & portfolio \xB7 Dan C\u0103pitan de Plai",
       desc: "Wedding photographer in Bra\u0219ov, Romania: documentary photography, real moments, natural light. Weddings, civil ceremonies and after-wedding sessions in Bra\u0219ov and anywhere you like.",
       lead: "Documentary wedding photography in Bra\u0219ov. You enjoy your day, I catch the real moments.",
       sections: [
@@ -2196,7 +2247,7 @@ var LANDING = {
         ["Where I shoot", [
           "I'm based in Bra\u0219ov and photograph weddings in the city and around it: the Old Town, Poiana Bra\u0219ov, manors and restaurants nearby. Among others, I've worked at Conacul Albert and Naturalia Inn. I travel anywhere you like; outside Bra\u0219ov, travel and accommodation are added."
         ]],
-        ["What it costs", [
+        ["What a wedding photographer in Bra\u0219ov costs", [
           "I don't do fixed packages. A full wedding starts at around 1,000 EUR, and the final quote depends on hours, location and what you'd like. Send me your date and place and I'll send a tailored quote."
         ]],
         ["After the wedding", [
@@ -2211,8 +2262,8 @@ var LANDING = {
     cats: ["botez", "familie"],
     ro: {
       h1: "Fotograf botez Bra\u0219ov",
-      title: "Fotograf botez Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
-      desc: "Fotograf de botez \xEEn Bra\u0219ov: momente reale de la biseric\u0103 \u0219i de la petrecere, f\u0103r\u0103 agita\u021Bie, cu lumin\u0103 natural\u0103. Botezuri, familie \u0219i nou-n\u0103scu\u021Bi.",
+      title: "Fotograf botez Bra\u0219ov: pre\u021Buri \u0219i portofoliu \xB7 Dan C\u0103pitan de Plai",
+      desc: "Fotograf de botez \xEEn Bra\u0219ov: momente reale de la biseric\u0103 \u0219i de la petrecere, f\u0103r\u0103 agita\u021Bie, cu lumin\u0103 natural\u0103. Botezuri, \u0219edin\u021Be foto de familie \u0219i nou-n\u0103scu\u021Bi.",
       lead: "Fotografie de botez \xEEn Bra\u0219ov, f\u0103r\u0103 agita\u021Bie. Familia, na\u0219ii \u0219i cel mic, a\u0219a cum sunt.",
       sections: [
         ["Cum lucrez la botez", [
@@ -2222,10 +2273,10 @@ var LANDING = {
         ["Unde fotografiez", [
           "Sunt din Bra\u0219ov \u0219i fotografiez botezuri \xEEn bisericile \u0219i restaurantele din ora\u0219 \u0219i din jur, inclusiv la Conacul Albert \u0219i Restaurant Adaggio. Merg \u0219i \xEEn afara Bra\u0219ovului; atunci se adaug\u0103 transportul \u0219i cazarea."
         ]],
-        ["Familie \u0219i nou-n\u0103scu\u021Bi", [
-          "Dac\u0103 vre\u021Bi mai multe amintiri cu cel mic, fac \u0219i \u0219edin\u021Be de familie, acas\u0103 sau \xEEn natur\u0103, \u0219i \u0219edin\u021Be cu nou-n\u0103scu\u021Bi, cu bl\xE2nde\u021Be \u0219i r\u0103bdare."
+        ["\u0218edin\u021Be foto de familie \u0219i nou-n\u0103scu\u021Bi", [
+          "Dac\u0103 vre\u021Bi mai multe amintiri cu cel mic, fac \u0219i \u0219edin\u021Be foto de familie \xEEn Bra\u0219ov, acas\u0103 sau \xEEn natur\u0103, \u0219i \u0219edin\u021Be cu nou-n\u0103scu\u021Bi, cu bl\xE2nde\u021Be \u0219i r\u0103bdare."
         ]],
-        ["C\xE2t cost\u0103", [
+        ["C\xE2t cost\u0103 un fotograf de botez \xEEn Bra\u0219ov", [
           "Nu am pachete fixe. Scrie\u021Bi-mi data, biserica \u0219i locul petrecerii \u0219i v\u0103 trimit o ofert\u0103 personalizat\u0103."
         ]]
       ],
@@ -2234,7 +2285,7 @@ var LANDING = {
     },
     en: {
       h1: "Christening photographer in Bra\u0219ov",
-      title: "Christening photographer in Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      title: "Christening photographer in Bra\u0219ov: prices & portfolio \xB7 Dan C\u0103pitan de Plai",
       desc: "Christening (baptism) photographer in Bra\u0219ov, Romania: real moments at church and at the party, no fuss, natural light. Christenings, family and newborn sessions.",
       lead: "Christening photography in Bra\u0219ov, without the fuss. Family, godparents and the little one, just as they are.",
       sections: [
@@ -2248,7 +2299,7 @@ var LANDING = {
         ["Family and newborns", [
           "If you'd like more memories of your little one, I also do family sessions, at home or outdoors, and gentle, patient newborn sessions."
         ]],
-        ["What it costs", [
+        ["What a christening photographer in Bra\u0219ov costs", [
           "I don't do fixed packages. Send me the date, the church and the party venue and I'll send a tailored quote."
         ]]
       ],
