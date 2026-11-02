@@ -2068,7 +2068,7 @@ var SEC_HEADERS = {
 var PREVIEW_HOST = "dancapitandeplai.pages.dev";
 var CANONICAL_ORIGIN = "https://dancapitandeplai.ro";
 var html = (body, status = 200) => new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC_HEADERS } });
-var worker_default = {
+var index_default = {
   async fetch(req, env, ctx) {
     const url2 = new URL(req.url);
     const p = url2.pathname;
@@ -2111,5 +2111,5 @@ var worker_default = {
   }
 };
 export {
-  worker_default as default
+  index_default as default
 };
