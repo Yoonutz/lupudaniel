@@ -2,7 +2,7 @@
 (function () {
   var app = document.getElementById('app');
 
-  var S = { content: null, email: '', tab: 'hero', edit: null, dirty: false, saving: false };
+  var S = { content: null, email: '', tab: 'stats', edit: null, dirty: false, saving: false };
 
   // ---------- tiny DOM helper ----------
   function h(tag, attrs) {
@@ -470,7 +470,147 @@
     return out;
   }
 
-  var TABS = [['hero', 'Hero'], ['page', 'Pagina'], ['events', 'Portofoliu'], ['blog', 'Blog'], ['faq', 'Întrebări'], ['contact', 'Contact'], ['storage', 'Spațiu']];
+  // ---------- visitor stats (Cloudflare Web Analytics) ----------
+  var AN = { days: 7, data: {}, loading: false, error: '' };
+  function loadAnalytics(fresh) {
+    if (AN.loading) return;
+    var days = AN.days;
+    AN.loading = true; AN.error = '';
+    api('GET', '/api/analytics?days=' + days + (fresh ? '&fresh=1' : '')).then(function (d) { AN.data[days] = d; })
+      .catch(function (e) { AN.error = e.message; })
+      .finally(function () { AN.loading = false; if (S.tab === 'stats') render(); });
+  }
+  var nf = function (n) { return Number(n || 0).toLocaleString('ro-RO'); };
+  function shortDate(k, withMonth) {
+    var d = new Date(k + 'T12:00:00Z');
+    return d.toLocaleDateString('ro-RO', withMonth === false ? { day: 'numeric' } : { day: 'numeric', month: 'short' });
+  }
+  var regionNames = null;
+  try { regionNames = new Intl.DisplayNames(['ro'], { type: 'region' }); } catch (e) {}
+  function countryLabel(code) {
+    if (!code) return 'Necunoscut';
+    try { return (regionNames && regionNames.of(code)) || code; } catch (e) { return code; }
+  }
+  var DEVICES = { desktop: 'Calculator', mobile: 'Telefon', tablet: 'Tabletă' };
+  // Turn a page address into something Dan recognises (event / post title)
+  function pageLabel(path) {
+    var c = S.content || {}, en = /^\/en(\/|$)/.test(path), lang = en ? 'en' : 'ro';
+    var fixed = { '/': 'Prima pagină', '/portofoliu/': 'Portofoliu', '/blog/': 'Blog', '/intrebari-frecvente/': 'Întrebări frecvente', '/contact/': 'Contact',
+      '/en/': 'Prima pagină', '/en/portfolio/': 'Portofoliu', '/en/blog/': 'Blog', '/en/faq/': 'Întrebări frecvente', '/en/contact/': 'Contact' };
+    var name = fixed[path];
+    if (!name) {
+      var slug = (path.match(/\/([^\/]+)\/?$/) || [])[1];
+      var hit = slug && ((c.events || []).filter(function (x) { return x.slug === slug; })[0] || (c.posts || []).filter(function (x) { return x.slug === slug; })[0]);
+      name = hit ? (hit.title[lang] || hit.title.ro) : path;
+    }
+    return en ? name + ' · EN' : name;
+  }
+  function change(cur, prev) {
+    if (!prev) return cur ? 'nou față de perioada dinainte' : '';
+    var pct = Math.round((cur - prev) / prev * 100);
+    return (pct > 0 ? '+' : '') + pct + '% față de cele ' + AN.days + ' zile dinainte';
+  }
+  function dailyChart(rows) {
+    // Drawn at the real on-screen width so text and bars keep their size (redrawn on resize)
+    var W = Math.max(260, Math.min(1200, document.documentElement.clientWidth) - 32 - 42), H = 190, top = 18, bottom = 26, n = rows.length;
+    var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r.visits; })));
+    var step = Math.pow(10, Math.floor(Math.log10(max))), nice = Math.ceil(max / step) * step;
+    var colW = W / n, bw = Math.max(2, colW - (n > 15 ? 3 : 8));
+    var NS = 'http://www.w3.org/2000/svg';
+    function s(tag, attrs, text) {
+      var el = document.createElementNS(NS, tag);
+      Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      if (text != null) el.textContent = text;
+      return el;
+    }
+    var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'chart', width: W, height: H, role: 'img', 'aria-label': 'Vizite pe zi' });
+    var y = function (v) { return top + (H - top - bottom) * (1 - v / nice); };
+    svg.appendChild(s('line', { x1: 0, x2: W, y1: y(nice), y2: y(nice), class: 'grid' }));
+    svg.appendChild(s('text', { x: 0, y: y(nice) - 4, class: 'axis' }, nf(nice)));
+    svg.appendChild(s('line', { x1: 0, x2: W, y1: y(0), y2: y(0), class: 'base' }));
+    var tip = h('div', { class: 'chart-tip', hidden: true });
+    rows.forEach(function (r, i) {
+      var x = i * colW + (colW - bw) / 2, yy = y(r.visits), hh = y(0) - yy;
+      var g = s('g', { class: 'col' });
+      g.appendChild(s('rect', { x: i * colW, y: top, width: colW, height: H - top - bottom, class: 'hit' }));
+      if (r.visits) {
+        var rad = Math.min(4, bw / 2, hh);
+        // bar with rounded top, square on the baseline
+        g.appendChild(s('path', { class: 'bar', d: 'M' + x + ',' + y(0) + 'V' + (yy + rad) + 'Q' + x + ',' + yy + ' ' + (x + rad) + ',' + yy + 'H' + (x + bw - rad) + 'Q' + (x + bw) + ',' + yy + ' ' + (x + bw) + ',' + (yy + rad) + 'V' + y(0) + 'Z' }));
+      }
+      g.appendChild(s('title', {}, shortDate(r.key) + ': ' + nf(r.visits) + ' vizite, ' + nf(r.views) + ' pagini văzute'));
+      g.addEventListener('pointerenter', function () {
+        tip.innerHTML = '';
+        add(tip, [h('strong', { text: new Date(r.key + 'T12:00:00Z').toLocaleDateString('ro-RO', { weekday: 'short', day: 'numeric', month: 'short' }) }),
+          h('span', { text: nf(r.visits) + ' vizite' }), h('span', { text: nf(r.views) + ' pagini văzute' })]);
+        tip.hidden = false;
+        tip.style.left = Math.min(Math.max((i + 0.5) / n * 100, 12), 88) + '%';
+        g.classList.add('on');
+      });
+      g.addEventListener('pointerleave', function () { tip.hidden = true; g.classList.remove('on'); });
+      svg.appendChild(g);
+      var label = n <= 7 || i === 0 || i === n - 1 || (i % 7 === 0 && n - 1 - i >= 4);
+      if (label) svg.appendChild(s('text', { x: i * colW + colW / 2, y: H - 6, class: 'axis', 'text-anchor': i === 0 && n > 7 ? 'start' : i === n - 1 && n > 7 ? 'end' : 'middle' },
+        n <= 7 ? new Date(r.key + 'T12:00:00Z').toLocaleDateString('ro-RO', { weekday: 'short' }) : shortDate(r.key)));
+    });
+    return h('div', { class: 'chart-wrap' }, svg, tip);
+  }
+  function ranked(title, rows, label, metric) {
+    metric = metric || 'visits';
+    var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r[metric]; }).concat([0])));
+    return h('div', { class: 'panel' },
+      h('div', { class: 'panel-head' }, h('h2', { text: title })),
+      rows.length ? h('ol', { class: 'rank' }, rows.map(function (r) {
+        return h('li', null,
+          h('span', { class: 'rk-name', text: label(r.key), title: r.key }),
+          h('span', { class: 'rk-val', text: nf(r[metric]) }),
+          h('span', { class: 'rk-bar' }, h('i', { style: 'width:' + Math.max(1, r[metric] / max * 100).toFixed(1) + '%' })));
+      })) : h('p', { class: 'hint', text: 'Încă nimic în perioada asta.' }));
+  }
+  function statsTab() {
+    var d = AN.data[AN.days];
+    if (!d && !AN.loading && !AN.error) loadAnalytics();
+    var range = h('div', { class: 'seg', role: 'group', 'aria-label': 'Perioada' }, [7, 30].map(function (n) {
+      return h('button', { class: 'btn btn-sm', 'aria-pressed': String(AN.days === n), onclick: function () { AN.days = n; AN.error = ''; render(); } }, n + ' zile');
+    }));
+    var refresh = h('button', { class: 'btn btn-sm', disabled: AN.loading, onclick: function () { loadAnalytics(true); render(); } }, AN.loading ? 'Se încarcă…' : 'Reîmprospătează');
+    var head = h('div', { class: 'panel-head' }, h('h2', { text: 'Vizitatori pe site' }), h('div', { class: 'head-tools' }, range, refresh));
+    if (!d) {
+      var msg = AN.error === 'not_configured' ? 'Statisticile nu sunt pornite încă (lipsește cheia Cloudflare). Le pornim noi.'
+        : AN.error ? 'Nu am putut citi statisticile: ' + AN.error + '. Încearcă Reîmprospătează.' : 'Se încarcă…';
+      return h('div', { class: 'panel' }, head, h('p', { class: 'hint', text: msg }));
+    }
+    var when = new Date(d.at).toLocaleString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    var langTotal = d.lang.ro + d.lang.en;
+    var refLabel = function (k) { return !k ? 'Direct (link salvat, scris sau din mesaje)' : k.replace(/^www\./, '').replace(/^l\.facebook\.com$|^m\.facebook\.com$|^lm\.facebook\.com$/, 'facebook.com').replace(/^l\.instagram\.com$/, 'instagram.com'); };
+    // Merge referrers that map to the same name (e.g. facebook.com + m.facebook.com)
+    var refs = [], seen = {};
+    d.refs.forEach(function (r) { var k = refLabel(r.key); if (seen[k]) { seen[k].visits += r.visits; } else { seen[k] = { key: r.key, visits: r.visits }; refs.push(seen[k]); } });
+    refs.sort(function (a, b) { return b.visits - a.visits; });
+    return [
+      h('div', { class: 'panel' }, head,
+        h('div', { class: 'stats' },
+          h('div', null, h('strong', { text: nf(d.total.visits) }), h('small', { text: 'vizite' }), h('small', { class: 'delta', text: change(d.total.visits, d.prev.visits) })),
+          h('div', null, h('strong', { text: nf(d.total.views) }), h('small', { text: 'pagini văzute' }), h('small', { class: 'delta', text: d.total.visits ? (d.total.views / d.total.visits).toFixed(1).replace('.', ',') + ' pagini / vizită' : '' })),
+          h('div', null, h('strong', { text: langTotal ? Math.round(d.lang.ro / langTotal * 100) + '% RO' : '–' }), h('small', { text: 'din pagini văzute în română' }), h('small', { class: 'delta', text: langTotal ? Math.round(d.lang.en / langTotal * 100) + '% în engleză (/en/)' : '' }))),
+        h('h3', { class: 'sub', text: 'Vizite pe zi' }),
+        dailyChart(d.daily),
+        h('p', { class: 'hint', text: 'O vizită = cineva intră pe site (venind din altă parte); paginile văzute numără fiecare pagină deschisă. Fără cookies, nu vedem cine e. Actualizat la ' + when + ' (se reîmprospătează singur la 15 minute).' })),
+      h('div', { class: 'grid2' },
+        ranked('Cele mai văzute pagini (de câte ori)', d.pages, pageLabel, 'views'),
+        ranked('De unde vin (vizite)', refs, refLabel),
+        ranked('Din ce țări (vizite)', d.countries, countryLabel),
+        ranked('De pe ce dispozitiv (vizite)', d.devices, function (k) { return DEVICES[k] || k || 'Altele'; })),
+    ];
+  }
+
+  var resizeTimer, lastW = window.innerWidth;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { if (S.tab === 'stats' && window.innerWidth !== lastW) { lastW = window.innerWidth; render(); } }, 200);
+  });
+
+  var TABS = [['stats', 'Statistici'], ['hero', 'Hero'], ['page', 'Pagina'], ['events', 'Portofoliu'], ['blog', 'Blog'], ['faq', 'Întrebări'], ['contact', 'Contact'], ['storage', 'Spațiu']];
   var statusEl, saveBtn;
   function updateStatus() {
     if (!statusEl) return;
@@ -483,7 +623,7 @@
     var y = window.scrollY;
     statusEl = h('span', { class: 'status' });
     saveBtn = h('button', { class: 'btn btn-primary', onclick: save }, 'Salvează');
-    var body = { hero: heroTab, page: pageTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab, storage: storageTab }[S.tab]();
+    var body = { stats: statsTab, hero: heroTab, page: pageTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab, storage: storageTab }[S.tab]();
     app.innerHTML = '';
     add(app, [
       h('header', { class: 'topbar' },

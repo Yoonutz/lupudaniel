@@ -375,6 +375,76 @@ async function storage(env, params) {
 }
 const forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {});
 
+// ---------- visitor stats (admin tab Statistici) ----------
+// Cloudflare Web Analytics (cookieless beacon on every public page), read via the
+// GraphQL API with a read-only token. Needs CF_ANALYTICS_TOKEN (Account Analytics: Read)
+// and CF_ACCOUNT_ID. Cached 15 min at the edge per range: no KV operations at all.
+const RUM_SITE_TAG = "82c2176da79d4d8189e726ad2152c15d"; // dancapitandeplai.ro
+const day = d => d.toISOString().slice(0, 10);
+
+async function rumQuery(env, days) {
+  const now = new Date();
+  const from = new Date(now.getTime() - (days - 1) * 864e5);
+  const prevFrom = new Date(from.getTime() - days * 864e5), prevTo = new Date(from.getTime() - 864e5);
+  const g = (alias, f, dims, order, limit) =>
+    `${alias}: rumPageloadEventsAdaptiveGroups(limit:${limit}, filter:${f}${order ? `, orderBy:[${order}]` : ""}){count sum{visits}${dims ? ` dimensions{${dims}}` : ""}}`;
+  const cur = `{siteTag:$s, date_geq:$from, date_leq:$to}`;
+  const query = `query($a:String!,$s:String!,$from:Date!,$to:Date!,$pf:Date!,$pt:Date!){viewer{accounts(filter:{accountTag:$a}){
+    ${g("total", cur, "", "", 1)}
+    ${g("prev", `{siteTag:$s, date_geq:$pf, date_leq:$pt}`, "", "", 1)}
+    ${g("daily", cur, "date", "date_ASC", 100)}
+    ${g("pages", cur, "requestPath", "count_DESC", 500)}
+    ${g("countries", cur, "countryName", "sum_visits_DESC", 50)}
+    ${g("devices", cur, "deviceType", "sum_visits_DESC", 10)}
+    ${g("refs", cur, "refererHost", "sum_visits_DESC", 50)}
+  }}}`;
+  const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+    method: "POST",
+    headers: { authorization: "Bearer " + env.CF_ANALYTICS_TOKEN, "content-type": "application/json" },
+    body: JSON.stringify({ query, variables: { a: env.CF_ACCOUNT_ID, s: env.CF_RUM_SITE_TAG || RUM_SITE_TAG, from: day(from), to: day(now), pf: day(prevFrom), pt: day(prevTo) } }),
+  });
+  const d = await res.json().catch(() => ({}));
+  const a = d?.data?.viewer?.accounts?.[0];
+  if (!a) throw new Error((d?.errors?.[0]?.message || "HTTP " + res.status).slice(0, 200));
+  const sum = rows => ({ views: rows?.[0]?.count || 0, visits: rows?.[0]?.sum?.visits || 0 });
+  const rows = (list, key) => (list || []).map(r => ({ key: r.dimensions[key] || "", views: r.count, visits: r.sum.visits }));
+  // Every day in the range, zero when nobody came
+  const byDate = new Map(rows(a.daily, "date").map(r => [r.key, r]));
+  const daily = [];
+  for (let t = from.getTime(); t <= now.getTime() + 1; t += 864e5) {
+    const k = day(new Date(t));
+    daily.push(byDate.get(k) || { key: k, views: 0, visits: 0 });
+  }
+  const pages = rows(a.pages, "requestPath");
+  const lang = { ro: 0, en: 0 };
+  for (const p of pages) lang[/^\/en(\/|$)/.test(p.key) ? "en" : "ro"] += p.views;
+  return {
+    days, from: day(from), to: day(now),
+    total: sum(a.total), prev: sum(a.prev), daily, lang,
+    pages: pages.slice(0, 10),
+    // Visits only start on a page opened from outside, so rows with 0 visits are clicks inside the site
+    countries: rows(a.countries, "countryName").filter(r => r.visits).slice(0, 8),
+    devices: rows(a.devices, "deviceType").filter(r => r.visits),
+    refs: rows(a.refs, "refererHost").filter(r => r.visits && !/(^|\.)dancapitandeplai\.(ro|pages\.dev)$/.test(r.key)).slice(0, 8),
+    at: new Date().toISOString(),
+  };
+}
+
+async function analytics(env, params) {
+  if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
+  const days = params.get("days") === "30" ? 30 : 7;
+  const key = `https://cache.internal/analytics-${days}`;
+  const cache = caches.default;
+  if (params.get("fresh") !== "1") {
+    const hit = await cache.match(key).catch(() => null);
+    if (hit) return json(await hit.json());
+  }
+  let data;
+  try { data = await rumQuery(env, days); } catch (e) { return json({ error: "analytics_failed", detail: String(e.message || e) }, 502); }
+  await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } })).catch(() => {});
+  return json(data);
+}
+
 // ---------- router ----------
 
 export async function handleApi(req, env, url) {
@@ -393,6 +463,7 @@ export async function handleApi(req, env, url) {
   if (m === "GET" && p === "/api/auth/me") return json({ email: s.email });
   if (m === "GET" && p === "/api/content") return json(await getContent(env));
   if (m === "GET" && p === "/api/storage") return storage(env, url.searchParams);
+  if (m === "GET" && p === "/api/analytics") return analytics(env, url.searchParams);
   if (m === "PUT" && p === "/api/content") { await forgetStorage(); return saveContent(req, env); }
   if (m === "POST" && p === "/api/media") return uploadMedia(req, env, url.searchParams);
   if (m === "POST" && p === "/api/media/import") return importMedia(req, env);

@@ -119,3 +119,32 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .hint.ok { color: var(--ok); margin: 0 0 10px; }
 .hint.bad { color: var(--danger); margin: 0; }
 .video-thumb { display: block; width: 240px; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 4px; }
+
+/* Visitor stats */
+.head-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg { display: inline-flex; }
+.seg .btn { border-radius: 0; }
+.seg .btn:first-child { border-radius: 4px 0 0 4px; }
+.seg .btn:last-child { border-radius: 0 4px 4px 0; margin-left: -1px; }
+.seg .btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.stats .delta { display: block; margin-top: 2px; }
+h3.sub { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--soft); margin: 6px 0 8px; }
+.chart-wrap { position: relative; margin-bottom: 16px; }
+.chart { display: block; max-width: 100%; height: auto; overflow: visible; }
+.chart .grid { stroke: var(--line); stroke-dasharray: 3 3; }
+.chart .base { stroke: var(--muted); }
+.chart .axis { fill: var(--muted); font-size: 12px; font-family: var(--body); }
+.chart .bar { fill: var(--accent); }
+.chart .hit { fill: transparent; }
+.chart .col.on .hit { fill: var(--accent-bg); }
+.chart-tip { position: absolute; top: 0; transform: translate(-50%, -100%); background: var(--ink); color: var(--paper); font-size: 12px; padding: 6px 10px; border-radius: 4px; pointer-events: none; white-space: nowrap; display: grid; gap: 1px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.chart-tip[hidden] { display: none; }
+.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.rank li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 14px; }
+.rk-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+.rk-bar { grid-column: 1 / -1; height: 6px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+.rk-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.grid2 > .panel { margin-bottom: 0; }
+main > .grid2 { margin-bottom: 20px; }
+@media (max-width: 560px) { .head-tools { width: 100%; } .seg { flex: 1; } .seg .btn { flex: 1; } }
