@@ -30,9 +30,9 @@ import CSS from "../../public/assets/css/style.css";
 
 export const ROUTES = {
   ro: { home: "/", portfolio: "/portofoliu/", blog: "/blog/", faq: "/intrebari-frecvente/", contact: "/contact/",
-        wedding: "/fotograf-nunta-brasov/", christening: "/fotograf-botez-brasov/" },
+        wedding: "/fotograf-nunta-brasov/", christening: "/fotograf-botez-brasov/", family: "/sedinta-foto-familie-brasov/" },
   en: { home: "/en/", portfolio: "/en/portfolio/", blog: "/en/blog/", faq: "/en/faq/", contact: "/en/contact/",
-        wedding: "/en/wedding-photographer-brasov/", christening: "/en/christening-photographer-brasov/" },
+        wedding: "/en/wedding-photographer-brasov/", christening: "/en/christening-photographer-brasov/", family: "/en/family-newborn-photographer-brasov/" },
 };
 const NAV = {
   ro: [["home", "Acasă"], ["portfolio", "Portofoliu"], ["blog", "Blog"], ["faq", "Întrebări"], ["contact", "Contact"]],
@@ -151,7 +151,7 @@ function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage
   const ui = UI[lang];
   const navItems = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}"${k === key ? ' aria-current="page"' : ""}>${e(label)}</a></li>`).join("");
   const footerNav = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}">${e(label)}</a></li>`).join("");
-  const footerSeo = ["wedding", "christening"].map(k => `<li><a href="${r(lang, k)}">${e(LANDING[k][lang].h1)}</a></li>`).join("");
+  const footerSeo = ["wedding", "christening", "family"].map(k => `<li><a href="${r(lang, k)}">${e(LANDING[k][lang].h1)}</a></li>`).join("");
   const canonical = SITE.url + alt[lang];
   const alternates = ["ro", "en"].map(l => `<link rel="alternate" hreflang="${l}" href="${SITE.url}${alt[l]}">`).join("") +
     `<link rel="alternate" hreflang="x-default" href="${SITE.url}${alt.ro}">`;
@@ -588,11 +588,60 @@ const LANDING = {
       cta: "Tell me your christening date",
     },
   },
+  family: {
+    cats: ["familie", "botez"],
+    ro: {
+      h1: "Ședință foto de familie în Brașov",
+      title: "Ședință foto familie și nou-născut Brașov · Dan Căpitan de Plai",
+      desc: "Ședințe foto de familie și cu nou-născuți în Brașov, acasă sau în natură. Fotografie documentară, fără poze regizate, cu lumină naturală și multă răbdare.",
+      lead: "Ședințe foto de familie și cu nou-născuți în Brașov. Fără poze regizate, doar voi, așa cum sunteți.",
+      sections: [
+        ["Cum arată o ședință", [
+          "Nu vă cer să stați cuminți și să zâmbiți la aparat. Vă jucați, vă îmbrățișați, faceți ce faceți de obicei împreună, iar eu fotografiez momentele care apar de la sine. Copiii nu pozează, și tocmai de aceea fotografiile lor ies cele mai frumoase.",
+          "Lucrez cu lumină naturală, fără blitz, așa că cei mici nu se sperie și nu obosesc.",
+        ]],
+        ["Ședință foto cu nou-născut", [
+          "Primele săptămâni trec foarte repede. Vin la voi acasă, unde bebelușul se simte în siguranță, și am răbdare: luăm pauze ori de câte ori cel mic trebuie hrănit, adormit sau liniștit. Fotografiez detaliile mici, mânuțele, piciorușele, și momentele de tandrețe dintre voi și cel mic.",
+        ]],
+        ["Unde fotografiez", [
+          "Acasă la voi, în parcurile din Brașov, pe dealurile din jur sau la munte. Sunt din Brașov și merg și în afara orașului; în acest caz, transportul și cazarea se plătesc separat.",
+        ]],
+        ["Ofertă personalizată", [
+          "Nu am pachete fixe. Scrieți-mi ce fel de ședință vă doriți și când, iar eu vă trimit o ofertă personalizată.",
+        ]],
+      ],
+      work: "Familii și botezuri fotografiate de mine",
+      cta: "Programați o ședință de familie",
+    },
+    en: {
+      h1: "Family and newborn photographer in Brașov",
+      title: "Family & newborn photographer in Brașov · Dan Căpitan de Plai",
+      desc: "Family and newborn photo sessions in Brașov, Romania, at home or outdoors. Documentary photography, no staged poses, natural light and plenty of patience.",
+      lead: "Family and newborn photo sessions in Brașov. No staged poses, just you, as you are.",
+      sections: [
+        ["What a session looks like", [
+          "I won't ask you to sit still and smile at the camera. You play, hug and do what you normally do together, and I photograph the moments that happen on their own. Kids don't pose, and that's exactly why their photos turn out best.",
+          "I work with natural light and no flash, so little ones don't get startled or tired.",
+        ]],
+        ["Newborn sessions", [
+          "The first weeks go by fast. I come to your home, where the baby feels safe, and I take my time: we pause for feeding, naps and calming down. I photograph the tiny details, little hands and feet, and the tender moments between you and your baby.",
+        ]],
+        ["Where I shoot", [
+          "At your home, in Brașov's parks, on the hills around the city or in the mountains. I'm based in Brașov and also travel further; then travel and accommodation are charged separately.",
+        ]],
+        ["A quote made for you", [
+          "I don't do fixed packages. Tell me what kind of session you'd like and when, and I'll send you a tailored quote.",
+        ]],
+      ],
+      work: "Families and christenings I've photographed",
+      cta: "Book a family session",
+    },
+  },
 };
 
 export function landing(c, lang, key) {
   const L = LANDING[key], T = L[lang], ui = UI[lang], cats = c.categories[lang];
-  const evs = c.events.filter(ev => L.cats.includes(ev.cat)).slice(0, 6);
+  const evs = c.events.filter(ev => L.cats.includes(ev.cat)).sort((a, b) => L.cats.indexOf(a.cat) - L.cats.indexOf(b.cat)).slice(0, 6);
   const cards = evs.map((ev, n) => `<a class="event-card${n < 2 ? "" : " reveal"}" href="${eventUrl(lang, ev)}">` +
     `${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), {})}` +
     `<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")}${ev.venue ? ` · ${e(ev.venue)}` : ""}</span>` +
@@ -634,6 +683,7 @@ export function route(c, path) {
     if (path === R.contact) return contact(c, lang);
     if (path === R.wedding) return landing(c, lang, "wedding");
     if (path === R.christening) return landing(c, lang, "christening");
+    if (path === R.family) return landing(c, lang, "family");
     if (path.startsWith(R.portfolio)) {
       const i = c.events.findIndex(ev => path === eventUrl(lang, ev));
       if (i >= 0) return event(c, lang, i);

@@ -1847,7 +1847,8 @@ var ROUTES = {
     faq: "/intrebari-frecvente/",
     contact: "/contact/",
     wedding: "/fotograf-nunta-brasov/",
-    christening: "/fotograf-botez-brasov/"
+    christening: "/fotograf-botez-brasov/",
+    family: "/sedinta-foto-familie-brasov/"
   },
   en: {
     home: "/en/",
@@ -1856,7 +1857,8 @@ var ROUTES = {
     faq: "/en/faq/",
     contact: "/en/contact/",
     wedding: "/en/wedding-photographer-brasov/",
-    christening: "/en/christening-photographer-brasov/"
+    christening: "/en/christening-photographer-brasov/",
+    family: "/en/family-newborn-photographer-brasov/"
   }
 };
 var NAV = {
@@ -2006,7 +2008,7 @@ function layout(c, lang, key, { title, desc, body, alt, hasHero = false, ogImage
   const ui = UI[lang];
   const navItems = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}"${k === key ? ' aria-current="page"' : ""}>${e(label)}</a></li>`).join("");
   const footerNav = NAV[lang].map(([k, label]) => `<li><a href="${r(lang, k)}">${e(label)}</a></li>`).join("");
-  const footerSeo = ["wedding", "christening"].map((k) => `<li><a href="${r(lang, k)}">${e(LANDING[k][lang].h1)}</a></li>`).join("");
+  const footerSeo = ["wedding", "christening", "family"].map((k) => `<li><a href="${r(lang, k)}">${e(LANDING[k][lang].h1)}</a></li>`).join("");
   const canonical = SITE.url + alt[lang];
   const alternates = ["ro", "en"].map((l) => `<link rel="alternate" hreflang="${l}" href="${SITE.url}${alt[l]}">`).join("") + `<link rel="alternate" hreflang="x-default" href="${SITE.url}${alt.ro}">`;
   const og = ogImage ? ogImage.startsWith("http") ? ogImage : SITE.url + ogImage : SITE.url + (c.hero && c.hero.desktop[0] || "/assets/img/hero-1.jpg");
@@ -2445,11 +2447,60 @@ var LANDING = {
       work: "Christenings and families I've photographed",
       cta: "Tell me your christening date"
     }
+  },
+  family: {
+    cats: ["familie", "botez"],
+    ro: {
+      h1: "\u0218edin\u021B\u0103 foto de familie \xEEn Bra\u0219ov",
+      title: "\u0218edin\u021B\u0103 foto familie \u0219i nou-n\u0103scut Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      desc: "\u0218edin\u021Be foto de familie \u0219i cu nou-n\u0103scu\u021Bi \xEEn Bra\u0219ov, acas\u0103 sau \xEEn natur\u0103. Fotografie documentar\u0103, f\u0103r\u0103 poze regizate, cu lumin\u0103 natural\u0103 \u0219i mult\u0103 r\u0103bdare.",
+      lead: "\u0218edin\u021Be foto de familie \u0219i cu nou-n\u0103scu\u021Bi \xEEn Bra\u0219ov. F\u0103r\u0103 poze regizate, doar voi, a\u0219a cum sunte\u021Bi.",
+      sections: [
+        ["Cum arat\u0103 o \u0219edin\u021B\u0103", [
+          "Nu v\u0103 cer s\u0103 sta\u021Bi cumin\u021Bi \u0219i s\u0103 z\xE2mbi\u021Bi la aparat. V\u0103 juca\u021Bi, v\u0103 \xEEmbr\u0103\u021Bi\u0219a\u021Bi, face\u021Bi ce face\u021Bi de obicei \xEEmpreun\u0103, iar eu fotografiez momentele care apar de la sine. Copiii nu pozeaz\u0103, \u0219i tocmai de aceea fotografiile lor ies cele mai frumoase.",
+          "Lucrez cu lumin\u0103 natural\u0103, f\u0103r\u0103 blitz, a\u0219a c\u0103 cei mici nu se sperie \u0219i nu obosesc."
+        ]],
+        ["\u0218edin\u021B\u0103 foto cu nou-n\u0103scut", [
+          "Primele s\u0103pt\u0103m\xE2ni trec foarte repede. Vin la voi acas\u0103, unde bebelu\u0219ul se simte \xEEn siguran\u021B\u0103, \u0219i am r\u0103bdare: lu\u0103m pauze ori de c\xE2te ori cel mic trebuie hr\u0103nit, adormit sau lini\u0219tit. Fotografiez detaliile mici, m\xE2nu\u021Bele, picioru\u0219ele, \u0219i momentele de tandre\u021Be dintre voi \u0219i cel mic."
+        ]],
+        ["Unde fotografiez", [
+          "Acas\u0103 la voi, \xEEn parcurile din Bra\u0219ov, pe dealurile din jur sau la munte. Sunt din Bra\u0219ov \u0219i merg \u0219i \xEEn afara ora\u0219ului; \xEEn acest caz, transportul \u0219i cazarea se pl\u0103tesc separat."
+        ]],
+        ["Ofert\u0103 personalizat\u0103", [
+          "Nu am pachete fixe. Scrie\u021Bi-mi ce fel de \u0219edin\u021B\u0103 v\u0103 dori\u021Bi \u0219i c\xE2nd, iar eu v\u0103 trimit o ofert\u0103 personalizat\u0103."
+        ]]
+      ],
+      work: "Familii \u0219i botezuri fotografiate de mine",
+      cta: "Programa\u021Bi o \u0219edin\u021B\u0103 de familie"
+    },
+    en: {
+      h1: "Family and newborn photographer in Bra\u0219ov",
+      title: "Family & newborn photographer in Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
+      desc: "Family and newborn photo sessions in Bra\u0219ov, Romania, at home or outdoors. Documentary photography, no staged poses, natural light and plenty of patience.",
+      lead: "Family and newborn photo sessions in Bra\u0219ov. No staged poses, just you, as you are.",
+      sections: [
+        ["What a session looks like", [
+          "I won't ask you to sit still and smile at the camera. You play, hug and do what you normally do together, and I photograph the moments that happen on their own. Kids don't pose, and that's exactly why their photos turn out best.",
+          "I work with natural light and no flash, so little ones don't get startled or tired."
+        ]],
+        ["Newborn sessions", [
+          "The first weeks go by fast. I come to your home, where the baby feels safe, and I take my time: we pause for feeding, naps and calming down. I photograph the tiny details, little hands and feet, and the tender moments between you and your baby."
+        ]],
+        ["Where I shoot", [
+          "At your home, in Bra\u0219ov's parks, on the hills around the city or in the mountains. I'm based in Bra\u0219ov and also travel further; then travel and accommodation are charged separately."
+        ]],
+        ["A quote made for you", [
+          "I don't do fixed packages. Tell me what kind of session you'd like and when, and I'll send you a tailored quote."
+        ]]
+      ],
+      work: "Families and christenings I've photographed",
+      cta: "Book a family session"
+    }
   }
 };
 function landing(c, lang, key) {
   const L = LANDING[key], T = L[lang], ui = UI[lang], cats = c.categories[lang];
-  const evs = c.events.filter((ev) => L.cats.includes(ev.cat)).slice(0, 6);
+  const evs = c.events.filter((ev) => L.cats.includes(ev.cat)).sort((a, b) => L.cats.indexOf(a.cat) - L.cats.indexOf(b.cat)).slice(0, 6);
   const cards = evs.map((ev, n) => `<a class="event-card${n < 2 ? "" : " reveal"}" href="${eventUrl(lang, ev)}">${img(small(ev.cover || ev.photos[0] || ""), t(ev.title, lang), {})}<div class="event-meta"><span class="eyebrow">${e(cats[ev.cat] || "")}${ev.venue ? ` \xB7 ${e(ev.venue)}` : ""}</span><h3>${e(t(ev.title, lang))}</h3><span class="event-count">${ev.photos.length} ${e(ui.photos)} ${ICON.arrow}</span></div></a>`).join("");
   const text = T.sections.map(([h, ps]) => `<h2 class="h-lg">${e(h)}</h2>${ps.map((x) => `<p>${e(x)}</p>`).join("")}`).join("");
   const wa = waLink(c, lang);
@@ -2501,6 +2552,7 @@ function route(c, path) {
     if (path === R.contact) return contact(c, lang);
     if (path === R.wedding) return landing(c, lang, "wedding");
     if (path === R.christening) return landing(c, lang, "christening");
+    if (path === R.family) return landing(c, lang, "family");
     if (path.startsWith(R.portfolio)) {
       const i = c.events.findIndex((ev) => path === eventUrl(lang, ev));
       if (i >= 0) return event(c, lang, i);
