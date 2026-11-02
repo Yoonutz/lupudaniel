@@ -1,3 +1,109 @@
+// src/worker/google.js
+var GA4_PROPERTY = "561949087";
+var GSC_SITE = "https://dancapitandeplai.ro/";
+var SCOPES = "https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly";
+var b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+var b64urlStr = (s) => b64url(new TextEncoder().encode(s));
+var tokenCache = null;
+async function accessToken(env) {
+  if (tokenCache && tokenCache.exp > Date.now() + 6e4) return tokenCache.token;
+  const sa = JSON.parse(env.GOOGLE_SA_KEY);
+  const pem = sa.private_key.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "");
+  const der = Uint8Array.from(atob(pem), (c) => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey("pkcs8", der, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  const now = Math.floor(Date.now() / 1e3);
+  const unsigned = b64urlStr(JSON.stringify({ alg: "RS256", typ: "JWT" })) + "." + b64urlStr(JSON.stringify({ iss: sa.client_email, scope: SCOPES, aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3600 }));
+  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(unsigned));
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" + unsigned + "." + b64url(sig)
+  });
+  if (!res.ok) throw new Error("google_token_" + res.status);
+  const j = await res.json();
+  tokenCache = { token: j.access_token, exp: Date.now() + (j.expires_in || 3600) * 1e3 };
+  return tokenCache.token;
+}
+async function gpost(token, url2, body) {
+  const res = await fetch(url2, { method: "POST", headers: { authorization: "Bearer " + token, "content-type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error("google_api_" + res.status + "_" + (await res.text()).slice(0, 200));
+  return res.json();
+}
+var roDate = (n) => new Date(Date.now() - n * 864e5).toLocaleDateString("en-CA", { timeZone: "Europe/Bucharest" });
+async function ga4(token, days) {
+  const url2 = `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY}:batchRunReports`;
+  const range = { startDate: `${days - 1}daysAgo`, endDate: "today" };
+  const prev = { startDate: `${2 * days - 1}daysAgo`, endDate: `${days}daysAgo` };
+  const M = ["activeUsers", "sessions", "screenPageViews", "averageSessionDuration"].map((name) => ({ name }));
+  const r2 = await gpost(token, url2, { requests: [
+    { dateRanges: [range, prev], metrics: M },
+    { dateRanges: [range], dimensions: [{ name: "date" }], metrics: [{ name: "activeUsers" }, { name: "sessions" }], orderBys: [{ dimension: { dimensionName: "date" } }] },
+    { dateRanges: [range], dimensions: [{ name: "sessionSourceMedium" }], metrics: [{ name: "sessions" }], orderBys: [{ metric: { metricName: "sessions" }, desc: true }], limit: 8 },
+    { dateRanges: [range], dimensions: [{ name: "pagePath" }], metrics: [{ name: "screenPageViews" }], orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 8 }
+  ] });
+  const [tot, daily, src, pages] = r2.reports;
+  const rt = await gpost(token, `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY}:runRealtimeReport`, { metrics: [{ name: "activeUsers" }] }).catch(() => null);
+  const now30 = Number(rt?.rows?.[0]?.metricValues?.[0]?.value || 0);
+  const pick = (i) => {
+    const row = (tot.rows || []).find((x) => (x.dimensionValues || [])[0]?.value === `date_range_${i}`) || (i === 0 && !(tot.rows || [])[0]?.dimensionValues ? (tot.rows || [])[0] : null);
+    const v = (k) => Number(row?.metricValues?.[k]?.value || 0);
+    return { users: v(0), sessions: v(1), views: v(2), duration: Math.round(v(3)) };
+  };
+  const byDay = {};
+  (daily.rows || []).forEach((x) => {
+    const d = x.dimensionValues[0].value;
+    byDay[`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`] = { users: +x.metricValues[0].value, sessions: +x.metricValues[1].value };
+  });
+  const dailyRows = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const k = roDate(i);
+    dailyRows.push({ key: k, users: byDay[k]?.users || 0, sessions: byDay[k]?.sessions || 0 });
+  }
+  const list2 = (rep, metric) => (rep.rows || []).map((x) => ({ key: x.dimensionValues[0].value, [metric]: +x.metricValues[0].value }));
+  return { now30, total: pick(0), prev: pick(1), daily: dailyRows, sources: list2(src, "sessions"), pages: list2(pages, "views") };
+}
+async function gsc(token, days) {
+  const url2 = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(GSC_SITE)}/searchAnalytics/query`;
+  const body = (dims, rowLimit) => ({ startDate: roDate(days - 1), endDate: roDate(0), dimensions: dims, rowLimit, dataState: "all" });
+  const [tot, queries, pages, daily] = await Promise.all([
+    gpost(token, url2, body([], 1)),
+    gpost(token, url2, body(["query"], 10)),
+    gpost(token, url2, body(["page"], 8)),
+    gpost(token, url2, body(["date"], days))
+  ]);
+  const t2 = (tot.rows || [])[0] || {};
+  const row = (x) => ({ key: x.keys[0], clicks: x.clicks, impressions: x.impressions, position: Math.round(x.position * 10) / 10 });
+  return {
+    total: { clicks: t2.clicks || 0, impressions: t2.impressions || 0, ctr: t2.ctr || 0, position: t2.position ? Math.round(t2.position * 10) / 10 : null },
+    queries: (queries.rows || []).map(row),
+    pages: (pages.rows || []).map(row),
+    lastDay: (daily.rows || []).map((x) => x.keys[0]).sort().pop() || null
+  };
+}
+async function googleStats(env, params, json2) {
+  if (!env.GOOGLE_SA_KEY) return json2({ error: "not_configured" }, 503);
+  const days = params.get("days") === "30" ? 30 : 7;
+  const key = `https://cache.internal/google-v1-${days}`;
+  const cache = caches.default;
+  if (params.get("fresh") !== "1") {
+    const hit = await cache.match(key).catch(() => null);
+    if (hit) return json2(await hit.json());
+  }
+  const token = await accessToken(env);
+  const [a, s] = await Promise.allSettled([ga4(token, days), gsc(token, days)]);
+  if (a.status === "rejected") console.error("ga4_failed", a.reason);
+  if (s.status === "rejected") console.error("gsc_failed", s.reason);
+  const data = {
+    ga4: a.status === "fulfilled" ? a.value : { error: "ga4_failed" },
+    gsc: s.status === "fulfilled" ? s.value : { error: "gsc_failed" },
+    at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  if (a.status === "fulfilled" && s.status === "fulfilled")
+    await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } })).catch(() => {
+    });
+  return json2(data);
+}
+
 // src/worker/seed.json
 var seed_default = {
   hero: {
@@ -1273,6 +1379,10 @@ async function handleApi(req, env, url2) {
   if (m === "GET" && p === "/api/content") return json(await getContent(env));
   if (m === "GET" && p === "/api/storage") return storage(env, url2.searchParams);
   if (m === "GET" && p === "/api/analytics") return analytics(env, url2.searchParams);
+  if (m === "GET" && p === "/api/google") return googleStats(env, url2.searchParams, json).catch((e2) => {
+    console.error("google_failed", e2);
+    return json({ error: "google_failed" }, 502);
+  });
   if (m === "PUT" && p === "/api/content") {
     await forgetStorage();
     return saveContent(req, env);

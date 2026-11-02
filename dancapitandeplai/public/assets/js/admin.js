@@ -480,6 +480,16 @@
       .catch(function (e) { AN.error = e.message; })
       .finally(function () { AN.loading = false; if (S.tab === 'stats') render(); });
   }
+  // Google Analytics 4 + Search Console (read-only service account, server side)
+  var GO = { data: {}, loading: false, error: '' };
+  function loadGoogle(fresh) {
+    if (GO.loading) return;
+    var days = AN.days;
+    GO.loading = true; GO.error = '';
+    api('GET', '/api/google?days=' + days + (fresh ? '&fresh=1' : '')).then(function (d) { GO.data[days] = d; })
+      .catch(function (e) { GO.error = e.message; })
+      .finally(function () { GO.loading = false; if (S.tab === 'stats') render(); });
+  }
   var nf = function (n) { return Number(n || 0).toLocaleString('ro-RO'); };
   function shortDate(k, withMonth) {
     var d = new Date(k + 'T12:00:00Z');
@@ -577,12 +587,12 @@
     var range = h('div', { class: 'seg', role: 'group', 'aria-label': 'Perioada' }, [7, 30].map(function (n) {
       return h('button', { class: 'btn btn-sm', 'aria-pressed': String(AN.days === n), onclick: function () { AN.days = n; AN.error = ''; render(); } }, n + ' zile');
     }));
-    var refresh = h('button', { class: 'btn btn-sm', disabled: AN.loading, onclick: function () { loadAnalytics(true); render(); } }, AN.loading ? 'Se încarcă…' : 'Reîmprospătează');
-    var head = h('div', { class: 'panel-head' }, h('h2', { text: 'Vizitatori pe site' }), h('div', { class: 'head-tools' }, range, refresh));
+    var refresh = h('button', { class: 'btn btn-sm', disabled: AN.loading, onclick: function () { loadAnalytics(true); loadGoogle(true); render(); } }, AN.loading ? 'Se încarcă…' : 'Reîmprospătează');
+    var head = h('div', { class: 'panel-head' }, h('h2', { text: 'Vizitatori pe site' }, h('span', { class: 'src', text: 'numărătorul nostru' })), h('div', { class: 'head-tools' }, range, refresh));
     if (!d) {
       var msg = AN.error === 'not_configured' ? 'Statisticile nu sunt pornite încă (lipsește cheia Cloudflare). Le pornim noi.'
         : AN.error ? 'Nu am putut citi statisticile: ' + AN.error + '. Încearcă Reîmprospătează.' : 'Se încarcă…';
-      return h('div', { class: 'panel' }, head, h('p', { class: 'hint', text: msg }));
+      return [h('div', { class: 'panel' }, head, h('p', { class: 'hint', text: msg }))].concat(googlePanels());
     }
     var when = new Date(d.at).toLocaleString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
     var langTotal = d.lang.ro + d.lang.en;
@@ -607,7 +617,60 @@
         ranked('De unde vin (vizite)', refs, refLabel),
         ranked('Din ce țări (vizite)', d.countries, countryLabel),
         ranked('De pe ce dispozitiv (vizite)', d.devices, function (k) { return DEVICES[k] || k || 'Altele'; })),
-    ];
+    ].concat(googlePanels());
+  }
+  function mmss(sec) { sec = Math.round(sec || 0); return Math.floor(sec / 60) + ' min ' + (sec % 60) + ' s'; }
+  function googlePanels() {
+    var g = GO.data[AN.days];
+    if (!g && !GO.loading && !GO.error) loadGoogle();
+    var gaHead = h('div', { class: 'panel-head' }, h('h2', { text: 'Google Analytics' }, h('span', { class: 'src', text: 'doar cine acceptă cookie-urile' })));
+    var scHead = h('div', { class: 'panel-head' }, h('h2', { text: 'Căutări Google' }, h('span', { class: 'src', text: 'Search Console' })));
+    if (!g) {
+      var msg = GO.error === 'not_configured' ? 'Legătura cu Google nu e pornită încă. O pornim noi.'
+        : GO.error ? 'Nu am putut citi datele Google: ' + GO.error + '. Încearcă Reîmprospătează.' : 'Se încarcă…';
+      return [h('div', { class: 'panel' }, gaHead, h('p', { class: 'hint', text: msg }))];
+    }
+    var out = [];
+    var a = g.ga4 || {};
+    if (a.error) out.push(h('div', { class: 'panel' }, gaHead, h('p', { class: 'hint', text: 'Google Analytics nu a răspuns acum. Încearcă Reîmprospătează.' })));
+    else {
+      var gaDaily = a.daily.map(function (r) { return { key: r.key, visits: r.sessions, uniques: r.users, views: r.sessions }; });
+      out.push(h('div', { class: 'panel' }, gaHead,
+        h('div', { class: 'stats four' },
+          h('div', null, h('strong', { text: nf(a.total.users) }), h('small', { text: 'utilizatori' }), h('small', { class: 'delta', text: change(a.total.users, a.prev.users) })),
+          h('div', null, h('strong', { text: nf(a.total.sessions) }), h('small', { text: 'sesiuni (vizite)' }), h('small', { class: 'delta', text: change(a.total.sessions, a.prev.sessions) })),
+          h('div', null, h('strong', { text: nf(a.total.views) }), h('small', { text: 'pagini văzute' }), h('small', { class: 'delta', text: a.total.sessions ? (a.total.views / a.total.sessions).toFixed(1).replace('.', ',') + ' pagini / sesiune' : '' })),
+          h('div', null, h('strong', { text: a.total.sessions ? mmss(a.total.duration) : '–' }), h('small', { text: 'timp mediu pe site' }), h('small', { class: 'delta', text: nf(a.now30) + ' pe site în ultimele 30 min' }))),
+        h('div', { class: 'chart-head' }, h('h3', { class: 'sub', text: 'Pe zile' }),
+          h('div', { class: 'legend' }, h('span', null, h('i', { class: 'sw total' }), 'Sesiuni'), h('span', null, h('i', { class: 'sw uniq' }), 'din care utilizatori'))),
+        dailyChart(gaDaily),
+        h('p', { class: 'hint', text: 'Google Analytics vede doar vizitatorii care apasă „Accept” la cookie-uri, deci cifrele de aici sunt mai mici decât cele de sus. Numărătorul nostru (sus) rămâne cifra completă. Rapoartele Google apar cu câteva ore întârziere; „ultimele 30 min” e în timp real.' })));
+      out.push(h('div', { class: 'grid2' },
+        ranked('Surse de trafic (sesiuni, Google Analytics)', a.sources, function (k) { return k === '(direct) / (none)' ? 'Direct' : k; }, 'sessions'),
+        ranked('Cele mai văzute pagini (Google Analytics)', a.pages, pageLabel, 'views')));
+    }
+    var c = g.gsc || {};
+    if (c.error) out.push(h('div', { class: 'panel' }, scHead, h('p', { class: 'hint', text: 'Search Console nu a răspuns acum. Încearcă Reîmprospătează.' })));
+    else {
+      out.push(h('div', { class: 'panel' }, scHead,
+        h('div', { class: 'stats four' },
+          h('div', null, h('strong', { text: nf(c.total.clicks) }), h('small', { text: 'clicuri din Google' })),
+          h('div', null, h('strong', { text: nf(c.total.impressions) }), h('small', { text: 'apariții în rezultate' })),
+          h('div', null, h('strong', { text: c.total.impressions ? (c.total.ctr * 100).toFixed(1).replace('.', ',') + '%' : '–' }), h('small', { text: 'rata de click' })),
+          h('div', null, h('strong', { text: c.total.position ? String(c.total.position).replace('.', ',') : '–' }), h('small', { text: 'poziția medie' }), h('small', { class: 'delta', text: 'mai mic = mai sus în Google' }))),
+        h('p', { class: 'hint', text: 'Ce caută oamenii pe Google când apare site-ul lui Dan. Google trimite datele cu 2–3 zile întârziere' + (c.lastDay ? ' (ultima zi cu date: ' + shortDate(c.lastDay) + ')' : ', iar site-ul e nou, deci primele cifre apar în câteva zile') + '.' })));
+      var q = function (title, rows, label) {
+        return h('div', { class: 'panel' }, h('div', { class: 'panel-head' }, h('h2', { text: title })),
+          rows.length ? h('ol', { class: 'rank' }, rows.map(function (r) {
+            return h('li', null, h('span', { class: 'rk-name', text: label(r.key), title: r.key }),
+              h('span', { class: 'rk-val', text: nf(r.clicks) + ' clicuri · ' + nf(r.impressions) + ' apariții · poz. ' + String(r.position).replace('.', ',') }));
+          })) : h('p', { class: 'hint', text: 'Încă nimic în perioada asta.' }));
+      };
+      out.push(h('div', { class: 'grid2' },
+        q('Ce caută oamenii (Search Console)', c.queries, function (k) { return k; }),
+        q('Pagini care apar în Google (Search Console)', c.pages, function (k) { return pageLabel(k.replace(/^https?:\/\/[^\/]+/, '')); })));
+    }
+    return out;
   }
 
   var resizeTimer, lastW = window.innerWidth;

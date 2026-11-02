@@ -1,3 +1,4 @@
+import { googleStats } from "./google.js";
 // REST API for the admin panel: email-link login, content, media.
 // Bindings: CONTENT (KV), MAILER (service -> dancapitandeplai-mailer); vars: ADMIN_EMAILS (comma separated).
 import SEED from "./seed.json";
@@ -617,6 +618,7 @@ export async function handleApi(req, env, url) {
   if (m === "GET" && p === "/api/content") return json(await getContent(env));
   if (m === "GET" && p === "/api/storage") return storage(env, url.searchParams);
   if (m === "GET" && p === "/api/analytics") return analytics(env, url.searchParams);
+  if (m === "GET" && p === "/api/google") return googleStats(env, url.searchParams, json).catch(e => { console.error("google_failed", e); return json({ error: "google_failed" }, 502); });
   if (m === "PUT" && p === "/api/content") { await forgetStorage(); return saveContent(req, env); }
   if (m === "POST" && p === "/api/media") return uploadMedia(req, env, url.searchParams);
   if (m === "POST" && p === "/api/media/import") return importMedia(req, env);
