@@ -7,6 +7,8 @@ export const SITE = {
   url: "https://dancapitandeplai.ro",
 };
 const ASSET_V = "16";
+// Cloudflare Web Analytics; left out for admin devices and test browsers (see index.js)
+export const BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'></script>`;
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
 import { videoEmbed } from "./api.js";
 import CSS from "../../public/assets/css/style.css";
@@ -163,7 +165,7 @@ ${body}
 </footer>
 <a class="wa-float" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp">${ICON.wa}</a>
 <script src="/assets/js/main.js?v=${ASSET_V}" defer></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'></script>
+${BEACON}
 </body>
 </html>`;
 }
