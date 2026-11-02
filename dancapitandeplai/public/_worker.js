@@ -1195,7 +1195,8 @@ async function analytics(env, params) {
     lastStats[days] = data;
   } catch (e2) {
     if (lastStats[days]) return json(lastStats[days]);
-    return json({ error: "analytics_failed", detail: String(e2.message || e2) }, 502);
+    console.error("analytics_failed", e2);
+    return json({ error: "analytics_failed" }, 502);
   }
   await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=300" } })).catch(() => {
   });

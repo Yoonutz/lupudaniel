@@ -544,7 +544,9 @@ async function analytics(env, params) {
   catch (e) {
     // e.g. Cloudflare's rate limit: show the last numbers this worker had rather than an error
     if (lastStats[days]) return json(lastStats[days]);
-    return json({ error: "analytics_failed", detail: String(e.message || e) }, 502);
+    // Details go to the worker log only, never to the browser.
+    console.error("analytics_failed", e);
+    return json({ error: "analytics_failed" }, 502);
   }
   await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=300" } })).catch(() => {});
   return json(data);
