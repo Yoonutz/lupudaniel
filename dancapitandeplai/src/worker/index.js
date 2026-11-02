@@ -1,7 +1,7 @@
 // Cloudflare Pages advanced-mode worker for Dan's site.
 // Public pages are rendered from KV content; /api is the admin REST API;
 // everything else (CSS, JS, placeholder images, /admin) is a static asset.
-import { route, sitemap, notFound, BEACON } from "./render.js";
+import { route, sitemap, notFound, BEACON, GTAG_START, GTAG_END } from "./render.js";
 import { handleApi, getContent, serveMedia, json, isInternal, NOSTATS_COOKIE, recordHit } from "./api.js";
 
 const SEC_HEADERS = {
@@ -51,8 +51,13 @@ export default {
       // Paths without a trailing slash go to the slash version
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url.origin + p + "/" + url.search, 301);
       const page = route(c, p);
-      // Admin devices and test browsers get the page without the analytics beacon
-      const strip = s => (isInternal(req) ? s.split(BEACON).join("") : s);
+      // Admin devices and test browsers get the page without the analytics beacon or Google tags
+      const strip = s => {
+        if (!isInternal(req)) return s;
+        s = s.split(BEACON).join("");
+        const a = s.indexOf(GTAG_START), b = s.indexOf(GTAG_END);
+        return a >= 0 && b > a ? s.slice(0, a) + s.slice(b + GTAG_END.length) : s;
+      };
       if (page && req.method === "GET" && !isInternal(req)) ctx.waitUntil(recordHit(env, req, url));
       return page ? html(strip(page)) : html(strip(notFound(c)), 404);
     } catch (err) {

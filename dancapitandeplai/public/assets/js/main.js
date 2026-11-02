@@ -307,4 +307,73 @@
       box.replaceChildren(f);
     });
   });
+  // Cookie consent (Google Consent Mode v2). Google tags load only after "Accept".
+  // window.__gcfg is set in <head> only for real visitors (left out for admin devices).
+  (function () {
+    var cfg = window.__gcfg;
+    if (!cfg || typeof window.gtag !== 'function') return;
+    var en = document.documentElement.lang === 'en';
+    var T = en ? {
+      text: 'We use cookies from Google Analytics to see which pages people find useful. Nothing is loaded unless you accept.',
+      yes: 'Accept', no: 'Refuse', label: 'Cookies', settings: 'Cookie settings'
+    } : {
+      text: 'Folosim cookie-uri Google Analytics ca să vedem ce pagini vă sunt utile. Nu se încarcă nimic fără acordul tău.',
+      yes: 'Accept', no: 'Refuz', label: 'Cookie-uri', settings: 'Setări cookie-uri'
+    };
+    var KEY = 'consent';
+    function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+    function save(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+    var loaded = false;
+    function addScript(src) { var s = document.createElement('script'); s.async = true; s.src = src; document.head.appendChild(s); }
+    function load() {
+      if (loaded) return;
+      loaded = true;
+      if (cfg.gtm && /^GTM-[A-Z0-9]+$/.test(cfg.gtm)) {
+        window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+        addScript('https://www.googletagmanager.com/gtm.js?id=' + cfg.gtm);
+      }
+      if (cfg.ga4 && /^G-[A-Z0-9]+$/.test(cfg.ga4)) {
+        addScript('https://www.googletagmanager.com/gtag/js?id=' + cfg.ga4);
+        window.gtag('js', new Date());
+        window.gtag('config', cfg.ga4);
+      }
+    }
+    function apply(v) {
+      var g = v === 'granted' ? 'granted' : 'denied';
+      window.gtag('consent', 'update', { ad_storage: g, ad_user_data: g, ad_personalization: g, analytics_storage: g });
+      if (g === 'granted') load();
+      else document.cookie.split(';').forEach(function (c) {
+        var n = c.split('=')[0].trim();
+        if (/^_ga/.test(n)) document.cookie = n + '=; Max-Age=0; Path=/; Domain=.' + location.hostname.replace(/^www\./, '');
+      });
+    }
+    var bar;
+    function show() {
+      if (bar) { bar.hidden = false; return; }
+      bar = document.createElement('div');
+      bar.className = 'consent';
+      bar.setAttribute('role', 'dialog');
+      bar.setAttribute('aria-label', T.label);
+      var p = document.createElement('p'); p.textContent = T.text;
+      var box = document.createElement('div'); box.className = 'consent-btns';
+      [['no', 'btn'], ['yes', 'btn btn--solid']].forEach(function (b) {
+        var x = document.createElement('button');
+        x.type = 'button'; x.className = b[1]; x.textContent = T[b[0]];
+        x.addEventListener('click', function () { var v = b[0] === 'yes' ? 'granted' : 'denied'; save(v); apply(v); bar.hidden = true; });
+        box.appendChild(x);
+      });
+      bar.appendChild(p); bar.appendChild(box);
+      document.body.appendChild(bar);
+    }
+    var v = read();
+    if (v === 'granted' || v === 'denied') apply(v); else show();
+    // Footer link to change the choice later
+    var fb = document.querySelector('.footer-bottom');
+    if (fb) {
+      var a = document.createElement('button');
+      a.type = 'button'; a.className = 'consent-link'; a.textContent = T.settings;
+      a.addEventListener('click', show);
+      fb.insertBefore(a, fb.lastElementChild);
+    }
+  })();
 })();

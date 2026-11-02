@@ -6,9 +6,24 @@ export const SITE = {
   tagline: { ro: "Fotograf de nuntă · Brașov", en: "Wedding photographer · Brașov" },
   url: "https://dancapitandeplai.ro",
 };
-const ASSET_V = "16";
+const ASSET_V = "17";
 // Cloudflare Web Analytics; left out for admin devices and test browsers (see index.js)
 export const BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'></script>`;
+// Google Analytics 4 + Tag Manager: loaded only after the visitor accepts cookies
+// (Consent Mode v2, banner in main.js). Empty id = that tag is off.
+const GA4_ID = "";
+const GTM_ID = "";
+// Search Console HTML-tag verification. Outside the strip block on purpose: Googlebot
+// counts as "internal" (see isInternal) and must still see it.
+const GSC_TOKEN = "";
+export const GTAG_START = "<!--gtag-->", GTAG_END = "<!--/gtag-->";
+function googleTags(lang) {
+  if (!GA4_ID && !GTM_ID) return "";
+  const cfg = JSON.stringify({ ga4: GA4_ID, gtm: GTM_ID }).replace(/</g, "\\u003c");
+  return GTAG_START + "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}" +
+    "gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});" +
+    "gtag('set','ads_data_redaction',true);window.__gcfg=" + cfg + ";</script>" + GTAG_END;
+}
 // style.css is inlined in <head> (no render-blocking request); bundled as text by esbuild
 import { videoEmbed } from "./api.js";
 import CSS from "../../public/assets/css/style.css";
@@ -123,7 +138,9 @@ ${alternates}
 <meta property="og:url" content="${canonical}">
 <meta property="og:locale" content="${lang === "ro" ? "ro_RO" : "en_US"}">
 <meta name="theme-color" content="#0f0f0f">
+${GSC_TOKEN ? `<meta name="google-site-verification" content="${e(GSC_TOKEN)}">` : ""}
 ${THEME_JS}
+${googleTags(lang)}
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/assets/img/favicon.svg?v=${ASSET_V}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png?v=${ASSET_V}">

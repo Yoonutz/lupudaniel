@@ -1664,6 +1664,21 @@ body, .site-header, .service, .note, .section--tint { transition: background-col
 .video-play { position: absolute; inset: 0; margin: auto; width: 76px; height: 76px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; display: grid; place-items: center; transition: background .2s, transform .2s; }
 .video-play:hover, .video-play:focus-visible { background: rgba(0,0,0,.85); transform: scale(1.06); }
 .video-play svg { width: 34px; height: 34px; margin-left: 4px; }
+
+/* Cookie consent bar (main.js) */
+.consent { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 61; max-width: 760px; margin: 0 auto;
+  display: flex; align-items: center; gap: 16px 24px; padding: 18px 22px; background: var(--paper); color: var(--ink);
+  border: 1px solid var(--line); box-shadow: 0 10px 40px rgba(0,0,0,.18); font-size: 14px; line-height: 1.55; }
+.consent[hidden] { display: none; }
+.consent p { margin: 0; flex: 1; }
+.consent-btns { display: flex; gap: 10px; flex: none; }
+.consent .btn:not(.btn--solid) { background: transparent; color: var(--ink); }
+.consent .btn { padding: 11px 18px; font-size: 12px; cursor: pointer; font-family: var(--head); }
+.consent-link { background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 640px) {
+  .consent { flex-direction: column; align-items: stretch; left: 12px; right: 12px; bottom: 12px; padding: 16px; }
+  .consent-btns .btn { flex: 1; justify-content: center; }
+}
 `;
 
 // src/worker/render.js
@@ -1672,8 +1687,18 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.ro"
 };
-var ASSET_V = "16";
+var ASSET_V = "17";
 var BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'><\/script>`;
+var GA4_ID = "";
+var GTM_ID = "";
+var GSC_TOKEN = "";
+var GTAG_START = "<!--gtag-->";
+var GTAG_END = "<!--/gtag-->";
+function googleTags(lang) {
+  if (!GA4_ID && !GTM_ID) return "";
+  const cfg = JSON.stringify({ ga4: GA4_ID, gtm: GTM_ID }).replace(/</g, "\\u003c");
+  return GTAG_START + "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});gtag('set','ads_data_redaction',true);window.__gcfg=" + cfg + ";<\/script>" + GTAG_END;
+}
 var ROUTES = {
   ro: {
     home: "/",
@@ -1814,7 +1839,9 @@ ${alternates}
 <meta property="og:url" content="${canonical}">
 <meta property="og:locale" content="${lang === "ro" ? "ro_RO" : "en_US"}">
 <meta name="theme-color" content="#0f0f0f">
+${GSC_TOKEN ? `<meta name="google-site-verification" content="${e(GSC_TOKEN)}">` : ""}
 ${THEME_JS}
+${googleTags(lang)}
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/assets/img/favicon.svg?v=${ASSET_V}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png?v=${ASSET_V}">
@@ -2347,7 +2374,12 @@ var index_default = {
       if (p === "/sitemap.xml") return new Response(sitemap(c), { headers: { "content-type": "application/xml" } });
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url2.origin + p + "/" + url2.search, 301);
       const page = route(c, p);
-      const strip = (s) => isInternal(req) ? s.split(BEACON).join("") : s;
+      const strip = (s) => {
+        if (!isInternal(req)) return s;
+        s = s.split(BEACON).join("");
+        const a = s.indexOf(GTAG_START), b = s.indexOf(GTAG_END);
+        return a >= 0 && b > a ? s.slice(0, a) + s.slice(b + GTAG_END.length) : s;
+      };
       if (page && req.method === "GET" && !isInternal(req)) ctx.waitUntil(recordHit(env, req, url2));
       return page ? html(strip(page)) : html(strip(notFound(c)), 404);
     } catch (err) {
