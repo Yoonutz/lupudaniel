@@ -70,7 +70,7 @@ const SEO = {
     home: ["Fotograf nuntă și botez Brașov · Dan Căpitan de Plai",
       "Fotograf de nuntă și botez în Brașov: fotografie documentară, momente reale, lumină naturală. Cununii civile, evenimente și ședințe foto de familie. Cereți o ofertă."],
     portfolio: ["Portofoliu fotograf nuntă și botez Brașov · Dan Căpitan de Plai",
-      "Nunți, botezuri și cununii civile fotografiate în Brașov și împrejurimi. Fotografie de nuntă documentară: alege un eveniment și intră în ziua respectivă."],
+      "Nunți, botezuri și cununii civile fotografiate în Brașov și împrejurimi. Fotografie de nuntă documentară: alegeți un eveniment și intrați în ziua respectivă."],
     blog: ["Blog · Sfaturi de la un fotograf de nuntă din Brașov",
       "Sfaturi pentru miri și părinți de la un fotograf de nuntă și botez din Brașov: pregătiri, ședințe foto, cum să nu vă pierdeți pozele."],
     faq: ["Întrebări frecvente · Fotograf nuntă și botez Brașov",

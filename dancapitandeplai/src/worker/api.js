@@ -44,6 +44,9 @@ const TEXT_FIXES = [
   ["Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).", "Every quote is tailored; no fixed packages."],
   ["Happy to travel; outside Brașov, travel and accommodation are added.", "Happy to travel; outside Brașov, travel and accommodation are charged separately."],
   ["Albums, extra sessions and a second photographer are extra.", "Albums, extra sessions and a second photographer are optional and charged separately."],
+  ["Unde vrei să mergi?", "Unde vreți să mergeți?"],
+  ["Fiecare eveniment are povestea lui. Alege unul și intră în ziua respectivă.", "Fiecare eveniment are povestea lui. Alegeți unul și intrați în ziua respectivă."],
+  ["Ce să întrebi înainte să semnezi, ca să nu ai surprize după nuntă.", "Ce să întrebați înainte să semnați, ca să nu aveți surprize după nuntă."],
 ];
 function fixText(saved) {
   let s = JSON.stringify(saved);

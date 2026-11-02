@@ -190,7 +190,7 @@ var seed_default = {
         "De la ceremonii descul\u021B prin iarb\u0103 p\xE2n\u0103 la nun\u021Bi elegante \xEEn ora\u0219, intervin c\xE2t mai pu\u021Bin \u0219i v\u0103 las s\u0103 v\u0103 bucura\u021Bi de zi. Dac\u0103 sunte\u021Bi timizi \xEEn fa\u021Ba aparatului, e perfect: nu trebuie s\u0103 poza\u021Bi."
       ],
       tiles_eyebrow: "Descoper\u0103",
-      tiles_title: "Unde vrei s\u0103 mergi?",
+      tiles_title: "Unde vre\u021Bi s\u0103 merge\u021Bi?",
       quote: "Fotografia nu e o list\u0103 de bifat. Vreau ca peste ani s\u0103 deschide\u021Bi albumul \u0219i s\u0103 sim\u021Bi\u021Bi ziua din nou.",
       quote_by: "Dan C\u0103pitan de Plai",
       services_eyebrow: "Ce fotografiez",
@@ -620,7 +620,7 @@ var seed_default = {
         en: "Choosing your wedding photographer: 5 useful questions"
       },
       excerpt: {
-        ro: "Ce s\u0103 \xEEntrebi \xEEnainte s\u0103 semnezi, ca s\u0103 nu ai surprize dup\u0103 nunt\u0103.",
+        ro: "Ce s\u0103 \xEEntreba\u021Bi \xEEnainte s\u0103 semna\u021Bi, ca s\u0103 nu ave\u021Bi surprize dup\u0103 nunt\u0103.",
         en: "What to ask before you sign, so there are no surprises after the wedding."
       },
       body: {
@@ -707,7 +707,7 @@ var seed_default = {
     ro: {
       portfolio: [
         "Portofoliu",
-        "Fiecare eveniment are povestea lui. Alege unul \u0219i intr\u0103 \xEEn ziua respectiv\u0103."
+        "Fiecare eveniment are povestea lui. Alege\u021Bi unul \u0219i intra\u021Bi \xEEn ziua respectiv\u0103."
       ],
       blog: [
         "Blog",
@@ -826,7 +826,10 @@ var TEXT_FIXES = [
   ["Album, \u0219edin\u021Be extra \u0219i al doilea fotograf se adaug\u0103 separat.", "Albumul, \u0219edin\u021Bele suplimentare \u0219i al doilea fotograf sunt op\u021Bionale \u0219i se pl\u0103tesc separat."],
   ["Tailored quotes, no fixed packages (around 1,000 EUR for a wedding).", "Every quote is tailored; no fixed packages."],
   ["Happy to travel; outside Bra\u0219ov, travel and accommodation are added.", "Happy to travel; outside Bra\u0219ov, travel and accommodation are charged separately."],
-  ["Albums, extra sessions and a second photographer are extra.", "Albums, extra sessions and a second photographer are optional and charged separately."]
+  ["Albums, extra sessions and a second photographer are extra.", "Albums, extra sessions and a second photographer are optional and charged separately."],
+  ["Unde vrei s\u0103 mergi?", "Unde vre\u021Bi s\u0103 merge\u021Bi?"],
+  ["Fiecare eveniment are povestea lui. Alege unul \u0219i intr\u0103 \xEEn ziua respectiv\u0103.", "Fiecare eveniment are povestea lui. Alege\u021Bi unul \u0219i intra\u021Bi \xEEn ziua respectiv\u0103."],
+  ["Ce s\u0103 \xEEntrebi \xEEnainte s\u0103 semnezi, ca s\u0103 nu ai surprize dup\u0103 nunt\u0103.", "Ce s\u0103 \xEEntreba\u021Bi \xEEnainte s\u0103 semna\u021Bi, ca s\u0103 nu ave\u021Bi surprize dup\u0103 nunt\u0103."]
 ];
 function fixText(saved) {
   let s = JSON.stringify(saved);
@@ -1919,7 +1922,7 @@ var SEO = {
     ],
     portfolio: [
       "Portofoliu fotograf nunt\u0103 \u0219i botez Bra\u0219ov \xB7 Dan C\u0103pitan de Plai",
-      "Nun\u021Bi, botezuri \u0219i cununii civile fotografiate \xEEn Bra\u0219ov \u0219i \xEEmprejurimi. Fotografie de nunt\u0103 documentar\u0103: alege un eveniment \u0219i intr\u0103 \xEEn ziua respectiv\u0103."
+      "Nun\u021Bi, botezuri \u0219i cununii civile fotografiate \xEEn Bra\u0219ov \u0219i \xEEmprejurimi. Fotografie de nunt\u0103 documentar\u0103: alege\u021Bi un eveniment \u0219i intra\u021Bi \xEEn ziua respectiv\u0103."
     ],
     blog: [
       "Blog \xB7 Sfaturi de la un fotograf de nunt\u0103 din Bra\u0219ov",

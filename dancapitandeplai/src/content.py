@@ -101,7 +101,7 @@ HOME = {
             "De la ceremonii desculț prin iarbă până la nunți elegante în oraș, intervin cât mai puțin și vă las să vă bucurați de zi. Dacă sunteți timizi în fața aparatului, e perfect: nu trebuie să pozați.",
         ],
         "tiles_eyebrow": "Descoperă",
-        "tiles_title": "Unde vrei să mergi?",
+        "tiles_title": "Unde vreți să mergeți?",
         "quote": "Fotografia nu e o listă de bifat. Vreau ca peste ani să deschideți albumul și să simțiți ziua din nou.",
         "quote_by": "Dan Căpitan de Plai",
         "services_eyebrow": "Ce fotografiez",
@@ -306,7 +306,7 @@ POSTS = [
         "date": "2026-10-10",
         "title": {"ro": "Cum alegi fotograful de nuntă: 5 întrebări utile", "en": "Choosing your wedding photographer: 5 useful questions"},
         "excerpt": {
-            "ro": "Ce să întrebi înainte să semnezi, ca să nu ai surprize după nuntă.",
+            "ro": "Ce să întrebați înainte să semnați, ca să nu aveți surprize după nuntă.",
             "en": "What to ask before you sign, so there are no surprises after the wedding.",
         },
         "body": {
@@ -350,7 +350,7 @@ FAQ = {
 
 PAGES = {
     "ro": {
-        "portfolio": ("Portofoliu", "Fiecare eveniment are povestea lui. Alege unul și intră în ziua respectivă."),
+        "portfolio": ("Portofoliu", "Fiecare eveniment are povestea lui. Alegeți unul și intrați în ziua respectivă."),
         "blog": ("Blog", "Sfaturi pentru miri, povești din spatele aparatului și idei pentru ședințe foto."),
         "faq": ("Întrebări frecvente", "Răspunsuri scurte la ce mă întreabă cel mai des cuplurile."),
         "contact": ("Contact", "Spuneți-mi data, locul și câteva cuvinte despre voi. De obicei răspund în aceeași zi."),
