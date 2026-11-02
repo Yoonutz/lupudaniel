@@ -87,10 +87,18 @@ async function startSession(env, email) {
   const idx = adminEmails(env).indexOf(email);
   const exp = String(Date.now() + SESSION_TTL * 1000);
   const sid = exp + "." + idx + "." + await hmac(env, exp + "." + email);
-  return json({ ok: true, email }, 200, {
-    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`,
-  });
+  const res = json({ ok: true, email });
+  res.headers.append("set-cookie", `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`);
+  res.headers.append("set-cookie", NOSTATS_COOKIE);
+  return res;
 }
+
+// Devices that have logged into admin (Dan, Ionut) are not counted in the visitor stats:
+// public pages skip the analytics beacon while this cookie is there (1 year).
+export const NOSTATS_COOKIE = "nostats=1; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=31536000";
+export const isInternal = req =>
+  /(?:^|;\s*)nostats=1/.test(req.headers.get("cookie") || "") ||
+  /HeadlessChrome|Playwright|Puppeteer|Lighthouse|PageSpeed|bot|crawler|spider/i.test(req.headers.get("user-agent") || "");
 
 async function requestLink(req, env, url) {
   const body = await readJson(req, 1000).catch(() => ({}));
@@ -393,6 +401,7 @@ async function rumQuery(env, days) {
   const now = new Date();
   const from = new Date(now.getTime() - (days - 1) * 864e5);
   const prevFrom = new Date(from.getTime() - days * 864e5);
+  // Test browsers (headless Chrome, used to check the site after changes) are left out.
   // Cloudflare samples long ranges more coarsely (30 days came back lower than 7),
   // so ask in 7-day pieces and add them up. All pieces go in one request
   // (30 days = 30 sub-queries; the API allows ~300 per 5 min, and results are cached 15 min).
@@ -400,7 +409,7 @@ async function rumQuery(env, days) {
     const out = [];
     for (let i = 0; i < days; i += 7) {
       const a = new Date(start.getTime() + i * 864e5), b = new Date(start.getTime() + Math.min(i + 6, days - 1) * 864e5);
-      out.push(`{siteTag:$s, date_geq:"${day(a)}", date_leq:"${day(b)}"}`);
+      out.push(`{siteTag:$s, date_geq:"${day(a)}", date_leq:"${day(b)}", userAgentBrowser_neq:"ChromeHeadless"}`);
     }
     return out;
   };
@@ -499,7 +508,7 @@ export async function handleApi(req, env, url) {
   // Mutations need a custom header, which cross-site forms can't send
   if (m !== "GET" && req.headers.get("x-admin") !== "1") return json({ error: "forbidden" }, 403);
 
-  if (m === "GET" && p === "/api/auth/me") return json({ email: s.email });
+  if (m === "GET" && p === "/api/auth/me") return json({ email: s.email }, 200, { "set-cookie": NOSTATS_COOKIE });
   if (m === "GET" && p === "/api/content") return json(await getContent(env));
   if (m === "GET" && p === "/api/storage") return storage(env, url.searchParams);
   if (m === "GET" && p === "/api/analytics") return analytics(env, url.searchParams);

@@ -754,10 +754,13 @@ async function startSession(env, email) {
   const idx = adminEmails(env).indexOf(email);
   const exp = String(Date.now() + SESSION_TTL * 1e3);
   const sid = exp + "." + idx + "." + await hmac(env, exp + "." + email);
-  return json({ ok: true, email }, 200, {
-    "set-cookie": `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`
-  });
+  const res = json({ ok: true, email });
+  res.headers.append("set-cookie", `sid=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_TTL}`);
+  res.headers.append("set-cookie", NOSTATS_COOKIE);
+  return res;
 }
+var NOSTATS_COOKIE = "nostats=1; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=31536000";
+var isInternal = (req) => /(?:^|;\s*)nostats=1/.test(req.headers.get("cookie") || "") || /HeadlessChrome|Playwright|Puppeteer|Lighthouse|PageSpeed|bot|crawler|spider/i.test(req.headers.get("user-agent") || "");
 async function requestLink(req, env, url2) {
   const body = await readJson(req, 1e3).catch(() => ({}));
   const email = String(body.email || "").trim().toLowerCase();
@@ -1057,7 +1060,7 @@ async function rumQuery(env, days) {
     const out = [];
     for (let i = 0; i < days; i += 7) {
       const a2 = new Date(start.getTime() + i * 864e5), b = new Date(start.getTime() + Math.min(i + 6, days - 1) * 864e5);
-      out.push(`{siteTag:$s, date_geq:"${day(a2)}", date_leq:"${day(b)}"}`);
+      out.push(`{siteTag:$s, date_geq:"${day(a2)}", date_leq:"${day(b)}", userAgentBrowser_neq:"ChromeHeadless"}`);
     }
     return out;
   };
@@ -1157,7 +1160,7 @@ async function handleApi(req, env, url2) {
   const s = await session(req, env);
   if (!s) return json({ error: "unauthorized" }, 401);
   if (m !== "GET" && req.headers.get("x-admin") !== "1") return json({ error: "forbidden" }, 403);
-  if (m === "GET" && p === "/api/auth/me") return json({ email: s.email });
+  if (m === "GET" && p === "/api/auth/me") return json({ email: s.email }, 200, { "set-cookie": NOSTATS_COOKIE });
   if (m === "GET" && p === "/api/content") return json(await getContent(env));
   if (m === "GET" && p === "/api/storage") return storage(env, url2.searchParams);
   if (m === "GET" && p === "/api/analytics") return analytics(env, url2.searchParams);
@@ -2041,7 +2044,8 @@ var worker_default = {
       if (p === "/sitemap.xml") return new Response(sitemap(c), { headers: { "content-type": "application/xml" } });
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url2.origin + p + "/" + url2.search, 301);
       const page = route(c, p);
-      return page ? html(page) : html(notFound(c), 404);
+      const strip = (s) => isInternal(req) ? s.replace(/<script[^>]*static\.cloudflareinsights\.com\/beacon[^>]*><\/script>/, "") : s;
+      return page ? html(strip(page)) : html(strip(notFound(c)), 404);
     } catch (err) {
       if (p.startsWith("/api/")) return json({ error: "server_error" }, 500);
       return new Response("Something went wrong", { status: 500 });
