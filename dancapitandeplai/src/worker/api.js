@@ -390,11 +390,58 @@ async function storage(env, params) {
 }
 const forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {});
 
+// ---------- own visitor counter (D1, binding VISITORS) ----------
+// Cloudflare Web Analytics has no "unique visitors", so the worker keeps one row per real
+// page view: day (UTC), an anonymous visitor id (HMAC of IP + browser, never stored raw),
+// whether it entered from outside (= a visit) and whether it was the English site.
+// D1 free tier: 100k writes/day, separate from the KV limits.
+export async function recordHit(env, req, url) {
+  if (!env.VISITORS) return;
+  const purpose = req.headers.get("sec-purpose") || req.headers.get("purpose") || "";
+  if (/prefetch|prerender/i.test(purpose)) return;
+  const ip = req.headers.get("cf-connecting-ip") || "", ua = req.headers.get("user-agent") || "";
+  if (!ip || !ua) return;
+  const vid = (await hmac(env, "visitor:" + ip + "|" + ua)).slice(0, 20);
+  let refHost = "";
+  try { refHost = new URL(req.headers.get("referer") || "").hostname; } catch {}
+  const entry = /(^|\.)dancapitandeplai\.(ro|pages\.dev)$/.test(refHost) ? 0 : 1;
+  const en = /^\/en(\/|$)/.test(url.pathname) ? 1 : 0;
+  await env.VISITORS.prepare("INSERT INTO hits (day, vid, entry, en) VALUES (?1, ?2, ?3, ?4)")
+    .bind(new Date().toISOString().slice(0, 10), vid, entry, en).run().catch(() => {});
+}
+
+async function ownStats(env, days) {
+  if (!env.VISITORS) return null;
+  const now = Date.now(), d = n => day(new Date(now - n * 864e5));
+  const from = d(days - 1), prevFrom = d(2 * days - 1);
+  const db = env.VISITORS;
+  const [byDay, tot, prev] = await db.batch([
+    db.prepare("SELECT day, count(*) AS views, sum(entry) AS visits, count(DISTINCT vid) AS uniques, sum(en) AS en FROM hits WHERE day >= ?1 GROUP BY day").bind(from),
+    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques, coalesce(sum(en),0) AS en FROM hits WHERE day >= ?1").bind(from),
+    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques FROM hits WHERE day >= ?1 AND day < ?2").bind(prevFrom, from),
+  ]);
+  const map = new Map(byDay.results.map(r => [r.day, r]));
+  const daily = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const k = d(i), r = map.get(k);
+    daily.push({ key: k, views: r ? r.views : 0, visits: r ? r.visits : 0, uniques: r ? r.uniques : 0 });
+  }
+  const t = tot.results[0], p = prev.results[0];
+  return {
+    daily,
+    total: { views: t.views, visits: t.visits, uniques: t.uniques },
+    prev: { views: p.views, visits: p.visits, uniques: p.uniques },
+    lang: { ro: t.views - t.en, en: t.en },
+  };
+}
+
 // ---------- visitor stats (admin tab Statistici) ----------
 // Cloudflare Web Analytics (cookieless beacon on every public page), read via the
 // GraphQL API with a read-only token. Needs CF_ANALYTICS_TOKEN (Account Analytics: Read)
 // and CF_ACCOUNT_ID. Cached 15 min at the edge per range: no KV operations at all.
 const RUM_SITE_TAG = "82c2176da79d4d8189e726ad2152c15d"; // dancapitandeplai.ro
+const SITE_HOST = "dancapitandeplai.ro";
+const DEFAULT_SINCE = "2026-11-02T14:45:00Z";
 const day = d => d.toISOString().slice(0, 10);
 
 async function rumQuery(env, days) {
@@ -405,19 +452,23 @@ async function rumQuery(env, days) {
   // Cloudflare samples long ranges more coarsely (30 days came back lower than 7),
   // so ask in 7-day pieces and add them up. All pieces go in one request
   // (30 days = 30 sub-queries; the API allows ~300 per 5 min, and results are cached 15 min).
+  // Only the real domain (pages.dev only served tests before launch) and only from
+  // STATS_SINCE on: everything before was us testing the launch, not visitors.
+  const since = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(env.STATS_SINCE || "") ? env.STATS_SINCE : DEFAULT_SINCE;
   const pieces = start => {
     const out = [];
     for (let i = 0; i < days; i += 7) {
       const a = new Date(start.getTime() + i * 864e5), b = new Date(start.getTime() + Math.min(i + 6, days - 1) * 864e5);
-      out.push(`{siteTag:$s, date_geq:"${day(a)}", date_leq:"${day(b)}", userAgentBrowser_neq:"ChromeHeadless"}`);
+      if (since && since.slice(0, 10) > day(b)) { out.push(null); continue; } // whole piece before the start
+      out.push(`{siteTag:$s, requestHost:"${SITE_HOST}", date_geq:"${day(a)}", date_leq:"${day(b)}", datetime_geq:"${since}", userAgentBrowser_neq:"ChromeHeadless"}`);
     }
     return out;
   };
   const g = (alias, f, dims, order, limit) =>
     `${alias}: rumPageloadEventsAdaptiveGroups(limit:${limit}, filter:${f}${order ? `, orderBy:[${order}]` : ""}){count sum{visits}${dims ? ` dimensions{${dims}}` : ""}}`;
   const parts = [];
-  pieces(prevFrom).forEach((f, i) => parts.push(g(`prev${i}`, f, "", "", 1)));
-  pieces(from).forEach((f, i) => parts.push(
+  pieces(prevFrom).forEach((f, i) => f && parts.push(g(`prev${i}`, f, "", "", 1)));
+  pieces(from).forEach((f, i) => f && parts.push(
     g(`daily${i}`, f, "date", "date_ASC", 10),
     g(`pages${i}`, f, "requestPath", "count_DESC", 500),
     g(`countries${i}`, f, "countryName", "sum_visits_DESC", 50),
@@ -461,7 +512,7 @@ async function rumQuery(env, days) {
   const lang = { ro: 0, en: 0 };
   for (const p of pages) lang[/^\/en(\/|$)/.test(p.key) ? "en" : "ro"] += p.views;
   return {
-    days, from: day(from), to: day(now),
+    days, from: day(from), to: day(now), since,
     total: sum(a.total), prev: sum(a.prev), daily, lang,
     pages: pages.slice(0, 10),
     // Visits only start on a page opened from outside, so rows with 0 visits are clicks inside the site
@@ -476,20 +527,26 @@ const lastStats = {};
 async function analytics(env, params) {
   if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const days = params.get("days") === "30" ? 30 : 7;
-  const key = `https://cache.internal/analytics-${days}`;
+  const key = `https://cache.internal/analytics-v2-${days}`;
   const cache = caches.default;
   if (params.get("fresh") !== "1") {
     const hit = await cache.match(key).catch(() => null);
     if (hit) return json(await hit.json());
   }
   let data;
-  try { data = await rumQuery(env, days); lastStats[days] = data; }
+  try {
+    data = await rumQuery(env, days);
+    // Our own counter (with unique visitors) drives the totals and the chart when it's there
+    const own = await ownStats(env, days).catch(() => null);
+    if (own) Object.assign(data, own, { own: true });
+    lastStats[days] = data;
+  }
   catch (e) {
     // e.g. Cloudflare's rate limit: show the last numbers this worker had rather than an error
     if (lastStats[days]) return json(lastStats[days]);
     return json({ error: "analytics_failed", detail: String(e.message || e) }, 502);
   }
-  await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } })).catch(() => {});
+  await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=300" } })).catch(() => {});
   return json(data);
 }
 

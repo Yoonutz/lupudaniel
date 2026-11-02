@@ -1050,24 +1050,72 @@ async function storage(env, params) {
 }
 var forgetStorage = () => caches.default.delete(STATS_URL).catch(() => {
 });
+async function recordHit(env, req, url2) {
+  if (!env.VISITORS) return;
+  const purpose = req.headers.get("sec-purpose") || req.headers.get("purpose") || "";
+  if (/prefetch|prerender/i.test(purpose)) return;
+  const ip = req.headers.get("cf-connecting-ip") || "", ua = req.headers.get("user-agent") || "";
+  if (!ip || !ua) return;
+  const vid = (await hmac(env, "visitor:" + ip + "|" + ua)).slice(0, 20);
+  let refHost = "";
+  try {
+    refHost = new URL(req.headers.get("referer") || "").hostname;
+  } catch {
+  }
+  const entry = /(^|\.)dancapitandeplai\.(ro|pages\.dev)$/.test(refHost) ? 0 : 1;
+  const en = /^\/en(\/|$)/.test(url2.pathname) ? 1 : 0;
+  await env.VISITORS.prepare("INSERT INTO hits (day, vid, entry, en) VALUES (?1, ?2, ?3, ?4)").bind((/* @__PURE__ */ new Date()).toISOString().slice(0, 10), vid, entry, en).run().catch(() => {
+  });
+}
+async function ownStats(env, days) {
+  if (!env.VISITORS) return null;
+  const now = Date.now(), d = (n) => day(new Date(now - n * 864e5));
+  const from = d(days - 1), prevFrom = d(2 * days - 1);
+  const db = env.VISITORS;
+  const [byDay, tot, prev] = await db.batch([
+    db.prepare("SELECT day, count(*) AS views, sum(entry) AS visits, count(DISTINCT vid) AS uniques, sum(en) AS en FROM hits WHERE day >= ?1 GROUP BY day").bind(from),
+    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques, coalesce(sum(en),0) AS en FROM hits WHERE day >= ?1").bind(from),
+    db.prepare("SELECT count(*) AS views, coalesce(sum(entry),0) AS visits, count(DISTINCT vid) AS uniques FROM hits WHERE day >= ?1 AND day < ?2").bind(prevFrom, from)
+  ]);
+  const map = new Map(byDay.results.map((r2) => [r2.day, r2]));
+  const daily = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const k = d(i), r2 = map.get(k);
+    daily.push({ key: k, views: r2 ? r2.views : 0, visits: r2 ? r2.visits : 0, uniques: r2 ? r2.uniques : 0 });
+  }
+  const t2 = tot.results[0], p = prev.results[0];
+  return {
+    daily,
+    total: { views: t2.views, visits: t2.visits, uniques: t2.uniques },
+    prev: { views: p.views, visits: p.visits, uniques: p.uniques },
+    lang: { ro: t2.views - t2.en, en: t2.en }
+  };
+}
 var RUM_SITE_TAG = "82c2176da79d4d8189e726ad2152c15d";
+var SITE_HOST = "dancapitandeplai.ro";
+var DEFAULT_SINCE = "2026-11-02T14:45:00Z";
 var day = (d) => d.toISOString().slice(0, 10);
 async function rumQuery(env, days) {
   const now = /* @__PURE__ */ new Date();
   const from = new Date(now.getTime() - (days - 1) * 864e5);
   const prevFrom = new Date(from.getTime() - days * 864e5);
+  const since = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(env.STATS_SINCE || "") ? env.STATS_SINCE : DEFAULT_SINCE;
   const pieces = (start) => {
     const out = [];
     for (let i = 0; i < days; i += 7) {
       const a2 = new Date(start.getTime() + i * 864e5), b = new Date(start.getTime() + Math.min(i + 6, days - 1) * 864e5);
-      out.push(`{siteTag:$s, date_geq:"${day(a2)}", date_leq:"${day(b)}", userAgentBrowser_neq:"ChromeHeadless"}`);
+      if (since && since.slice(0, 10) > day(b)) {
+        out.push(null);
+        continue;
+      }
+      out.push(`{siteTag:$s, requestHost:"${SITE_HOST}", date_geq:"${day(a2)}", date_leq:"${day(b)}", datetime_geq:"${since}", userAgentBrowser_neq:"ChromeHeadless"}`);
     }
     return out;
   };
   const g = (alias, f, dims, order, limit) => `${alias}: rumPageloadEventsAdaptiveGroups(limit:${limit}, filter:${f}${order ? `, orderBy:[${order}]` : ""}){count sum{visits}${dims ? ` dimensions{${dims}}` : ""}}`;
   const parts = [];
-  pieces(prevFrom).forEach((f, i) => parts.push(g(`prev${i}`, f, "", "", 1)));
-  pieces(from).forEach((f, i) => parts.push(
+  pieces(prevFrom).forEach((f, i) => f && parts.push(g(`prev${i}`, f, "", "", 1)));
+  pieces(from).forEach((f, i) => f && parts.push(
     g(`daily${i}`, f, "date", "date_ASC", 10),
     g(`pages${i}`, f, "requestPath", "count_DESC", 500),
     g(`countries${i}`, f, "countryName", "sum_visits_DESC", 50),
@@ -1116,6 +1164,7 @@ ${parts.join("\n")}
     days,
     from: day(from),
     to: day(now),
+    since,
     total: sum(a.total),
     prev: sum(a.prev),
     daily,
@@ -1132,7 +1181,7 @@ var lastStats = {};
 async function analytics(env, params) {
   if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) return json({ error: "not_configured" }, 503);
   const days = params.get("days") === "30" ? 30 : 7;
-  const key = `https://cache.internal/analytics-${days}`;
+  const key = `https://cache.internal/analytics-v2-${days}`;
   const cache = caches.default;
   if (params.get("fresh") !== "1") {
     const hit = await cache.match(key).catch(() => null);
@@ -1141,12 +1190,14 @@ async function analytics(env, params) {
   let data;
   try {
     data = await rumQuery(env, days);
+    const own = await ownStats(env, days).catch(() => null);
+    if (own) Object.assign(data, own, { own: true });
     lastStats[days] = data;
   } catch (e2) {
     if (lastStats[days]) return json(lastStats[days]);
     return json({ error: "analytics_failed", detail: String(e2.message || e2) }, 502);
   }
-  await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=900" } })).catch(() => {
+  await cache.put(key, new Response(JSON.stringify(data), { headers: { "cache-control": "max-age=300" } })).catch(() => {
   });
   return json(data);
 }
@@ -2025,6 +2076,11 @@ var worker_default = {
       return Response.redirect(CANONICAL_ORIGIN + p + url2.search, 301);
     }
     try {
+      const ns = url2.searchParams.get("nostats");
+      if (ns === "1" || ns === "0") {
+        url2.searchParams.delete("nostats");
+        return new Response(null, { status: 302, headers: { location: url2.pathname + url2.search, "set-cookie": ns === "1" ? NOSTATS_COOKIE : "nostats=; Path=/; Max-Age=0", "cache-control": "no-store" } });
+      }
       if (p.startsWith("/api/")) return await handleApi(req, env, url2);
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
       const media = await serveMedia(env, p, ctx, req);
@@ -2046,6 +2102,7 @@ var worker_default = {
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url2.origin + p + "/" + url2.search, 301);
       const page = route(c, p);
       const strip = (s) => isInternal(req) ? s.split(BEACON).join("") : s;
+      if (page && req.method === "GET" && !isInternal(req)) ctx.waitUntil(recordHit(env, req, url2));
       return page ? html(strip(page)) : html(strip(notFound(c)), 404);
     } catch (err) {
       if (p.startsWith("/api/")) return json({ error: "server_error" }, 500);
