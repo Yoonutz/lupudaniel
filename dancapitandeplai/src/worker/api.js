@@ -605,7 +605,7 @@ export async function handleApi(req, env, url) {
   if (m === "POST" && p === "/api/auth/login") return quickLogin(req, env);
   if (m === "POST" && p === "/api/auth/request") return requestLink(req, env, url);
   if (m === "POST" && p === "/api/auth/verify") return verifyLink(req, env);
-  if (m === "POST" && p === "/api/auth/logout") return logout(req, env);
+  if (m === "POST" && p === "/api/auth/logout") return logout();
   if (m === "GET" && p === "/api/content/public") return json(await getContent(env));
 
   const s = await session(req, env);

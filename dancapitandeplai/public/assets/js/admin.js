@@ -398,7 +398,7 @@
       status.innerHTML = '';
       if (!input.value.trim()) add(status, h('p', { class: 'hint', text: 'Fără film. Lipește un link ca să apară deasupra pozelor.' }));
       else if (!v) add(status, h('p', { class: 'hint bad', text: 'Linkul nu e de YouTube sau Vimeo. Nu se salvează.' }));
-      else add(status, h('p', { class: 'hint ok' }, '✓ Film ' + v.kind + ' găsit.'), v.thumb ? h('img', { class: 'video-thumb', src: v.thumb, alt: '' }) : null);
+      else add(status, [h('p', { class: 'hint ok' }, '✓ Film ' + v.kind + ' găsit.'), v.thumb ? h('img', { class: 'video-thumb', src: v.thumb, alt: '' }) : null]);
     }
     input.addEventListener('input', function () { ev.video = input.value.trim(); markDirty(); show(); });
     show();

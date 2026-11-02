@@ -6,9 +6,9 @@ const app=document.getElementById("app");
 const root=document.documentElement;
 let lang="ro",lens="p",admin=false,dirty=false,curSec="",readOnly=false;
 const editing=new Set();
-try{const s=localStorage.getItem("dl-lang");if(s==="en"||s==="ro")lang=s}catch(e){}
-try{const s=localStorage.getItem("dl-lens");if(s==="all"||s==="p"||s==="d")lens=s}catch(e){}
-try{const t=localStorage.getItem("dl-theme");if(t)root.dataset.theme=t}catch(e){}
+try{const s=localStorage.getItem("dl-lang");if(s==="en"||s==="ro")lang=s;}catch(e){}
+try{const s=localStorage.getItem("dl-lens");if(s==="all"||s==="p"||s==="d")lens=s;}catch(e){}
+try{const t=localStorage.getItem("dl-theme");if(t)root.dataset.theme=t;}catch(e){}
 
 const ICONS={
  camera:'<path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="4"/>',
@@ -90,7 +90,7 @@ function renderHero(){return sec("hero",()=>{const h=STATE.hero;return `<section
     <div class="cta"><a class="btn btn-primary" href="#contact">${E("span","hero.cta1")}</a><a class="btn btn-ghost" href="#experience">${E("span","hero.cta2")}</a><a class="btn btn-ghost" href="/cv/${lang}.pdf" download="CV-Daniel-Lupu-${lang.toUpperCase()}.pdf"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>${E("span","hero.cv")}</a></div>
     <div class="stats">${h.stats.map((s,i)=>`<div class="stat">${E("b",`hero.stats.${i}.b`)}${E("span",`hero.stats.${i}.s`)}${X(`hero.stats.${i}`)}</div>`).join("")}${ADD("hero.stats")}</div>
   </div>
-  <div class="frame" id="photo"><img src="${IMG.hero}" alt="Portrait of Daniel Lupu in a studio with a stone wall" draggable="false"><div class="vf"><i></i></div><span class="vf-tag">REC · BRAȘOV</span></div>
+  <div class="frame" id="photo"><img src="${escA(IMG.hero)}" alt="Portrait of Daniel Lupu in a studio with a stone wall" draggable="false"><div class="vf"><i></i></div><span class="vf-tag">REC · BRAȘOV</span></div>
 </div></section>`})}
 function renderServices(){return sec("services",()=>{const s=STATE.services;return `<section id="services" style="background:var(--surface-2);border-block:1px solid var(--border)"><div class="wrap sec-wrap">${EDITBTN("services")}
   <div class="sec-head"><div>${E("p","services.eyebrow","eyebrow")}${E("h2","services.title")}</div>${E("p","services.intro")}</div>
@@ -132,7 +132,7 @@ function renderAbout(){return sec("about",()=>{const a=STATE.about;return `<sect
 </div></section>`})}
 function renderContact(){return sec("contact",()=>{const c=STATE.contact,e=ed();return `<section id="contact"><div class="wrap sec-wrap">${EDITBTN("contact")}
   <div class="contact-card">
-    <div class="contact-photo"><img src="${IMG.full}" alt="Daniel Lupu standing by a window in a studio"></div>
+    <div class="contact-photo"><img src="${escA(IMG.full)}" alt="Daniel Lupu standing by a window in a studio"></div>
     <div class="contact-body">${E("p","contact.eyebrow","eyebrow")}${E("h2","contact.title")}${E("p","contact.text")}
       <div class="rows">
         ${c.rows.map((r,i)=>`<div class="row">${E("span",`contact.rows.${i}.k`,"k")}${E("span",`contact.rows.${i}.v`,"v",r.copy?'data-copysrc="1"':"")}${r.copy&&!e?`<button class="copy" type="button" data-copy="contact.rows.${i}.v">${u("copy")}</button>`:""}${X(`contact.rows.${i}`)}</div>`).join("")}
@@ -187,7 +187,7 @@ function hlTarget(){
   return {el,r};
 }
 function showPop(){
-  const t=hlTarget();if(!t){pop.hidden=true;return}
+  const t=hlTarget();if(!t){pop.hidden=true;return;}
   const X=STATE.exp.tabs;
   pop.innerHTML=`<button type="button" data-hl="p">${rt(X.p[lang])}</button><button type="button" data-hl="d">${rt(X.d[lang])}</button><button type="button" data-hl="pd">${lang==="ro"?"Ambele":"Both"}</button><button type="button" data-hl="">${lang==="ro"?"Fără marcaj":"No mark"}</button>`;
   pop.hidden=false;
@@ -201,7 +201,7 @@ pop.addEventListener("click",e=>{
   const b=e.target.closest("[data-hl]");const t=hlTarget();if(!b||!t)return;
   const {el,r}=t,f=b.dataset.hl;
   el.querySelectorAll("mark").forEach(mk=>{if(r.intersectsNode(mk))unwrap(mk)});
-  if(f){const frag=r.extractContents();frag.querySelectorAll("mark").forEach(unwrap);const mk=document.createElement("mark");mk.setAttribute("data-f",f);mk.appendChild(frag);r.insertNode(mk)}
+  if(f){const frag=r.extractContents();frag.querySelectorAll("mark").forEach(unwrap);const mk=document.createElement("mark");mk.setAttribute("data-f",f);mk.appendChild(frag);r.insertNode(mk);}
   el.normalize();getSelection().removeAllRanges();pop.hidden=true;
   setText(el.dataset.p,clean(el));
 });

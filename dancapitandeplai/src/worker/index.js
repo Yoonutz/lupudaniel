@@ -42,7 +42,7 @@ export default {
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);
         if (p.startsWith("/assets/")) out.headers.set("cache-control", "public, max-age=31536000, immutable");
-        if (p.startsWith("/admin")) { out.headers.set("cache-control", "no-store"); out.headers.set("x-robots-tag", "noindex"); out.headers.set("x-frame-options", "DENY") }
+        if (p.startsWith("/admin")) { out.headers.set("cache-control", "no-store"); out.headers.set("x-robots-tag", "noindex"); out.headers.set("x-frame-options", "DENY"); }
         return out;
       }
 
