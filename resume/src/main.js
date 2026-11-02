@@ -43,8 +43,8 @@ function get(path){return path.split(".").reduce((o,k)=>o==null?o:o[k],STATE)}
 function parentOf(path){const i=path.lastIndexOf(".");return [get(path.slice(0,i)),path.slice(i+1)]}
 const escT=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const escA=s=>escT(s).replace(/"/g,"&quot;");
-function clean(html){
-  const t=document.createElement("template");t.innerHTML=html;
+// Rich text allows only <strong>, <span> and <mark data-f>; everything else is kept as escaped text.
+function clean(el){
   const walk=n=>[...n.childNodes].map(c=>{
     if(c.nodeType===3)return escT(c.textContent);
     if(c.nodeType!==1)return "";
@@ -55,9 +55,13 @@ function clean(html){
     if(tag==="mark"){const f=c.getAttribute("data-f");return /^(p|d|pd)$/.test(f)?`<mark data-f="${f}">${walk(c)}</mark>`:walk(c)}
     return walk(c);
   }).join("");
-  return walk(t.content).replace(/ /g," ").trim();
+  return walk(el).replace(/ /g," ").trim();
 }
-function txt(path){const v=get(path);return v==null?"":typeof v==="string"?v:(v[lang]??v.en??"")}
+const ENT=/&amp;(amp|lt|gt|quot|#39|#\d{1,6}|nbsp);/g;
+const rt=v=>escT(v).replace(ENT,"&$1;")
+  .replace(/&lt;(\/?)(strong|span)&gt;/g,"<$1$2>")
+  .replace(/&lt;mark data-f="(p|d|pd)"&gt;/g,'<mark data-f="$1">').replace(/&lt;\/mark&gt;/g,"</mark>");
+function txt(path){const v=get(path);return rt(v==null?"":typeof v==="string"?v:(v[lang]??v.en??""))}
 const ed=()=>admin&&editing.has(curSec);
 // editable text element
 function E(tag,path,cls="",attrs=""){
@@ -185,7 +189,7 @@ function hlTarget(){
 function showPop(){
   const t=hlTarget();if(!t){pop.hidden=true;return}
   const X=STATE.exp.tabs;
-  pop.innerHTML=`<button type="button" data-hl="p">${X.p[lang]}</button><button type="button" data-hl="d">${X.d[lang]}</button><button type="button" data-hl="pd">${lang==="ro"?"Ambele":"Both"}</button><button type="button" data-hl="">${lang==="ro"?"Fără marcaj":"No mark"}</button>`;
+  pop.innerHTML=`<button type="button" data-hl="p">${rt(X.p[lang])}</button><button type="button" data-hl="d">${rt(X.d[lang])}</button><button type="button" data-hl="pd">${lang==="ro"?"Ambele":"Both"}</button><button type="button" data-hl="">${lang==="ro"?"Fără marcaj":"No mark"}</button>`;
   pop.hidden=false;
   const rc=t.r.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;
   let top=rc.top-h-8;if(top<80)top=rc.bottom+8;
@@ -199,7 +203,7 @@ pop.addEventListener("click",e=>{
   el.querySelectorAll("mark").forEach(mk=>{if(r.intersectsNode(mk))unwrap(mk)});
   if(f){const frag=r.extractContents();frag.querySelectorAll("mark").forEach(unwrap);const mk=document.createElement("mark");mk.setAttribute("data-f",f);mk.appendChild(frag);r.insertNode(mk)}
   el.normalize();getSelection().removeAllRanges();pop.hidden=true;
-  setText(el.dataset.p,clean(el.innerHTML));
+  setText(el.dataset.p,clean(el));
 });
 let popT=0;document.addEventListener("selectionchange",()=>{clearTimeout(popT);popT=setTimeout(showPop,120)});
 addEventListener("scroll",()=>{if(!pop.hidden)showPop()},{passive:true});
@@ -208,7 +212,7 @@ addEventListener("scroll",()=>{if(!pop.hidden)showPop()},{passive:true});
 app.addEventListener("input",e=>{
   const el=e.target.closest("[data-p],[data-url]");if(!el)return;
   if(el.dataset.url){const [o,k]=parentOf(el.dataset.url);o[k]=el.textContent.trim();markDirty();return}
-  setText(el.dataset.p,clean(el.innerHTML));
+  setText(el.dataset.p,clean(el));
 });
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.isContentEditable){e.preventDefault();e.target.blur()}});
 app.addEventListener("paste",e=>{if(!e.target.closest('[contenteditable="true"]'))return;e.preventDefault();document.execCommand("insertText",false,(e.clipboardData||window.clipboardData).getData("text/plain").replace(/\s+/g," "))});
@@ -332,11 +336,17 @@ async function pdfReady(){
   return pdfLib;
 }
 // "<strong>a</strong> b" -> [{text:"a",bold:true},{text:" b"}]
+const unent=t=>t.replace(/&(amp|lt|gt|quot|#39|nbsp|#(\d{1,6}));/g,(_,n,d)=>d?String.fromCodePoint(+d):{amp:"&",lt:"<",gt:">",quot:'"',"#39":"'",nbsp:"\u00a0"}[n]);
 function rich(v,lng){
   const s=typeof v==="string"?v:(v&&(v[lng]??v.en))||"";
-  const t=document.createElement("template");t.innerHTML=s;
-  const out=[];const walk=(n,bold)=>n.childNodes.forEach(c=>{if(c.nodeType===3)out.push({text:c.textContent,bold});else if(c.nodeType===1)walk(c,bold||/^(STRONG|B)$/.test(c.tagName))});
-  walk(t.content,false);return out.length?out:[{text:""}];
+  const out=[];let bold=0;
+  for(const part of String(s).split(/(<\/?[a-z][^>]*>)/i)){
+    if(!part)continue;
+    const tag=part.match(/^<(\/?)([a-z]+)/i);
+    if(tag){if(/^(strong|b)$/i.test(tag[2]))bold=Math.max(0,bold+(tag[1]?-1:1));continue}
+    out.push({text:unent(part),bold:bold>0});
+  }
+  return out.length?out:[{text:""}];
 }
 const plain=(v,lng)=>rich(v,lng).map(r=>r.text).join("");
 async function cvPhoto(){
