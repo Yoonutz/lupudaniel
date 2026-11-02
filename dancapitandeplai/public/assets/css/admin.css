@@ -113,7 +113,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .stats > div { background: var(--bg); border-radius: 6px; padding: 12px; }
 .stats strong { display: block; font: 600 20px/1.2 var(--head); }
 .stats small { color: var(--muted); font-size: 12px; }
-@media (max-width: 560px) { .stats { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .stats, .stats.four { grid-template-columns: 1fr; } }
 
 /* Event video */
 .hint.ok { color: var(--ok); margin: 0 0 10px; }
@@ -134,7 +134,14 @@ h3.sub { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-sp
 .chart .grid { stroke: var(--line); stroke-dasharray: 3 3; }
 .chart .base { stroke: var(--muted); }
 .chart .axis { fill: var(--muted); font-size: 12px; font-family: var(--body); }
-.chart .bar { fill: var(--accent); }
+.chart .bar.total, .legend .sw.total { fill: var(--accent); background: var(--accent); opacity: .35; }
+.chart .bar.uniq, .legend .sw.uniq { fill: var(--accent); background: var(--accent); }
+.chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.legend { display: flex; gap: 14px; font-size: 13px; color: var(--soft); flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.stats.four { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) { .stats.four { grid-template-columns: repeat(2, 1fr); } }
 .chart .hit { fill: transparent; }
 .chart .col.on .hit { fill: var(--accent-bg); }
 .chart-tip { position: absolute; top: 0; transform: translate(-50%, -100%); background: var(--ink); color: var(--paper); font-size: 12px; padding: 6px 10px; border-radius: 4px; pointer-events: none; white-space: nowrap; display: grid; gap: 1px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }

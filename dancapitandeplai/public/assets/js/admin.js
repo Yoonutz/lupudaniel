@@ -513,7 +513,8 @@
   function dailyChart(rows) {
     // Drawn at the real on-screen width so text and bars keep their size (redrawn on resize)
     var W = Math.max(260, Math.min(1200, document.documentElement.clientWidth) - 32 - 42), H = 190, top = 18, bottom = 26, n = rows.length;
-    var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r.visits; })));
+    var top1 = function (r) { return Math.max(r.visits, r.uniques || 0); };
+    var max = Math.max(1, Math.max.apply(null, rows.map(top1)));
     var step = Math.pow(10, Math.floor(Math.log10(max))), nice = Math.ceil(max / step) * step;
     var colW = W / n, bw = Math.max(2, colW - (n > 15 ? 3 : 8));
     var NS = 'http://www.w3.org/2000/svg';
@@ -530,19 +531,22 @@
     svg.appendChild(s('line', { x1: 0, x2: W, y1: y(0), y2: y(0), class: 'base' }));
     var tip = h('div', { class: 'chart-tip', hidden: true });
     rows.forEach(function (r, i) {
-      var x = i * colW + (colW - bw) / 2, yy = y(r.visits), hh = y(0) - yy;
+      var x = i * colW + (colW - bw) / 2;
       var g = s('g', { class: 'col' });
       g.appendChild(s('rect', { x: i * colW, y: top, width: colW, height: H - top - bottom, class: 'hit' }));
-      if (r.visits) {
-        var rad = Math.min(4, bw / 2, hh);
-        // bar with rounded top, square on the baseline
-        g.appendChild(s('path', { class: 'bar', d: 'M' + x + ',' + y(0) + 'V' + (yy + rad) + 'Q' + x + ',' + yy + ' ' + (x + rad) + ',' + yy + 'H' + (x + bw - rad) + 'Q' + (x + bw) + ',' + yy + ' ' + (x + bw) + ',' + (yy + rad) + 'V' + y(0) + 'Z' }));
+      // bar with rounded top, square on the baseline: all visits (light), unique visitors in front (dark)
+      function bar(v, cls) {
+        if (!v) return;
+        var yy = y(v), rad = Math.min(4, bw / 2, y(0) - yy);
+        g.appendChild(s('path', { class: cls, d: 'M' + x + ',' + y(0) + 'V' + (yy + rad) + 'Q' + x + ',' + yy + ' ' + (x + rad) + ',' + yy + 'H' + (x + bw - rad) + 'Q' + (x + bw) + ',' + yy + ' ' + (x + bw) + ',' + (yy + rad) + 'V' + y(0) + 'Z' }));
       }
-      g.appendChild(s('title', {}, shortDate(r.key) + ': ' + nf(r.visits) + ' vizite, ' + nf(r.views) + ' pagini văzute'));
+      bar(top1(r), 'bar total');
+      if (r.uniques != null) bar(Math.min(r.uniques, top1(r)), 'bar uniq');
+      g.appendChild(s('title', {}, shortDate(r.key) + ': ' + nf(r.visits) + ' vizite' + (r.uniques != null ? ', ' + nf(r.uniques) + ' vizitatori unici' : '') + ', ' + nf(r.views) + ' pagini văzute'));
       g.addEventListener('pointerenter', function () {
         tip.innerHTML = '';
         add(tip, [h('strong', { text: new Date(r.key + 'T12:00:00Z').toLocaleDateString('ro-RO', { weekday: 'short', day: 'numeric', month: 'short' }) }),
-          h('span', { text: nf(r.visits) + ' vizite' }), h('span', { text: nf(r.views) + ' pagini văzute' })]);
+          h('span', { text: nf(r.visits) + ' vizite' }), r.uniques != null ? h('span', { text: nf(r.uniques) + ' vizitatori unici' }) : null, h('span', { text: nf(r.views) + ' pagini văzute' })]);
         tip.hidden = false;
         tip.style.left = Math.min(Math.max((i + 0.5) / n * 100, 12), 88) + '%';
         g.classList.add('on');
@@ -589,13 +593,15 @@
     refs.sort(function (a, b) { return b.visits - a.visits; });
     return [
       h('div', { class: 'panel' }, head,
-        h('div', { class: 'stats' },
+        h('div', { class: 'stats four' },
           h('div', null, h('strong', { text: nf(d.total.visits) }), h('small', { text: 'vizite' }), h('small', { class: 'delta', text: change(d.total.visits, d.prev.visits) })),
+          d.total.uniques != null ? h('div', null, h('strong', { text: nf(d.total.uniques) }), h('small', { text: 'vizitatori unici' }), h('small', { class: 'delta', text: change(d.total.uniques, d.prev.uniques) })) : null,
           h('div', null, h('strong', { text: nf(d.total.views) }), h('small', { text: 'pagini văzute' }), h('small', { class: 'delta', text: d.total.visits ? (d.total.views / d.total.visits).toFixed(1).replace('.', ',') + ' pagini / vizită' : '' })),
           h('div', null, h('strong', { text: langTotal ? Math.round(d.lang.ro / langTotal * 100) + '% RO' : '–' }), h('small', { text: 'din pagini văzute în română' }), h('small', { class: 'delta', text: langTotal ? Math.round(d.lang.en / langTotal * 100) + '% în engleză (/en/)' : '' }))),
-        h('h3', { class: 'sub', text: 'Vizite pe zi' }),
+        h('div', { class: 'chart-head' }, h('h3', { class: 'sub', text: 'Pe zile' }),
+          h('div', { class: 'legend' }, h('span', null, h('i', { class: 'sw total' }), 'Vizite'), d.own ? h('span', null, h('i', { class: 'sw uniq' }), 'din care vizitatori unici') : null)),
         dailyChart(d.daily),
-        h('p', { class: 'hint', text: 'O vizită = cineva intră pe site (venind din altă parte); paginile văzute numără fiecare pagină deschisă. Fără cookies, nu vedem cine e. Actualizat la ' + when + ' (se reîmprospătează singur la 15 minute).' })),
+        h('p', { class: 'hint', text: (d.since ? 'Numărăm doar vizitatori reali, de la ' + new Date(d.since).toLocaleString('ro-RO', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + ' (fără testele noastre și fără telefoanele/calculatoarele care au intrat în admin). ' : '') + 'O vizită = cineva intră pe site (venind din altă parte); paginile văzute numără fiecare pagină deschisă. Fără cookies, nu vedem cine e. Actualizat la ' + when + ' (se reîmprospătează singur la 5 minute). Vizitator unic = aceeași persoană (același telefon sau calculator) numărată o singură dată, oricâte vizite ar face.' })),
       h('div', { class: 'grid2' },
         ranked('Cele mai văzute pagini (de câte ori)', d.pages, pageLabel, 'views'),
         ranked('De unde vin (vizite)', refs, refLabel),

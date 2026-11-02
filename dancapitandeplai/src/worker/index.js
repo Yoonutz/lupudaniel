@@ -2,7 +2,7 @@
 // Public pages are rendered from KV content; /api is the admin REST API;
 // everything else (CSS, JS, placeholder images, /admin) is a static asset.
 import { route, sitemap, notFound, BEACON } from "./render.js";
-import { handleApi, getContent, serveMedia, json, isInternal } from "./api.js";
+import { handleApi, getContent, serveMedia, json, isInternal, NOSTATS_COOKIE, recordHit } from "./api.js";
 
 const SEC_HEADERS = {
   "x-content-type-options": "nosniff",
@@ -25,6 +25,12 @@ export default {
       return Response.redirect(CANONICAL_ORIGIN + p + url.search, 301);
     }
     try {
+      // Any page + ?nostats=1 stops counting this browser in the visitor stats (?nostats=0 undoes it)
+      const ns = url.searchParams.get("nostats");
+      if (ns === "1" || ns === "0") {
+        url.searchParams.delete("nostats");
+        return new Response(null, { status: 302, headers: { location: url.pathname + url.search, "set-cookie": ns === "1" ? NOSTATS_COOKIE : "nostats=; Path=/; Max-Age=0", "cache-control": "no-store" } });
+      }
       if (p.startsWith("/api/")) return await handleApi(req, env, url);
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
 
@@ -47,6 +53,7 @@ export default {
       const page = route(c, p);
       // Admin devices and test browsers get the page without the analytics beacon
       const strip = s => (isInternal(req) ? s.split(BEACON).join("") : s);
+      if (page && req.method === "GET" && !isInternal(req)) ctx.waitUntil(recordHit(env, req, url));
       return page ? html(strip(page)) : html(strip(notFound(c)), 404);
     } catch (err) {
       if (p.startsWith("/api/")) return json({ error: "server_error" }, 500);
