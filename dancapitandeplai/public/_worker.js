@@ -2389,6 +2389,7 @@ var SEC_HEADERS = {
   "referrer-policy": "strict-origin-when-cross-origin",
   "permissions-policy": "camera=(), microphone=(), geolocation=()"
 };
+var GSC_FILE = "google8ce557091617d5b4.html";
 var PREVIEW_HOST = "dancapitandeplai.pages.dev";
 var CANONICAL_ORIGIN = "https://dancapitandeplai.ro";
 var html = (body, status = 200) => new Response(body, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", ...SEC_HEADERS } });
@@ -2409,7 +2410,8 @@ var index_default = {
       if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed", { status: 405 });
       const media = await serveMedia(env, p, ctx, req);
       if (media) return media;
-      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico" || /^\/google[0-9a-f]+\.html$/.test(p)) {
+      if (p === "/" + GSC_FILE) return new Response("google-site-verification: " + GSC_FILE, { headers: { "content-type": "text/html; charset=utf-8" } });
+      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico") {
         if (p === "/admin") return Response.redirect(url2.origin + "/admin/", 301);
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);

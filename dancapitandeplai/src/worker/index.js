@@ -10,6 +10,7 @@ const SEC_HEADERS = {
   "permissions-policy": "camera=(), microphone=(), geolocation=()",
 };
 
+const GSC_FILE = "google8ce557091617d5b4.html";
 const PREVIEW_HOST = "dancapitandeplai.pages.dev";
 const CANONICAL_ORIGIN = "https://dancapitandeplai.ro";
 
@@ -37,8 +38,9 @@ export default {
       const media = await serveMedia(env, p, ctx, req);
       if (media) return media;
 
-      // /google<id>.html = Search Console ownership file (keep it)
-      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico" || /^\/google[0-9a-f]+\.html$/.test(p)) {
+      // Search Console ownership file (keep it). Answered here: Pages would 308 the .html away
+      if (p === "/" + GSC_FILE) return new Response("google-site-verification: " + GSC_FILE, { headers: { "content-type": "text/html; charset=utf-8" } });
+      if (p.startsWith("/assets/") || p.startsWith("/admin") || p === "/robots.txt" || p === "/favicon.ico") {
         if (p === "/admin") return Response.redirect(url.origin + "/admin/", 301);
         const res = await env.ASSETS.fetch(req);
         const out = new Response(res.body, res);
