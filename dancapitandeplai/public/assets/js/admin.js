@@ -46,14 +46,29 @@
   }
 
   // ---------- images: resize in the browser, upload full + small ----------
+  // Decode a photo. Phones: keep the camera's rotation; if the fast way fails, fall back to a plain <img>.
+  function decode(file) {
+    var viaImg = function () {
+      return new Promise(function (res, rej) {
+        var u = URL.createObjectURL(file), im = new Image();
+        im.onload = function () { res({ img: im, width: im.naturalWidth, height: im.naturalHeight, done: function () { URL.revokeObjectURL(u); } }); };
+        im.onerror = function () { URL.revokeObjectURL(u); var e = new Error('bad_image'); rej(e); };
+        im.src = u;
+      });
+    };
+    if (!window.createImageBitmap) return viaImg();
+    return createImageBitmap(file, { imageOrientation: 'from-image' })
+      .then(function (b) { return { img: b, width: b.width, height: b.height, done: function () { if (b.close) b.close(); } }; }, viaImg);
+  }
   function resize(file, maxSide, quality) {
-    return createImageBitmap(file).then(function (bmp) {
+    return decode(file).then(function (bmp) {
       var scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
       var w = Math.round(bmp.width * scale), hgt = Math.round(bmp.height * scale);
       var cv = document.createElement('canvas');
       cv.width = w; cv.height = hgt;
-      cv.getContext('2d').drawImage(bmp, 0, 0, w, hgt);
-      return new Promise(function (res) { cv.toBlob(function (b) { res({ blob: b, w: w, h: hgt }); }, 'image/jpeg', quality); });
+      cv.getContext('2d').drawImage(bmp.img, 0, 0, w, hgt);
+      bmp.done();
+      return new Promise(function (res, rej) { cv.toBlob(function (b) { cv.width = cv.height = 0; if (b) res({ blob: b, w: w, h: hgt }); else rej(new Error('bad_image')); }, 'image/jpeg', quality); });
     });
   }
   function uploadOne(file) {
@@ -71,8 +86,13 @@
   var justLive = {}; // url -> true for a few seconds after it went live
   function pendingFor(target) { return pending.get(target) || []; }
   function pickFiles(multiple, cb, target) {
-    var inp = h('input', { type: 'file', accept: 'image/*', multiple: multiple });
+    var inp = h('input', { type: 'file', accept: 'image/*', multiple: multiple, style: 'position:fixed;left:-9999px;top:0;opacity:0', 'aria-hidden': 'true', tabindex: '-1' });
+    // Kept in the page until a photo is picked (phones may lose the pick from a detached input)
+    document.querySelectorAll('input[data-pick]').forEach(function (x) { if (x !== inp) x.remove(); });
+    inp.setAttribute('data-pick', '1');
+    document.body.appendChild(inp);
     inp.addEventListener('change', function () {
+      setTimeout(function () { inp.remove(); }, 0);
       var files = Array.prototype.slice.call(inp.files || []);
       if (!files.length) return;
       var items = files.map(function (f) { return { preview: URL.createObjectURL(f), state: 'up', file: f }; });
@@ -87,7 +107,7 @@
             justLive[r.url] = 'saving';
             cb([r]); markDirty(); render(); saveNow();
           }, function (e) {
-            it.state = 'err'; it.err = e.status === 401 ? 'sesiunea a expirat, intră din nou' : e.message === 'bad_image' ? 'nu e JPG/PNG/WebP sau e peste 8 MB' : /fetch|network/i.test(e.message || '') ? 'fără internet, încearcă iar' : (e.message || 'eroare');
+            it.state = 'err'; it.err = e.status === 401 ? 'sesiunea a expirat, intră din nou' : e.message === 'bad_image' ? 'poza nu se poate citi, încearcă alta' : /fetch|network/i.test(e.message || '') ? 'fără internet, încearcă iar' : (e.message || 'eroare');
             render();
           });
         });
@@ -240,7 +260,7 @@
     if (!window.Sortable) return;
     window.Sortable.create(grid, {
       draggable: '.sortable', filter: 'button', preventOnFilter: false, animation: 150,
-      delay: 180, delayOnTouchOnly: true, ghostClass: 'drag-ghost', chosenClass: 'drag-chosen',
+      delay: 180, delayOnTouchOnly: true, touchStartThreshold: 6, fallbackTolerance: 3, ghostClass: 'drag-ghost', chosenClass: 'drag-chosen',
       onEnd: function (ev) {
         var a = ev.oldDraggableIndex, b = ev.newDraggableIndex;
         if (a == null || b == null || a === b) return;
@@ -793,6 +813,7 @@
 
   function render() {
     var y = window.scrollY;
+    var oldTabs = app.querySelector('.tabs'), tabsX = oldTabs ? oldTabs.scrollLeft : 0;
     statusEl = h('span', { class: 'status' });
     saveBtn = h('button', { class: 'btn btn-primary', onclick: saveNow }, 'Salvează');
     topSave = h('button', { class: 'btn btn-sm top-save', onclick: saveNow }, 'Salvează');
@@ -817,7 +838,15 @@
     ]);
     updateStatus();
     window.scrollTo(0, y);
+    var nav = app.querySelector('.tabs'), on = nav && nav.querySelector('[aria-selected="true"]');
+    if (nav) {
+      nav.scrollLeft = tabsX;
+      if (on && (on.offsetLeft < nav.scrollLeft || on.offsetLeft + on.offsetWidth > nav.scrollLeft + nav.clientWidth)) nav.scrollLeft = on.offsetLeft - 16;
+    }
   }
+  // While typing on a phone the keyboard covers the bottom; hide the status bar until typing stops
+  document.addEventListener('focusin', function (e) { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) && e.target.type !== 'file') document.body.classList.add('typing'); });
+  document.addEventListener('focusout', function () { setTimeout(function () { var a = document.activeElement; if (!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) document.body.classList.remove('typing'); }, 50); });
 
   // ---------- login ----------
   // Main: email link (/admin/#t=TOKEN). Backup: private link /admin/#key=... while ADMIN_KEY exists.

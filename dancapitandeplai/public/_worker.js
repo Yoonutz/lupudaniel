@@ -2062,6 +2062,13 @@ body, .site-header, .service, .note, .section--tint { transition: background-col
   .consent { flex-direction: column; align-items: stretch; left: 12px; right: 12px; bottom: 12px; padding: 16px; }
   .consent-btns .btn { flex: 1; justify-content: center; }
 }
+/* Phones: reviews in the hero shrink to a short 2-line excerpt + name (full text stays in the reviews section below) */
+@media (max-width: 700px) {
+  .hero--quotes .hero-caption { padding: 0 20px calc(136px + env(safe-area-inset-bottom)); }
+  .hero-box { padding: 12px 16px 11px; border-radius: 16px; max-width: 360px; }
+  .hero-caption .hero-quote { font-size: 15px; line-height: 1.4; margin: 0 auto .45em; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .hero-box p:not(.hero-quote) { font-size: 10px; letter-spacing: .16em; }
+}
 `;
 
 // src/worker/render.js
@@ -2070,7 +2077,7 @@ var SITE = {
   tagline: { ro: "Fotograf de nunt\u0103 \xB7 Bra\u0219ov", en: "Wedding photographer \xB7 Bra\u0219ov" },
   url: "https://dancapitandeplai.ro"
 };
-var ASSET_V = "18";
+var ASSET_V = "19";
 var BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "df42d30f0ed4484a949473d11ffd4b8c"}'><\/script>`;
 var GA4_ID = "G-L42LWHDQLX";
 var GTM_ID = "GTM-TF68724C";
