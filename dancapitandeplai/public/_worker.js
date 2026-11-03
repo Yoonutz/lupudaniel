@@ -1296,9 +1296,9 @@ async function saveContent(req, env) {
   const next = cleanContent(body, saved ? { ...seed_default, ...saved } : seed_default);
   await env.CONTENT.put("site", JSON.stringify(next));
   await forgetContent();
-  const keep = usedImages(next);
+  const keep = usedImages(next), old = Date.now() - 24 * 3600 * 1e3;
   const listed = await env.CONTENT.list({ prefix: "img:" });
-  await Promise.all(listed.keys.filter((k) => !keep.has(k.name.slice(4, 28))).map((k) => env.CONTENT.delete(k.name)));
+  await Promise.all(listed.keys.filter((k) => !keep.has(k.name.slice(4, 28)) && k.metadata && k.metadata.t && k.metadata.t < old).map((k) => env.CONTENT.delete(k.name)));
   return json({ ok: true, content: next });
 }
 function isImage(buf) {
@@ -1311,7 +1311,7 @@ function isImage(buf) {
 async function storeImage(env, id, variant, buf, meta = {}) {
   const type = isImage(buf);
   if (!type || buf.byteLength > MAX_IMAGE) return false;
-  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, size: buf.byteLength, ...meta } });
+  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, size: buf.byteLength, t: Date.now(), ...meta } });
   return true;
 }
 async function uploadMedia(req, env, params) {

@@ -291,10 +291,12 @@ async function saveContent(req, env) {
   const next = cleanContent(body, saved ? { ...SEED, ...saved } : SEED);
   await env.CONTENT.put("site", JSON.stringify(next));
   await forgetContent();
-  // Drop uploaded images nothing points to any more
-  const keep = usedImages(next);
+  // Drop uploaded images nothing points to any more, but only a day after upload: the admin
+  // saves on its own while other photos are still uploading, and those must not be deleted.
+  // Uploads from before upload times were recorded (no t) are kept.
+  const keep = usedImages(next), old = Date.now() - 24 * 3600 * 1000;
   const listed = await env.CONTENT.list({ prefix: "img:" });
-  await Promise.all(listed.keys.filter(k => !keep.has(k.name.slice(4, 28))).map(k => env.CONTENT.delete(k.name)));
+  await Promise.all(listed.keys.filter(k => !keep.has(k.name.slice(4, 28)) && k.metadata && k.metadata.t && k.metadata.t < old).map(k => env.CONTENT.delete(k.name)));
   return json({ ok: true, content: next });
 }
 
@@ -312,7 +314,7 @@ async function storeImage(env, id, variant, buf, meta = {}) {
   const type = isImage(buf);
   if (!type || buf.byteLength > MAX_IMAGE) return false;
   // size in metadata lets the storage meter add up bytes from one list call
-  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, size: buf.byteLength, ...meta } });
+  await env.CONTENT.put(`img:${id}${variant}`, buf, { metadata: { type, size: buf.byteLength, t: Date.now(), ...meta } });
   return true;
 }
 

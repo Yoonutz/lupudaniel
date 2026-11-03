@@ -65,19 +65,33 @@
       });
     });
   }
-  function pickFiles(multiple, cb) {
+  // Photos being uploaded, shown as tiles with their status until they are saved and live.
+  // Key = the list (or object) they go into. Each: { preview, state: 'up'|'err', err }
+  var pending = new Map();
+  var justLive = {}; // url -> true for a few seconds after it went live
+  function pendingFor(target) { return pending.get(target) || []; }
+  function pickFiles(multiple, cb, target) {
     var inp = h('input', { type: 'file', accept: 'image/*', multiple: multiple });
     inp.addEventListener('change', function () {
       var files = Array.prototype.slice.call(inp.files || []);
       if (!files.length) return;
-      toast('Se încarcă ' + files.length + (files.length === 1 ? ' poză…' : ' poze…'));
-      var results = [];
-      // One at a time keeps memory low on phones
-      files.reduce(function (p, f) {
-        return p.then(function () { return uploadOne(f).then(function (r) { results.push(r); }); });
-      }, Promise.resolve()).then(function () {
-        cb(results); markDirty(); render(); toast('Gata! Nu uita să apeși Salvează.');
-      }).catch(function (e) { toast('Eroare la încărcare: ' + e.message); if (results.length) { cb(results); markDirty(); render(); } });
+      var items = files.map(function (f) { return { preview: URL.createObjectURL(f), state: 'up', file: f }; });
+      if (target) pending.set(target, pendingFor(target).concat(items));
+      render();
+      // One at a time keeps memory low on phones; each photo is saved (and live) as soon as it is up
+      items.reduce(function (p, it) {
+        return p.then(function () {
+          return uploadOne(it.file).then(function (r) {
+            if (target) pending.set(target, pendingFor(target).filter(function (x) { return x !== it; }));
+            URL.revokeObjectURL(it.preview);
+            justLive[r.url] = 'saving';
+            cb([r]); markDirty(); render(); saveNow();
+          }, function (e) {
+            it.state = 'err'; it.err = e.status === 401 ? 'sesiunea a expirat, intră din nou' : e.message === 'bad_image' ? 'nu e JPG/PNG/WebP sau e peste 8 MB' : /fetch|network/i.test(e.message || '') ? 'fără internet, încearcă iar' : (e.message || 'eroare');
+            render();
+          });
+        });
+      }, Promise.resolve());
     });
     inp.click();
   }
@@ -90,22 +104,44 @@
   function keepDraft() { try { localStorage.setItem('adminDraft', JSON.stringify({ at: Date.now(), content: S.content })); } catch (e) {} }
   function dropDraft() { clearTimeout(draftTimer); try { localStorage.removeItem('adminDraft'); } catch (e) {} }
   function readDraft() { try { return JSON.parse(localStorage.getItem('adminDraft') || 'null'); } catch (e) { return null; } }
-  function markDirty() { S.dirty = true; updateStatus(); clearTimeout(draftTimer); draftTimer = setTimeout(keepDraft, 400); }
+  // Every change saves itself (and goes live) a moment after you stop typing or clicking
+  var autoTimer;
+  function markDirty() {
+    S.dirty = true; S.ver = (S.ver || 0) + 1; S.error = '';
+    updateStatus(); clearTimeout(draftTimer); draftTimer = setTimeout(keepDraft, 400);
+    clearTimeout(autoTimer); autoTimer = setTimeout(save, 2500);
+  }
+  function saveNow() { clearTimeout(autoTimer); save(); }
   function move(arr, i, d) { var j = i + d; if (j < 0 || j >= arr.length) return; var x = arr[i]; arr[i] = arr[j]; arr[j] = x; markDirty(); render(); }
   function removeAt(arr, i, ask) { if (ask && !confirm(ask)) return; arr.splice(i, 1); markDirty(); render(); }
   function uid() { return Math.random().toString(16).slice(2, 14); }
   var small = function (src) { return /^\/media\//.test(src) ? src.replace(/\.jpg$/, '-s.jpg') : src; };
 
   function save() {
-    if (S.saving) return;
-    S.saving = true; updateStatus();
+    clearTimeout(autoTimer);
+    if (!S.dirty) return;
+    if (S.saving) { S.again = true; return; }
+    S.saving = true; S.again = false; updateStatus();
+    var ver = S.ver;
     api('PUT', '/api/content', S.content).then(function (d) {
-      dropDraft(); S.content = d.content; S.dirty = false; S.saving = false; render(); toast('Salvat. Modificările sunt live pe site.');
+      S.saving = false;
+      // Keep what is on screen (you may be typing); only take the slugs the server made for new pages
+      ['events', 'posts'].forEach(function (k) {
+        (S.content[k] || []).forEach(function (it, i) { var r = (d.content[k] || [])[i]; if (r && r.id === it.id && !it.slug) it.slug = r.slug; });
+      });
+      var live = Object.keys(justLive).filter(function (u) { return justLive[u] === 'saving'; });
+      live.forEach(function (u) { justLive[u] = 'live'; });
+      if (S.ver === ver) { S.dirty = false; dropDraft(); }
+      S.savedAt = new Date();
+      if (live.length) { render(); setTimeout(function () { live.forEach(function (u) { delete justLive[u]; }); render(); }, 4000); }
+      updateStatus();
+      if (S.dirty || S.again) save();
       loadStorage();
     }).catch(function (e) {
-      S.saving = false; updateStatus();
-      if (e.status === 401) { keepDraft(); return showLogin('Sesiunea a expirat. Intră din nou: modificările tale sunt păstrate și le poți salva după.'); }
-      toast('Nu s-a putut salva: ' + e.message);
+      S.saving = false;
+      if (e.status === 401) { keepDraft(); return showLogin('Sesiunea a expirat. Intră din nou: modificările tale sunt păstrate și se salvează după.'); }
+      S.error = e.message || 'eroare'; updateStatus();
+      clearTimeout(autoTimer); autoTimer = setTimeout(save, 15000); // try again by itself
     });
   }
   window.addEventListener('beforeunload', function (e) { if (S.dirty) { e.preventDefault(); e.returnValue = ''; } });
@@ -147,8 +183,9 @@
       var d = dims[src], warn = null;
       if (d && opts.expect === 'landscape' && d.h > d.w) warn = 'vertical';
       if (d && opts.expect === 'portrait' && d.w > d.h) warn = 'orizontal';
-      grid.appendChild(h('div', { class: 'thumb' },
-        h('img', { src: small(src), alt: '', loading: 'lazy' }),
+      grid.appendChild(h('div', { class: 'thumb sortable' + (justLive[src] ? ' is-' + justLive[src] : '') },
+        h('img', { src: small(src), alt: '', loading: 'lazy', draggable: 'false' }),
+        justLive[src] ? h('span', { class: 'live-badge', text: justLive[src] === 'live' ? '✓ Live pe site' : 'Se salvează…' }) : null,
         h('span', { class: 'num', text: String(i + 1) }),
         warn ? h('span', { class: 'warn', title: 'Poza nu are orientarea potrivită', text: '⚠ ' + warn }) : null,
         opts.cover && opts.cover() === src ? h('span', { class: 'cover-badge', text: 'Copertă' }) : null,
@@ -158,10 +195,40 @@
           h('button', { class: 'icon-btn', title: 'Șterge', 'aria-label': 'Șterge', onclick: function () { removeAt(list, i, 'Ștergi poza?'); } }, '×'),
           h('button', { class: 'icon-btn', title: 'Mută dreapta', 'aria-label': 'Mută dreapta', onclick: function () { move(list, i, 1); } }, '→'))));
     });
+    pendingTiles(list).forEach(function (t) { grid.appendChild(t); });
     grid.appendChild(h('button', { class: 'add-tile', onclick: function () {
-      pickFiles(true, function (res) { res.forEach(function (r) { dims[r.url] = r; list.push(r.url); }); });
+      pickFiles(true, function (res) { res.forEach(function (r) { dims[r.url] = r; list.push(r.url); }); }, list);
     } }, '+ Adaugă poze'));
-    return grid;
+    sortable(grid, list);
+    return [h('p', { class: 'hint drag', text: 'Trage o poză ca să-i schimbi locul. Totul se salvează singur și apare pe site.' }), grid];
+  }
+
+  // Tiles for photos still uploading (or failed), in the place they will appear
+  function pendingTiles(target) {
+    return pendingFor(target).map(function (it) {
+      return h('div', { class: 'thumb pending ' + (it.state === 'err' ? 'is-err' : 'is-up') },
+        h('img', { src: it.preview, alt: '' }),
+        h('span', { class: 'live-badge', text: it.state === 'err' ? '✕ Nu s-a încărcat: ' + it.err : 'Se încarcă…' }),
+        it.state === 'err' ? h('div', { class: 'tools' }, h('span'),
+          h('button', { class: 'icon-btn', title: 'Ascunde', 'aria-label': 'Ascunde', onclick: function () {
+            pending.set(target, pendingFor(target).filter(function (x) { return x !== it; })); URL.revokeObjectURL(it.preview); render();
+          } }, '×'), h('span')) : null);
+    });
+  }
+
+  // Drag and drop to reorder photos (mouse and touch). Long-press on phones so scrolling still works.
+  function sortable(grid, list) {
+    if (!window.Sortable) return;
+    window.Sortable.create(grid, {
+      draggable: '.sortable', filter: 'button', preventOnFilter: false, animation: 150,
+      delay: 180, delayOnTouchOnly: true, ghostClass: 'drag-ghost', chosenClass: 'drag-chosen',
+      onEnd: function (ev) {
+        var a = ev.oldDraggableIndex, b = ev.newDraggableIndex;
+        if (a == null || b == null || a === b) return;
+        var x = list.splice(a, 1)[0]; list.splice(b, 0, x);
+        markDirty(); render();
+      },
+    });
   }
 
   // ---------- tabs ----------
@@ -210,12 +277,15 @@
 
   // One photo slot: click to replace
   function singleImage(label, hint, obj, key, shape) {
+    var pend = pendingTiles(obj);
+    var src = obj[key] || '';
     return h('div', { class: 'single' },
       h('div', { class: 'thumbs ' + (shape || '') },
-        h('div', { class: 'thumb' },
-          h('img', { src: small(obj[key] || ''), alt: '', loading: 'lazy' }),
+        pend.length ? pend[pend.length - 1] : h('div', { class: 'thumb' + (justLive[src] ? ' is-' + justLive[src] : '') },
+          h('img', { src: small(src), alt: '', loading: 'lazy' }),
+          justLive[src] ? h('span', { class: 'live-badge', text: justLive[src] === 'live' ? '✓ Live pe site' : 'Se salvează…' }) : null,
           h('div', { class: 'tools' },
-            h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { obj[key] = res[0].url; }); } }, 'Schimbă')))),
+            h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { obj[key] = res[0].url; }, obj); } }, 'Schimbă')))),
       h('strong', { text: label }),
       hint ? h('small', { text: hint }) : null);
   }
@@ -257,7 +327,7 @@
           h('div', null, textField('Recenzie', en, 'quote', { lang: 'EN', area: true }), textField('Nume · eveniment', en, 'who', { lang: 'EN' }))),
         h('div', { class: 'row-tools' },
           ro.img ? h('img', { src: small(ro.img), alt: '', style: 'width:48px;height:48px;border-radius:50%;object-fit:cover' }) : null,
-          h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { ro.img = en.img = res[0].url; }); } }, ro.img ? 'Schimbă poza' : '+ Poză (opțional)'),
+          h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { ro.img = en.img = res[0].url; }, ro); } }, ro.img ? 'Schimbă poza' : '+ Poză (opțional)'),
           ro.img ? h('button', { class: 'btn btn-sm', onclick: function () { ro.img = en.img = ''; markDirty(); render(); } }, 'Fără poză') : null,
           h('button', { class: 'btn btn-sm', onclick: function () { move(t.ro, i, -1); move(t.en, i, -1); } }, '↑'),
           h('button', { class: 'btn btn-sm btn-danger', onclick: function () { if (!confirm('Ștergi recenzia?')) return; t.ro.splice(i, 1); t.en.splice(i, 1); markDirty(); render(); } }, 'Șterge'))));
@@ -318,7 +388,7 @@
       var p = c.posts[S.edit];
       var coverBox = h('div', { class: 'thumbs' },
         p.cover ? h('div', { class: 'thumb' }, h('img', { src: small(p.cover), alt: '' })) : null,
-        h('button', { class: 'add-tile', onclick: function () { pickFiles(false, function (r) { if (r[0]) p.cover = r[0].url; }); } }, p.cover ? 'Schimbă coperta' : '+ Adaugă copertă'));
+        h('button', { class: 'add-tile', onclick: function () { pickFiles(false, function (r) { if (r[0]) p.cover = r[0].url; }, p); } }, p.cover ? 'Schimbă coperta' : '+ Adaugă copertă'));
       return [
         h('button', { class: 'btn back', onclick: function () { S.edit = null; render(); } }, '← Toate articolele'),
         h('div', { class: 'panel' },
@@ -688,18 +758,25 @@
   var statusEl, saveBtn, topSave;
   function updateStatus() {
     if (!statusEl) return;
-    statusEl.className = 'status' + (S.dirty ? ' dirty' : '');
-    statusEl.textContent = S.saving ? 'Se salvează…' : S.dirty ? 'Modificări nesalvate: apasă Salvează ca să apară pe site' : 'Totul e salvat';
-    if (statusEl.parentNode) statusEl.parentNode.classList.toggle('dirty', S.dirty && !S.saving);
-    if (saveBtn) saveBtn.disabled = !S.dirty || S.saving;
-    if (topSave) { topSave.disabled = !S.dirty || S.saving; topSave.textContent = S.saving ? 'Se salvează…' : S.dirty ? 'Salvează' : 'Salvat ✓'; }
+    var t = S.savedAt ? ' (' + S.savedAt.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) + ')' : '';
+    var state = S.error ? 'err' : S.saving ? 'saving' : S.dirty ? 'dirty' : 'ok';
+    statusEl.className = 'status ' + state;
+    statusEl.textContent = {
+      err: '✕ Nu s-a salvat: ' + S.error + '. Reîncerc singur, sau apasă Salvează.',
+      saving: 'Se salvează…',
+      dirty: 'Se salvează în câteva secunde…',
+      ok: '✓ Totul e salvat și e live pe site' + t,
+    }[state];
+    if (statusEl.parentNode) statusEl.parentNode.className = 'savebar ' + state;
+    if (saveBtn) saveBtn.disabled = state === 'ok' || state === 'saving';
+    if (topSave) { topSave.disabled = state === 'ok' || state === 'saving'; topSave.className = 'btn btn-sm top-save ' + state; topSave.textContent = { err: 'Salvează', saving: 'Se salvează…', dirty: 'Salvează', ok: 'Salvat ✓' }[state]; }
   }
 
   function render() {
     var y = window.scrollY;
     statusEl = h('span', { class: 'status' });
-    saveBtn = h('button', { class: 'btn btn-primary', onclick: save }, 'Salvează');
-    topSave = h('button', { class: 'btn btn-sm btn-primary top-save', onclick: save }, 'Salvează');
+    saveBtn = h('button', { class: 'btn btn-primary', onclick: saveNow }, 'Salvează');
+    topSave = h('button', { class: 'btn btn-sm top-save', onclick: saveNow }, 'Salvează');
     var body = { stats: statsTab, hero: heroTab, page: pageTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab, storage: storageTab }[S.tab]();
     app.innerHTML = '';
     add(app, [
@@ -772,7 +849,7 @@
     return Promise.all([api('GET', '/api/auth/me'), api('GET', '/api/content')]).then(function (r) {
       S.email = r[0].email; S.content = r[1]; S.dirty = false;
       var d = readDraft();
-      if (d && d.content && d.content.hero && JSON.stringify(d.content) !== JSON.stringify(r[1])) { S.content = d.content; S.dirty = true; render(); toast('Am recuperat modificările nesalvate. Apasă Salvează.'); }
+      if (d && d.content && d.content.hero && JSON.stringify(d.content) !== JSON.stringify(r[1])) { S.content = d.content; render(); markDirty(); saveNow(); toast('Am recuperat modificările nesalvate și le-am salvat.'); }
       else { if (d) dropDraft(); render(); }
       loadStorage();
     });
