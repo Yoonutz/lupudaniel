@@ -113,7 +113,26 @@
   }
   function saveNow() { clearTimeout(autoTimer); save(); }
   function move(arr, i, d) { var j = i + d; if (j < 0 || j >= arr.length) return; var x = arr[i]; arr[i] = arr[j]; arr[j] = x; markDirty(); render(); }
-  function removeAt(arr, i, ask) { if (ask && !confirm(ask)) return; arr.splice(i, 1); markDirty(); render(); }
+  // Warning before anything is deleted; it only goes after "Da, șterge" (Escape / outside click = cancel)
+  function askDelete(o, yes) {
+    var prev = document.activeElement;
+    function close() { box.remove(); document.removeEventListener('keydown', onKey); if (prev && prev.focus) prev.focus(); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    var cancel = h('button', { class: 'btn', onclick: close }, 'Anulează');
+    var box = h('div', { class: 'modal-back', onclick: function (e) { if (e.target === box) close(); } },
+      h('div', { class: 'modal', role: 'alertdialog', 'aria-modal': 'true', 'aria-labelledby': 'del-t' },
+        o.img ? h('img', { class: 'modal-img', src: small(o.img), alt: '' }) : null,
+        h('h2', { id: 'del-t', text: '⚠ ' + o.title }),
+        h('p', { text: o.text || 'Dispare imediat și de pe site. Nu se poate anula.' }),
+        h('div', { class: 'modal-actions' }, cancel,
+          h('button', { class: 'btn btn-danger-solid', onclick: function () { close(); yes(); } }, o.ok || 'Da, șterge'))));
+    document.body.appendChild(box); document.addEventListener('keydown', onKey); cancel.focus();
+  }
+  function removeAt(arr, i, ask, after) {
+    var go = function () { arr.splice(i, 1); if (after) after(); markDirty(); render(); };
+    if (!ask) return go();
+    askDelete(typeof ask === 'string' ? { title: ask } : ask, go);
+  }
   function uid() { return Math.random().toString(16).slice(2, 14); }
   var small = function (src) { return /^\/media\//.test(src) ? src.replace(/\.jpg$/, '-s.jpg') : src; };
 
@@ -192,7 +211,7 @@
         h('div', { class: 'tools' },
           h('button', { class: 'icon-btn', title: 'Mută stânga', 'aria-label': 'Mută stânga', onclick: function () { move(list, i, -1); } }, '←'),
           opts.cover ? h('button', { class: 'icon-btn', title: 'Setează copertă', 'aria-label': 'Setează copertă', onclick: function () { opts.setCover(src); markDirty(); render(); } }, '★') : null,
-          h('button', { class: 'icon-btn', title: 'Șterge', 'aria-label': 'Șterge', onclick: function () { removeAt(list, i, 'Ștergi poza?'); } }, '×'),
+          h('button', { class: 'icon-btn', title: 'Șterge', 'aria-label': 'Șterge', onclick: function () { removeAt(list, i, { title: 'Ștergi poza?', img: src, text: 'Poza dispare imediat și de pe site. Nu se poate anula.' }); } }, '×'),
           h('button', { class: 'icon-btn', title: 'Mută dreapta', 'aria-label': 'Mută dreapta', onclick: function () { move(list, i, 1); } }, '→'))));
     });
     pendingTiles(list).forEach(function (t) { grid.appendChild(t); });
@@ -328,9 +347,9 @@
         h('div', { class: 'row-tools' },
           ro.img ? h('img', { src: small(ro.img), alt: '', style: 'width:48px;height:48px;border-radius:50%;object-fit:cover' }) : null,
           h('button', { class: 'btn btn-sm', onclick: function () { pickFiles(false, function (res) { ro.img = en.img = res[0].url; }, ro); } }, ro.img ? 'Schimbă poza' : '+ Poză (opțional)'),
-          ro.img ? h('button', { class: 'btn btn-sm', onclick: function () { ro.img = en.img = ''; markDirty(); render(); } }, 'Fără poză') : null,
+          ro.img ? h('button', { class: 'btn btn-sm', onclick: function () { askDelete({ title: 'Scoți poza din recenzie?', img: ro.img, text: 'Poza dispare imediat și de pe site. Recenzia rămâne.', ok: 'Da, scoate poza' }, function () { ro.img = en.img = ''; markDirty(); render(); }); } }, 'Fără poză') : null,
           h('button', { class: 'btn btn-sm', onclick: function () { move(t.ro, i, -1); move(t.en, i, -1); } }, '↑'),
-          h('button', { class: 'btn btn-sm btn-danger', onclick: function () { if (!confirm('Ștergi recenzia?')) return; t.ro.splice(i, 1); t.en.splice(i, 1); markDirty(); render(); } }, 'Șterge'))));
+          h('button', { class: 'btn btn-sm btn-danger', onclick: function () { askDelete({ title: 'Ștergi recenzia?' }, function () { t.ro.splice(i, 1); t.en.splice(i, 1); markDirty(); render(); }); } }, 'Șterge'))));
     })(i);
     return h('div', { class: 'panel' },
       h('div', { class: 'panel-head' }, h('h2', { text: 'Recenzii clienți (' + n + ')' }),
@@ -361,7 +380,7 @@
           h('div', { class: 'panel-head' }, h('h2', { text: 'Poze (' + ev.photos.length + ')' })),
           h('p', { class: 'hint', text: 'Apasă ★ ca să alegi coperta din portofoliu.' }),
           imageGrid(ev.photos, { shape: 'square', cover: function () { return ev.cover || ev.photos[0]; }, setCover: function (s) { ev.cover = s; } })),
-        h('button', { class: 'btn btn-danger', onclick: function () { removeAt(c.events, S.edit, 'Ștergi tot evenimentul „' + (ev.title.ro || '') + '”?'); S.edit = null; render(); } }, 'Șterge evenimentul'),
+        h('button', { class: 'btn btn-danger', onclick: function () { removeAt(c.events, S.edit, { title: 'Ștergi tot evenimentul „' + (ev.title.ro || '') + '”?', img: ev.cover || ev.photos[0], text: 'Se șterg pagina evenimentului și toate cele ' + ev.photos.length + ' poze ale lui, imediat și de pe site. Nu se poate anula.', ok: 'Da, șterge evenimentul' }, function () { S.edit = null; }); } }, 'Șterge evenimentul'),
       ];
     }
     return h('div', { class: 'panel' },
@@ -399,7 +418,7 @@
           bilingual('Rezumat (apare în listă)', p, 'excerpt', { area: true }),
           paragraphs('Conținut', p, 'body')),
         h('div', { class: 'panel' }, h('div', { class: 'panel-head' }, h('h2', { text: 'Copertă' })), coverBox),
-        h('button', { class: 'btn btn-danger', onclick: function () { removeAt(c.posts, S.edit, 'Ștergi articolul?'); S.edit = null; render(); } }, 'Șterge articolul'),
+        h('button', { class: 'btn btn-danger', onclick: function () { removeAt(c.posts, S.edit, { title: 'Ștergi articolul?', img: p.cover }, function () { S.edit = null; }); } }, 'Șterge articolul'),
       ];
     }
     return h('div', { class: 'panel' },
