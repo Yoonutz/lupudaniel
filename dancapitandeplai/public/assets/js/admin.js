@@ -85,7 +85,12 @@
   var dims = {};
 
   // ---------- state helpers ----------
-  function markDirty() { S.dirty = true; updateStatus(); }
+  // Unsaved edits are also kept in this browser, so a closed tab or an expired session loses nothing
+  var draftTimer;
+  function keepDraft() { try { localStorage.setItem('adminDraft', JSON.stringify({ at: Date.now(), content: S.content })); } catch (e) {} }
+  function dropDraft() { clearTimeout(draftTimer); try { localStorage.removeItem('adminDraft'); } catch (e) {} }
+  function readDraft() { try { return JSON.parse(localStorage.getItem('adminDraft') || 'null'); } catch (e) { return null; } }
+  function markDirty() { S.dirty = true; updateStatus(); clearTimeout(draftTimer); draftTimer = setTimeout(keepDraft, 400); }
   function move(arr, i, d) { var j = i + d; if (j < 0 || j >= arr.length) return; var x = arr[i]; arr[i] = arr[j]; arr[j] = x; markDirty(); render(); }
   function removeAt(arr, i, ask) { if (ask && !confirm(ask)) return; arr.splice(i, 1); markDirty(); render(); }
   function uid() { return Math.random().toString(16).slice(2, 14); }
@@ -95,11 +100,11 @@
     if (S.saving) return;
     S.saving = true; updateStatus();
     api('PUT', '/api/content', S.content).then(function (d) {
-      S.content = d.content; S.dirty = false; S.saving = false; render(); toast('Salvat. Modificările sunt live pe site.');
+      dropDraft(); S.content = d.content; S.dirty = false; S.saving = false; render(); toast('Salvat. Modificările sunt live pe site.');
       loadStorage();
     }).catch(function (e) {
       S.saving = false; updateStatus();
-      if (e.status === 401) { toast('Sesiunea a expirat. Intră din nou.'); return showLogin(); }
+      if (e.status === 401) { keepDraft(); return showLogin('Sesiunea a expirat. Intră din nou: modificările tale sunt păstrate și le poți salva după.'); }
       toast('Nu s-a putut salva: ' + e.message);
     });
   }
@@ -684,7 +689,8 @@
   function updateStatus() {
     if (!statusEl) return;
     statusEl.className = 'status' + (S.dirty ? ' dirty' : '');
-    statusEl.textContent = S.saving ? 'Se salvează…' : S.dirty ? 'Modificări nesalvate' : 'Totul e salvat';
+    statusEl.textContent = S.saving ? 'Se salvează…' : S.dirty ? 'Modificări nesalvate: apasă Salvează ca să apară pe site' : 'Totul e salvat';
+    if (statusEl.parentNode) statusEl.parentNode.classList.toggle('dirty', S.dirty && !S.saving);
     if (saveBtn) saveBtn.disabled = !S.dirty || S.saving;
   }
 
@@ -699,10 +705,11 @@
         h('div', { class: 'topbar-in' },
           h('div', { class: 'brand' }, 'Dan Căpitan de Plai', h('small', { text: 'Admin · ' + S.email })),
           storageChip(),
+          S.dirty ? h('button', { class: 'btn btn-sm btn-primary', onclick: save }, 'Salvează') : null,
           h('a', { class: 'btn btn-sm', href: '/', target: '_blank' }, 'Vezi site-ul'),
           h('button', { class: 'btn btn-sm', onclick: function () {
             if (S.dirty && !confirm('Ai modificări nesalvate. Ieși oricum?')) return;
-            api('POST', '/api/auth/logout', {}).finally(function () { S.dirty = false; showLogin(); });
+            api('POST', '/api/auth/logout', {}).finally(function () { dropDraft(); S.dirty = false; showLogin(); });
           } }, 'Ieși')),
         h('nav', { class: 'tabs', role: 'tablist' }, TABS.map(function (t) {
           return h('button', { role: 'tab', 'aria-selected': String(S.tab === t[0]), onclick: function () { S.tab = t[0]; S.edit = null; render(); window.scrollTo(0, 0); } }, t[1]);
@@ -761,7 +768,10 @@
   function start() {
     history.replaceState(null, '', '/admin/');
     return Promise.all([api('GET', '/api/auth/me'), api('GET', '/api/content')]).then(function (r) {
-      S.email = r[0].email; S.content = r[1]; S.dirty = false; render();
+      S.email = r[0].email; S.content = r[1]; S.dirty = false;
+      var d = readDraft();
+      if (d && d.content && d.content.hero && JSON.stringify(d.content) !== JSON.stringify(r[1])) { S.content = d.content; S.dirty = true; render(); toast('Am recuperat modificările nesalvate. Apasă Salvează.'); }
+      else { if (d) dropDraft(); render(); }
       loadStorage();
     });
   }

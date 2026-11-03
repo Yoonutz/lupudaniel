@@ -181,9 +181,13 @@ STATS = {
 TESTIMONIALS = {
     "ro": [
         ("", "Fotografiile, de la sosirea la primărie și până la ședința foto alături de invitați, au ieșit absolut superbe. A reușit să surprindă… gesturi și priviri spontane pe care noi nici măcar nu le-am observat. Nu suntem persoane foarte confortabile în fața camerei, însă a creat o atmosferă relaxată și naturală.", "Laura Ștefania · Cununie civilă, Brașov"),
+        ("", "Heei! Îți mulțumim din suflet! Am apreciat mult acest set de poze și cat de rapid te-ai mișcat! Au ieșit suuuper", "Felicia si Calin · Cununie civilă, Brașov"),
+        ("", "Sunt superbe 🤩 mulțumim din suflet ca ai fost alături de noi din nou. Ne vedem la evenimentul următor, cu siguranță", "Lori · Botez, Brașov"),
     ],
     "en": [
         ("", "The photos, from arriving at the town hall to the shoot with our guests, came out absolutely beautiful. He caught… spontaneous gestures and looks we didn't even notice. We're not comfortable in front of the camera, but he made it relaxed and natural.", "Laura Ștefania · Civil ceremony, Brașov"),
+        ("", "Heyy! Thank you from the bottom of our hearts! We loved this set of photos, and how quickly you worked! They came out suuuper", "Felicia and Calin · Civil ceremony, Brașov"),
+        ("", "They're gorgeous 🤩 thank you so much for being there with us again. We'll definitely see you at the next event", "Lori · Christening, Brașov"),
     ],
 }
 

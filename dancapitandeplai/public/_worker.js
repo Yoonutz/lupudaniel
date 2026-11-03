@@ -369,6 +369,16 @@ var seed_default = {
         img: "",
         quote: "Fotografiile, de la sosirea la prim\u0103rie \u0219i p\xE2n\u0103 la \u0219edin\u021Ba foto al\u0103turi de invita\u021Bi, au ie\u0219it absolut superbe. A reu\u0219it s\u0103 surprind\u0103\u2026 gesturi \u0219i priviri spontane pe care noi nici m\u0103car nu le-am observat. Nu suntem persoane foarte confortabile \xEEn fa\u021Ba camerei, \xEEns\u0103 a creat o atmosfer\u0103 relaxat\u0103 \u0219i natural\u0103.",
         who: "Laura \u0218tefania \xB7 Cununie civil\u0103, Bra\u0219ov"
+      },
+      {
+        img: "",
+        quote: "Heei! \xCE\u021Bi mul\u021Bumim din suflet! Am apreciat mult acest set de poze \u0219i cat de rapid te-ai mi\u0219cat! Au ie\u0219it suuuper",
+        who: "Felicia si Calin \xB7 Cununie civil\u0103, Bra\u0219ov"
+      },
+      {
+        img: "",
+        quote: "Sunt superbe \u{1F929} mul\u021Bumim din suflet ca ai fost al\u0103turi de noi din nou. Ne vedem la evenimentul urm\u0103tor, cu siguran\u021B\u0103",
+        who: "Lori \xB7 Botez, Bra\u0219ov"
       }
     ],
     en: [
@@ -376,6 +386,16 @@ var seed_default = {
         img: "",
         quote: "The photos, from arriving at the town hall to the shoot with our guests, came out absolutely beautiful. He caught\u2026 spontaneous gestures and looks we didn't even notice. We're not comfortable in front of the camera, but he made it relaxed and natural.",
         who: "Laura \u0218tefania \xB7 Civil ceremony, Bra\u0219ov"
+      },
+      {
+        img: "",
+        quote: "Heyy! Thank you from the bottom of our hearts! We loved this set of photos, and how quickly you worked! They came out suuuper",
+        who: "Felicia and Calin \xB7 Civil ceremony, Bra\u0219ov"
+      },
+      {
+        img: "",
+        quote: "They're gorgeous \u{1F929} thank you so much for being there with us again. We'll definitely see you at the next event",
+        who: "Lori \xB7 Christening, Bra\u0219ov"
       }
     ]
   },
