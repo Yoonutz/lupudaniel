@@ -235,3 +235,5 @@ button, .btn, .add-tile, .tabs button { touch-action: manipulation; -webkit-tap-
 body.typing .savebar { display: none; }
 @media (pointer: fine) { body.typing .savebar { display: flex; } }
 a.btn { color: inherit; }
+.items { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 600px) { .item .meta strong { white-space: normal; overflow-wrap: anywhere; } }
