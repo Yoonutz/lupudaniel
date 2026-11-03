@@ -685,19 +685,21 @@
   });
 
   var TABS = [['stats', 'Statistici'], ['hero', 'Hero'], ['page', 'Pagina'], ['events', 'Portofoliu'], ['blog', 'Blog'], ['faq', 'Întrebări'], ['contact', 'Contact'], ['storage', 'Spațiu']];
-  var statusEl, saveBtn;
+  var statusEl, saveBtn, topSave;
   function updateStatus() {
     if (!statusEl) return;
     statusEl.className = 'status' + (S.dirty ? ' dirty' : '');
     statusEl.textContent = S.saving ? 'Se salvează…' : S.dirty ? 'Modificări nesalvate: apasă Salvează ca să apară pe site' : 'Totul e salvat';
     if (statusEl.parentNode) statusEl.parentNode.classList.toggle('dirty', S.dirty && !S.saving);
     if (saveBtn) saveBtn.disabled = !S.dirty || S.saving;
+    if (topSave) { topSave.disabled = !S.dirty || S.saving; topSave.textContent = S.saving ? 'Se salvează…' : S.dirty ? 'Salvează' : 'Salvat ✓'; }
   }
 
   function render() {
     var y = window.scrollY;
     statusEl = h('span', { class: 'status' });
     saveBtn = h('button', { class: 'btn btn-primary', onclick: save }, 'Salvează');
+    topSave = h('button', { class: 'btn btn-sm btn-primary top-save', onclick: save }, 'Salvează');
     var body = { stats: statsTab, hero: heroTab, page: pageTab, events: eventsTab, blog: blogTab, faq: faqTab, contact: contactTab, storage: storageTab }[S.tab]();
     app.innerHTML = '';
     add(app, [
@@ -705,7 +707,7 @@
         h('div', { class: 'topbar-in' },
           h('div', { class: 'brand' }, 'Dan Căpitan de Plai', h('small', { text: 'Admin · ' + S.email })),
           storageChip(),
-          S.dirty ? h('button', { class: 'btn btn-sm btn-primary', onclick: save }, 'Salvează') : null,
+          topSave,
           h('a', { class: 'btn btn-sm', href: '/', target: '_blank' }, 'Vezi site-ul'),
           h('button', { class: 'btn btn-sm', onclick: function () {
             if (S.dirty && !confirm('Ai modificări nesalvate. Ieși oricum?')) return;
