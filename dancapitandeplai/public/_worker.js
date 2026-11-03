@@ -2109,6 +2109,8 @@ var UI = {
     next: "Urm\u0103toarea",
     switch: "EN",
     switch_label: "English version",
+    resume_label: "Despre Dan (CV)",
+    resume_link: "Povestea \u0219i experien\u021Ba lui Dan",
     theme: "Schimb\u0103 tema (luminoas\u0103 / \xEEntunecat\u0103)"
   },
   en: {
@@ -2129,6 +2131,8 @@ var UI = {
     close: "Close",
     prev: "Previous",
     next: "Next",
+    resume_label: "About Dan (resume)",
+    resume_link: "Dan's story and experience",
     switch: "RO",
     switch_label: "Versiunea \xEEn rom\xE2n\u0103",
     theme: "Switch theme (light / dark)"
@@ -2196,6 +2200,7 @@ var ICON = {
   mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>',
   fb: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 8h3V4h-3c-2.8 0-4.5 1.8-4.5 4.6V11H7v4h2.5v9h4v-9h3l.5-4h-3.5V8.8c0-.5.3-.8.5-.8z"/></svg>',
   ig: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.6" cy="6.4" r="1" fill="currentColor"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>',
   x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>',
@@ -2563,6 +2568,7 @@ function contact(c, lang) {
       <li>${ICON.fb}<div><small>${e(P.fb_label)}</small><a href="${e(safeUrl(k.messenger || k.facebook))}" target="_blank" rel="noopener">${e(fbName)}</a></div></li>
       <li>${ICON.ig}<div><small>${e(P.ig_label)}</small><a href="${e(safeUrl(k.instagram))}" target="_blank" rel="noopener">${e(k.instagram_handle)}</a></div></li>
       <li>${ICON.pin}<div><small>${e(P.area_label)}</small>${e(t(k.area, lang))}</div></li>
+      <li>${ICON.user}<div><small>${e(ui.resume_label)}</small><a href="https://lupudaniel.pages.dev/" target="_blank" rel="noopener">${e(ui.resume_link)}</a></div></li>
     </ul>
   </div>
   <div>
