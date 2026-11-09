@@ -49,6 +49,9 @@ export default {
         return out;
       }
 
+      // Old WordPress site on this domain (2017-2018): send its URLs to the new pages
+      const legacy = /^\/portfolios?(\/|$)/.test(p) ? "/portofoliu/" : /^\/pages\/contact/.test(p) ? "/contact/" : /^\/(clients|pages)(\/|$)/.test(p) ? "/" : null;
+      if (legacy) return Response.redirect(CANONICAL_ORIGIN + legacy, 301);
       const c = await getContent(env, ctx);
       if (p === "/sitemap.xml") return new Response(sitemap(c), { headers: { "content-type": "application/xml" } });
       // Paths without a trailing slash go to the slash version

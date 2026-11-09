@@ -2870,6 +2870,8 @@ var index_default = {
         }
         return out;
       }
+      const legacy = /^\/portfolios?(\/|$)/.test(p) ? "/portofoliu/" : /^\/pages\/contact/.test(p) ? "/contact/" : /^\/(clients|pages)(\/|$)/.test(p) ? "/" : null;
+      if (legacy) return Response.redirect(CANONICAL_ORIGIN + legacy, 301);
       const c = await getContent(env, ctx);
       if (p === "/sitemap.xml") return new Response(sitemap(c), { headers: { "content-type": "application/xml" } });
       if (!p.endsWith("/") && !p.includes(".")) return Response.redirect(url2.origin + p + "/" + url2.search, 301);
