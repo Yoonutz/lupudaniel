@@ -474,7 +474,7 @@ export function contact(c, lang) {
     <ul class="contact-list">
       <li>${ICON.wa}<div><small>${e(P.wa_label)}</small><a href="${wa}" target="_blank" rel="noopener">${e(k.phone)}</a></div></li>
       <li>${ICON.phone}<div><small>${e(P.phone_label)}</small><a href="tel:${e(tel)}">${e(k.phone)}</a></div></li>
-      <li>${ICON.mail}<div><small>${e(P.email_label)}</small><a href="mailto:${e(k.email)}">${e(k.email)}</a></div></li>
+      <li>${ICON.mail}<div><small>${e(P.email_label)}</small><!--email_off--><a href="mailto:${e(k.email)}">${e(k.email)}</a><!--/email_off--></div></li>
       <li>${ICON.fb}<div><small>${e(P.fb_label)}</small><a href="${e(safeUrl(k.messenger || k.facebook))}" target="_blank" rel="noopener">${e(fbName)}</a></div></li>
       <li>${ICON.ig}<div><small>${e(P.ig_label)}</small><a href="${e(safeUrl(k.instagram))}" target="_blank" rel="noopener">${e(k.instagram_handle)}</a></div></li>
       <li>${ICON.pin}<div><small>${e(P.area_label)}</small>${e(t(k.area, lang))}</div></li>
